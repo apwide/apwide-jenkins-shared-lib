@@ -1,0 +1,6 @@
+<p>Update an existing Jira version. For full protocol, consult jira global variable</p>
+<p></p>
+<dl>
+    <dt>id</dt><dd>id of the version to update</dd>
+    <dt>body</dt><dd>Map of version attributes</dd>
+</dl>

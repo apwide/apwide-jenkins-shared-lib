@@ -1,0 +1,5 @@
+<p>Get a Jira project by id. For full protocol, consult jira global variable</p>
+<p></p>
+<dl>
+    <dt>id</dt><dd>Id of the Jira project</dd>
+</dl>

@@ -1,0 +1,5 @@
+<p>Create a new Jira version. For full protocol, consult jira global variable</p>
+<p></p>
+<dl>
+    <dt>body</dt><dd>Map of version attributes to create</dd>
+</dl>

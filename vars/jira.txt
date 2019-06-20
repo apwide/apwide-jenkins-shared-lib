@@ -1,0 +1,44 @@
+Call JIRA Rest API.
+<p></p>
+<h3>Available environment variables</h3>
+<dl>
+    <dt>JIRA_BASE_URL</dt><dd>Jira base URL (e.g. http://jira.com), with/without context dependending on the way you expose it</dd>
+    <dt>JIRA_CREDENTIALS_ID</dt><dd>Jenkins credential id used to authenticate the Jira calls</dd>
+    <dt>JIRA_VERSION</dt><dd>Jira version (not used for the moment)</dd>
+</dl>
+<br/>
+<h3>Available declarative attributes</h3>
+<dl>
+    <dt>baseUrl</dt><dd>Base URL to talk to JIRA. (default: http://localhost:8080)</dd>
+    <dt>credentialsId</dt><dd>Credentials id for calling requiring to be authenticated</dd>
+    <dt>httpMode</dt><dd>HTTP Verb. One of 'GET', 'POST', 'PUT', 'DELETE'. (default: GET)</dd>
+    <dt>path</dt><dd>The path of the call. (default: '')</dd>
+    <dt>body</dt><dd>Body of the request (not authorized on GET)</dd>
+    <dt>buildFailOnError</dt><dd>Fail build if call is failing. (default: true)</dd>
+</dl>
+<br/>
+<p>Usage example:</p>
+<pre><code>
+def project = jira {
+    baseUrl = 'http://localhost:2990/jira'
+    credentialsId = 'localhost-jira-admin'
+    httpMode = 'GET'
+    path = '/rest/api/2/project/1000'
+}
+</code></pre>
+
+<p>if baseUrl is omitted, only path will be used.</p>
+<p>Usage if environment variable defined:</p>
+<pre><code>
+def project = jira {
+    httpMode = 'GET'
+    path = '/rest/api/2/project/1000'
+}
+</code></pre>
+<p>Same example but with named global vars:</p>
+<pre><code>
+def project = jiraGetProject {
+    id = '1000'
+}
+</code></pre>
+<p>To avoid configuration duplication, Jira calls (e.g. jira, jiraCreateVersion, jiraGetVersion...) can be configured using Global environment variables.</p>
