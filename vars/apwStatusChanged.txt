@@ -1,0 +1,7 @@
+<p>Update Apwide Golive Environment status. Reuse JIRA Global Environment Variable and for full protocol, consult jira global variable</p>
+<p></p>
+<dl>
+    <dt>application</dt><dd>Environment Application name</dd>
+    <dt>category</dt><dd>Environment Category name</dd>
+    <dt>version</dt><dd>Deployed version name</dd>
+</dl>
