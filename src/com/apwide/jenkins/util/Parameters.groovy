@@ -17,9 +17,24 @@ class Parameters implements Serializable {
         this.config = [
                 baseUrl:         params.baseUrl       ?:  params.config?.baseUrl       ?: script.env.JIRA_BASE_URL       ?: 'http://localhost:8080',
                 credentialsId:   params.credentialsId ?:  params.config?.credentialsId ?: script.env.JIRA_CREDENTIALS_ID ?: null,
-                version:         params.version       ?:  params.config?.version       ?: script.env.JIRA_VERSION        ?: '8.0.2'
+                version:         params.version       ?:  params.config?.version       ?: script.env.JIRA_VERSION        ?: '8.0.2',
+                environmentId:   params.environmentId ?:  params.config?.environmentId ?: script.env.APW_ENVIRONMENT_ID  ?: null,
+                application:     params.application   ?:  params.config?.application   ?: script.env.APW_APPLICATION     ?: null,
+                category:        params.category      ?:  params.config?.category      ?: script.env.APW_CATEGORY        ?: null
         ]
 
         this.params = params
+    }
+
+    String getApplication() {
+        config.application
+    }
+
+    String getCategory() {
+        config.category
+    }
+
+    String getEnvironmentId() {
+        config.environmentId
     }
 }

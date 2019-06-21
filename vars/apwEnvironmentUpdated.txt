@@ -1,6 +1,27 @@
 <p>Update environment information (e.g. URL, attributes...). Reuse JIRA Global Environment Variable and for full protocol, consult jira global variable</p>
 <p></p>
 <dl>
-    <dt>id</dt><dd>Environment id</dd>
+    <dt>environmentId</dt><dd>Environment id (if null, read from env.APW_ENVIRONMENT_ID)</dd>
     <dt>body</dt><dd>Environment information Map</dd>
 </dl>
+<p>Usage example:</p>
+<pre><code>
+apwEnvironmentUpdated environmentId:'213', body:[
+    url:'http://localhost/',
+    attributes:[
+        Owner:'info@apwide.com'
+        OS:'ubuntu'
+    ]
+]
+</code></pre>
+
+<p>Usage if environment variables are defined:</p>
+<pre><code>
+apwEnvironmentUpdated body:[
+    url:'http://localhost/',
+    attributes:[
+        Owner:'info@apwide.com'
+        OS:'ubuntu'
+    ]
+]
+</code></pre>

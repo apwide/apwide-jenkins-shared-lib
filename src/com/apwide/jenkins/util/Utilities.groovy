@@ -33,6 +33,23 @@ class Utilities {
         return true
     }
 
+    static executeStep(script, Map config, Closure action) {
+        Parameters parameters = new Parameters(script, config ?: [:])
+
+        if (!areDependenciesAvailable(script, parameters.buildFailOnError)) {
+            return
+        }
+
+        try {
+            return action(this, parameters)
+        } catch(err) {
+            if (parameters.buildFailOnError) {
+                throw err
+            }
+        }
+        return null
+    }
+
     static executeStep(script, Closure body = null, Closure action) {
         // we should fine a way to generically bind script context to body closure
         Map params = [

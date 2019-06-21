@@ -19,26 +19,15 @@ Call JIRA Rest API.
 <br/>
 <p>Usage example:</p>
 <pre><code>
-def project = jira {
-    baseUrl = 'http://localhost:2990/jira'
-    credentialsId = 'localhost-jira-admin'
-    httpMode = 'GET'
-    path = '/rest/api/2/project/1000'
-}
+def project = jira baseUrl:'http://localhost:2990/jira', credentialsId:'localhost-jira-admin', httpMode:'GET', path:'/rest/api/2/project/10000'
 </code></pre>
 
 <p>if baseUrl is omitted, only path will be used.</p>
 <p>Usage if environment variable defined:</p>
 <pre><code>
-def project = jira {
-    httpMode = 'GET'
-    path = '/rest/api/2/project/1000'
-}
+def project = jira path:'/rest/api/2/project/10000'
 </code></pre>
 <p>Same example but with named global vars:</p>
 <pre><code>
-def project = jiraGetProject {
-    id = '1000'
-}
+def project = jiraGetProject id: '10000'
 </code></pre>
-<p>To avoid configuration duplication, Jira calls (e.g. jira, jiraCreateVersion, jiraGetVersion...) can be configured using Global environment variables.</p>
