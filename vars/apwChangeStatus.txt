@@ -7,10 +7,5 @@
 </dl>
 <p>Usage example:</p>
 <pre><code>
-apwStatusChanged application:'eCommerce', category:'Dev', status:'Up'
-</code></pre>
-
-<p>Usage if environment variables are defined:</p>
-<pre><code>
-apwStatusChanged status:'Up'
+apwChangeStatus application:'eCommerce', category:'Dev', status:'Up'
 </code></pre>

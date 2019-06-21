@@ -1,0 +1,89 @@
+@Library('jira-jenkins-shared-lib') _
+
+pipeline {
+    agent any
+    stages {
+        stage('Check eCommerce Dev') {
+            steps {
+                apwCheckEnvironmentStatus(
+                        baseUrl: 'http://jira-ecommerce',
+                        credentialsId: 'jira-ecommerce-admin',
+                        application: 'eCommerce',
+                        category: 'Dev',
+                        availableStatus: 'Down',
+                        unavailableStatus: 'Up',
+                        check: { probeEnvironment('http://ecommerce:8081') }
+                )
+            }
+        }
+        stage('Check eCommerce Demo') {
+            steps {
+                apwCheckEnvironmentStatus(
+                        baseUrl: 'http://jira-ecommerce',
+                        credentialsId: 'jira-ecommerce-admin',
+                        application: 'eCommerce',
+                        category: 'Demo',
+                        availableStatus: 'Down',
+                        unavailableStatus: 'Up',
+                        check: { probeEnvironment('http://ecommerce:9000') }
+                )
+            }
+        }
+        stage('Check eCommerce Production') {
+            steps {
+                apwCheckEnvironmentStatus(
+                        baseUrl: 'http://jira-ecommerce',
+                        credentialsId: 'jira-ecommerce-admin',
+                        application: 'eCommerce',
+                        category: 'Production',
+                        availableStatus: 'Down',
+                        unavailableStatus: 'Up',
+                        check: { probeEnvironment('http://ecommerce:9001') }
+                )
+            }
+        }
+        stage('Check Payment QA') {
+            steps {
+                apwCheckEnvironmentStatus(
+                        baseUrl: 'http://jira-payment/jira',
+                        credentialsId: 'jira-payment-admin',
+                        application: 'Payment',
+                        category: 'QA',
+                        availableStatus: 'Dead',
+                        unavailableStatus: 'Alive',
+                        check: { probeEnvironment('http://payment:8081') }
+                )
+            }
+        }
+        stage('Check Payment Demo') {
+            steps {
+                apwCheckEnvironmentStatus(
+                        baseUrl: 'http://jira-payment/jira',
+                        credentialsId: 'jira-payment-admin',
+                        application: 'Payment',
+                        category: 'Demo',
+                        availableStatus: 'Dead',
+                        unavailableStatus: 'Alive',
+                        check: { probeEnvironment('http://payment:9000') }
+                )
+            }
+        }
+        stage('Check Payment Production') {
+            steps {
+                apwCheckEnvironmentStatus(
+                        baseUrl: 'http://jira-payment/jira',
+                        credentialsId: 'jira-payment-admin',
+                        application: 'Payment',
+                        category: 'Production',
+                        availableStatus: 'Dead',
+                        unavailableStatus: 'Alive',
+                        check: { probeEnvironment('http://payment:9001') }
+                )
+            }
+        }
+    }
+}
+
+def probeEnvironment(url) {
+    sh "timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q ${url} -O /dev/null"
+}

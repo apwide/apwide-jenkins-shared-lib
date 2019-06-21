@@ -8,10 +8,5 @@
 <br/>
 <p>Usage example:</p>
 <pre><code>
-apwDeployedVersion application:'eCommerce', category:'Dev', version:'0.0.1-SNAPSHOT'
-</code></pre>
-
-<p>Usage if environment variables are defined:</p>
-<pre><code>
-apwDeployedVersion version:'0.0.1-SNAPSHOT'
+apwSetDeployedVersion application:'eCommerce', category:'Dev', version:'0.0.1-SNAPSHOT'
 </code></pre>

@@ -1,0 +1,33 @@
+@Library('jira-jenkins-shared-lib') _
+
+pipeline {
+    agent any
+    environment {
+        JIRA_BASE_URL = 'http://jira-ecommerce'
+        JIRA_CREDENTIALS_ID = 'jira-ecommerce-admin'
+        APW_APPLICATION = 'eCommerce'
+        APW_UNAVAILABLE_STATUS = 'Down'
+        APW_AVAILABLE_STATUS = 'Up'
+    }
+    stages {
+        stage('Check Dev Environment') {
+            steps {
+                apwCheckEnvironmentStatus category:'DEV', check: { probeEnvironment('http://ecommerce:8080') }
+            }
+        }
+        stage('Check Demo Environment') {
+            steps {
+                apwCheckEnvironmentStatus category:'Demo', check: { probeEnvironment('http://ecommerce:8082') }
+            }
+        }
+        stage('Check Production Environment') {
+            steps {
+                apwCheckEnvironmentStatus category:'Production', check: { probeEnvironment('http://ecommerce:9080') }
+            }
+        }
+    }
+}
+
+def probeEnvironment(url) {
+    sh "timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q ${url} -O /dev/null"
+}

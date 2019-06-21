@@ -1,4 +1,4 @@
-@Library('jenkins-jira-sharedlib@master') _
+@Library('jira-jenkins-shared-lib') _
 
 pipeline {
     agent any
@@ -31,7 +31,7 @@ pipeline {
             environment {
                 APW_CATEGORY = 'Dev'
                 APW_ENVIRONMENT_ID = '6'
-                SERVER_PORT = 8089
+                ENV_URL = 'http://ecommece:8080'
                 ENV_OS = 'Windows'
                 ENV_OWNER = 'info@apwide.com'
                 ENV_DATABASE = 'Oracle'
@@ -43,9 +43,9 @@ pipeline {
                 // simulate deployment
                 sh "sleep 5s"
 
-                // update environment information with data we can collect in jenkins
-                apwEnvironmentUpdated body:[
-                        url: "http://192.168.0.6:${env.SERVER_PORT}",
+                // update environment information with data we can collect in jenkins for environment identified by APW_ENVIRONMENT_ID
+                apwUpdateEnvironment body:[
+                        url: env.ENV_URL,
                         attributes: [
                                 OS: env.ENV_OS,
                                 Owner: env.ENV_OWNER,
@@ -54,10 +54,10 @@ pipeline {
                 ]
 
                 // update deployed version for environment identified by APW_APPLICATION and APW_CATEGORY
-                apwDeployedVersion version:env.VERSION
+                apwSetDeployedVersion version:env.VERSION
 
                 // update status back to Up
-                apwStatusChanged status:'Up'
+                apwChangeStatus status:'Up'
             }
         }
         stage('Deploy on Demo') {
@@ -67,19 +67,19 @@ pipeline {
             environment {
                 APW_CATEGORY = 'Demo'
                 APW_ENVIRONMENT_ID = '7'
-                SERVER_PORT = 8090
+                ENV_URL = 'http://ecommece:9000'
                 ENV_OS = 'Ubuntu'
                 ENV_OWNER = 'support@apwide.com'
                 ENV_DATABASE = 'Oracle'
             }
             steps {
-                // just an example without using environment variables
-                apwStatusChanged application:'eCommerce', category:'Demo', status:'Deploy'
+                // APW_APPLICATION and APW_CATEGORY defined at stage level, so, specific to these steps execution
+                apwChangeStatus status:'Deploy'
 
                 sh "sleep 5s"
 
-                apwEnvironmentUpdated body:[
-                        url: "http://192.168.0.6:${env.SERVER_PORT}",
+                apwUpdateEnvironment body:[
+                        url: env.ENV_URL,
                         attributes: [
                                 OS: env.ENV_OS,
                                 Owner: env.ENV_OWNER,
@@ -87,8 +87,8 @@ pipeline {
                         ]
                 ]
 
-                apwDeployedVersion version:env.VERSION
-                apwStatusChanged status:'Up'
+                apwSetDeployedVersion version:env.VERSION
+                apwChangeStatus status:'Up'
             }
         }
     }

@@ -14,10 +14,3 @@ apwCheckEnvironmentStatus application:'eCommerce', category:'Dev', unavailableSt
     sh 'timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q http://localhost -O /dev/null'
 }
 </code></pre>
-
-<p>Usage if environment variables are defined:</p>
-<pre><code>
-apwCheckEnvironmentStatus check:{
-    sh 'timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q http://localhost -O /dev/null'
-}
-</code></pre>
