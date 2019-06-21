@@ -1,0 +1,43 @@
+@Library('jenkins-jira-sharedlib@master') _
+
+pipeline {
+    agent any
+    environment {
+        JIRA_BASE_URL = 'http://192.168.0.6:8080'
+        JIRA_CREDENTIALS_ID = 'localhost-jira-admin'
+        APW_APPLICATION = 'eCommerce'
+        APW_UNAVAILABLE_STATUS = 'Down'
+        APW_AVAILABLE_STATUS = 'Up'
+    }
+    stages {
+        stage('Check Dev Environment') {
+            environment {
+                APW_CATEGORY = 'Dev'
+                ENV_URL = 'http://localhost:8080'
+            }
+            steps {
+                apwCheckEnvironmentStatus check: {
+                    sh "timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q ${ENV_URL} -O /dev/null"
+                }
+            }
+        }
+        stage('Check Demo Environment') {
+            environment {
+                APW_CATEGORY = 'Demo'
+                ENV_URL = 'http://localhost:8081'
+            }
+            steps {
+                apwCheckEnvironmentStatus check: {
+                    sh "timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q ${ENV_URL} -O /dev/null"
+                }
+            }
+        }
+        stage('Check Payment QA Environment') {
+            steps {
+                apwCheckEnvironmentStatus application:'Payment', category:'QA', check: {
+                    sh "timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q http://localhost:8082 -O /dev/null"
+                }
+            }
+        }
+    }
+}

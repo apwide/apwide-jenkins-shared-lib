@@ -1,0 +1,95 @@
+@Library('jenkins-jira-sharedlib@master') _
+
+pipeline {
+    agent any
+    environment {
+        JIRA_BASE_URL = 'http://192.168.0.6:8080'
+        JIRA_CREDENTIALS_ID = 'localhost-jira-admin'
+        JIRA_VERSION = '8.0.2'
+        APW_APPLICATION = 'eCommerce'
+        VERSION = readMavenPom().getVersion()
+    }
+    parameters {
+        choice(name: 'PROMOTE_TO_ENV', choices: ['Dev', 'Demo'], description: 'Should the output be promoted to an environment ?')
+    }
+    tools {
+        maven 'mvn3'
+        jdk 'jdk8'
+    }
+    stages {
+        stage('Build & Test') {
+            steps {
+                script {
+                    sh 'mvn clean install'
+                }
+            }
+        }
+        stage('Deploy on Dev') {
+            when {
+                equals expected: 'Dev', actual: params.PROMOTE_TO_ENV
+            }
+            environment {
+                APW_CATEGORY = 'Dev'
+                APW_ENVIRONMENT_ID = '6'
+                SERVER_PORT = 8089
+                ENV_OS = 'Windows'
+                ENV_OWNER = 'info@apwide.com'
+                ENV_DATABASE = 'Oracle'
+            }
+            steps {
+                // update status change to 'Deploy' for environment identified by APW_APPLICATION and APW_CATEGORY
+                apwStatusChanged status:'Deploy'
+
+                // simulate deployment
+                sh "sleep 5s"
+
+                // update environment information with data we can collect in jenkins
+                apwEnvironmentUpdated body:[
+                        url: "http://192.168.0.6:${env.SERVER_PORT}",
+                        attributes: [
+                                OS: env.ENV_OS,
+                                Owner: env.ENV_OWNER,
+                                Database: env.ENV_DATABASE
+                        ]
+                ]
+
+                // update deployed version for environment identified by APW_APPLICATION and APW_CATEGORY
+                apwDeployedVersion version:env.VERSION
+
+                // update status back to Up
+                apwStatusChanged status:'Up'
+            }
+        }
+        stage('Deploy on Demo') {
+            when {
+                equals expected: 'Demo', actual: params.PROMOTE_TO_ENV
+            }
+            environment {
+                APW_CATEGORY = 'Demo'
+                APW_ENVIRONMENT_ID = '7'
+                SERVER_PORT = 8090
+                ENV_OS = 'Ubuntu'
+                ENV_OWNER = 'support@apwide.com'
+                ENV_DATABASE = 'Oracle'
+            }
+            steps {
+                // just an example without using environment variables
+                apwStatusChanged application:'eCommerce', category:'Demo', status:'Deploy'
+
+                sh "sleep 5s"
+
+                apwEnvironmentUpdated body:[
+                        url: "http://192.168.0.6:${env.SERVER_PORT}",
+                        attributes: [
+                                OS: env.ENV_OS,
+                                Owner: env.ENV_OWNER,
+                                Database: env.ENV_DATABASE
+                        ]
+                ]
+
+                apwDeployedVersion version:env.VERSION
+                apwStatusChanged status:'Up'
+            }
+        }
+    }
+}
