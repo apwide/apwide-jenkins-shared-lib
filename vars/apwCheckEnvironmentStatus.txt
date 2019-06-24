@@ -5,12 +5,13 @@
     <dt>category</dt><dd>Environment Category name. (if null, read from env.APW_CATEGORY)</dd>
     <dt>unavailableStatus</dt><dd>Status name when environment is unavailable. (if null, read from env.APW_UNAVAILABLE_STATUS, default is 'Down')</dd>
     <dt>availableStatus</dt><dd>Status name when environment is available. (if null, read from env.APW_AVAILABLE_STATUS, default is 'Up')</dd>
-    <dt>check</dt><dd>Closure used to check environment status. If exception is thrown, environment considered not available</dd>
+    <dt>checkStatus</dt><dd>Closure used to check environment status. If exception is thrown, environment considered not available. If not provided,
+    A simple http request will be triggered on the environment URL</dd>
 </dl>
 <br/>
 <p>Usage example:</p>
 <pre><code>
-apwCheckEnvironmentStatus application:'eCommerce', category:'Dev', unavailableStatus:'Down', availableStatus:'Up', check:{
+apwCheckEnvironmentStatus application:'eCommerce', category:'Dev', unavailableStatus:'Down', availableStatus:'Up', checkStatus:{
     sh 'timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q http://localhost -O /dev/null'
 }
 </code></pre>

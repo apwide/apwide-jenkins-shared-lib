@@ -1,0 +1,10 @@
+<p>Get list of environments. Reuse JIRA Global Environment Variable and for full protocol, consult jira global variable</p>
+<p></p>
+<dl>
+    <dt>application</dt><dd>Environment Application name. (Optional)</dd>
+    <dt>category</dt><dd>Environment Category name. (Optional)</dd>
+</dl>
+<p>Usage example:</p>
+<pre><code>
+apwGetEnvironments: application:'eCommerce', category:'Dev'
+</code></pre>

@@ -1,4 +1,4 @@
-<p>Update Apwide Golive Environment status. Reuse JIRA Global Environment Variable and for full protocol, consult jira global variable</p>
+<p>Set Apwide Golive Environment status. Reuse JIRA Global Environment Variable and for full protocol, consult jira global variable</p>
 <p></p>
 <dl>
     <dt>application</dt><dd>Environment Application name. (if null, read from env.APW_APPLICATION)</dd>
@@ -7,5 +7,5 @@
 </dl>
 <p>Usage example:</p>
 <pre><code>
-apwChangeStatus application:'eCommerce', category:'Dev', status:'Up'
+apwSetEnvironmentStatus application:'eCommerce', category:'Dev', status:'Up'
 </code></pre>

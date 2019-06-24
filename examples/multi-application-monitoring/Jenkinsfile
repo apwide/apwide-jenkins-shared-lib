@@ -12,7 +12,7 @@ pipeline {
                         category: 'Dev',
                         availableStatus: 'Down',
                         unavailableStatus: 'Up',
-                        check: { probeEnvironment('http://ecommerce:8081') }
+                        check: this.&probeEnvironment
                 )
             }
         }
@@ -25,7 +25,7 @@ pipeline {
                         category: 'Demo',
                         availableStatus: 'Down',
                         unavailableStatus: 'Up',
-                        check: { probeEnvironment('http://ecommerce:9000') }
+                        check: this.&probeEnvironment
                 )
             }
         }
@@ -38,7 +38,7 @@ pipeline {
                         category: 'Production',
                         availableStatus: 'Down',
                         unavailableStatus: 'Up',
-                        check: { probeEnvironment('http://ecommerce:9001') }
+                        check: this.&probeEnvironment
                 )
             }
         }
@@ -51,7 +51,7 @@ pipeline {
                         category: 'QA',
                         availableStatus: 'Dead',
                         unavailableStatus: 'Alive',
-                        check: { probeEnvironment('http://payment:8081') }
+                        check: this.&probeEnvironment
                 )
             }
         }
@@ -64,7 +64,7 @@ pipeline {
                         category: 'Demo',
                         availableStatus: 'Dead',
                         unavailableStatus: 'Alive',
-                        check: { probeEnvironment('http://payment:9000') }
+                        check: this.&probeEnvironment
                 )
             }
         }
@@ -77,13 +77,14 @@ pipeline {
                         category: 'Production',
                         availableStatus: 'Dead',
                         unavailableStatus: 'Alive',
-                        check: { probeEnvironment('http://payment:9001') }
+                        check: this.&probeEnvironment
                 )
             }
         }
     }
 }
 
-def probeEnvironment(url) {
-    sh "timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q ${url} -O /dev/null"
+// provide a closure that receive Apwide Golive Environment in parameter and us its corresponding url to do a check
+def probeEnvironment(environment) {
+    sh "timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q ${environment.url} -O /dev/null"
 }

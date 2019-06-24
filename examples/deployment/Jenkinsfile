@@ -38,7 +38,7 @@ pipeline {
             }
             steps {
                 // update status change to 'Deploy' for environment identified by APW_APPLICATION and APW_CATEGORY
-                apwStatusChanged status:'Deploy'
+                apwSetEnvironmentStatus status:'Deploy'
 
                 // simulate deployment
                 sh "sleep 5s"
@@ -57,7 +57,7 @@ pipeline {
                 apwSetDeployedVersion version:env.VERSION
 
                 // update status back to Up
-                apwChangeStatus status:'Up'
+                apwSetEnvironmentStatus status:'Up'
             }
         }
         stage('Deploy on Demo') {
@@ -74,7 +74,7 @@ pipeline {
             }
             steps {
                 // APW_APPLICATION and APW_CATEGORY defined at stage level, so, specific to these steps execution
-                apwChangeStatus status:'Deploy'
+                apwSetEnvironmentStatus status:'Deploy'
 
                 sh "sleep 5s"
 
@@ -88,7 +88,7 @@ pipeline {
                 ]
 
                 apwSetDeployedVersion version:env.VERSION
-                apwChangeStatus status:'Up'
+                apwSetEnvironmentStatus status:'Up'
             }
         }
     }
