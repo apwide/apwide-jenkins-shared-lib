@@ -17,7 +17,7 @@ class Utilities {
     }
 
     static private boolean isMethodAvailable(script, pluginName, jiraBuildFailOnError, Closure method) {
-        script.echo "Check availability of plugin '${pluginName}'"
+//        script.echo "Check availability of plugin '${pluginName}'"
         try {
             method()
         } catch (NoSuchMethodError ex) {
@@ -29,7 +29,7 @@ class Utilities {
         } catch (err) {
             // do nothing
         }
-        script.echo "Plugin '${pluginName}' available"
+//        script.echo "Plugin '${pluginName}' available"
         return true
     }
 
