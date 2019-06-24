@@ -13,7 +13,7 @@ class RestClient implements Serializable {
         this.resourceUrl = "${config.baseUrl}${path}"
     }
 
-    private def request(httpMode = 'GET', path = '', body = null) {
+    private def request(httpMode = 'GET', path = '', body = null, validResponseCodes = '200:304') {
         def url = "${resourceUrl}${path}"
         try {
             def response = script.httpRequest(
@@ -24,14 +24,16 @@ class RestClient implements Serializable {
                     requestBody: toJsonText(body),
                     contentType: 'APPLICATION_JSON',
                     url: url,
-                    validResponseCodes: '200:304')
-            return script.readJSON(text: response.content)
+                    validResponseCodes: validResponseCodes)
+            return response.content ? script.readJSON(text: response.content) : null
         } catch (err) {
-            if (config.fail)
             script.echo "Error during Rest call: ${err}"
             script.echo "Url: ${httpMode} ${url}"
             script.echo "Body: ${body}"
-            return ''
+            if (config.buildFailOnError) {
+                throw err
+            }
+            return null
         }
     }
 
@@ -43,8 +45,8 @@ class RestClient implements Serializable {
         return request('POST', path, body)
     }
 
-    def get(path = '') {
-        return request('GET', path)
+    def get(path = '', validResponseCodes  = '200:304') {
+        return request('GET', path, null, validResponseCodes)
     }
 
     def delete(path = '') {

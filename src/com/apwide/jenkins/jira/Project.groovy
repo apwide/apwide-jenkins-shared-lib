@@ -22,4 +22,8 @@ class Project implements Serializable {
     def properties(id) {
         jira.get("/${urlEncode(id)}/properties")
     }
+
+    def versions(id) {
+        jira.get("/${urlEncode(id)}/versions")
+    }
 }
