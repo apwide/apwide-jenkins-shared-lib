@@ -1,5 +1,7 @@
 package com.apwide.jenkins
 
+import com.apwide.jenkins.golive.Environment
+import com.apwide.jenkins.golive.Environments
 import com.apwide.jenkins.jira.Project
 import com.apwide.jenkins.jira.Version
 import com.apwide.jenkins.util.MockHttpRequestPlugin
@@ -34,6 +36,30 @@ class JiraInstanceTest extends Specification {
         projects.size() > 1
     }
 
+    def "get list of environments"() {
+        given:
+        def golive = new Environments(script, jiraConfig)
+
+        when:
+        def environments = golive.findAll()
+
+        then:
+        environments != null
+        environments.size() > 1
+    }
+
+    def "get list of environments for eCommerce application"() {
+        given:
+        def golive = new Environments(script, jiraConfig)
+
+        when:
+        def environments = golive.findAll application:'eCommerce'
+
+        then:
+        environments != null
+        environments.size() > 1
+    }
+
     def "get version information ECOM-2.20"() {
         given:
         def version = new Version(script, jiraConfig)
@@ -59,6 +85,17 @@ class JiraInstanceTest extends Specification {
         then:
         createdVersion instanceof Map
         createdVersion.name == versionName
+    }
+
+    def "check environment status"() {
+        given:
+        def environment = new Environment(script, jiraConfig)
+
+        when:
+        def updatedStatus = environment.checkAndUpdateStatus('eCommerce', 'Dev', 'Down', 'Up')
+
+        then:
+        updatedStatus != null
     }
 
     def "concat map"() {

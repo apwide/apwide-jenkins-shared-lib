@@ -17,7 +17,6 @@ class RestClient implements Serializable {
         def url = "${resourceUrl}${path}"
         try {
             def response = script.httpRequest(
-                    outputFile: 'response.json',
                     authentication: config.credentialsId,
                     consoleLogResponseBody: false,
                     timeout: 5,
@@ -50,5 +49,23 @@ class RestClient implements Serializable {
 
     def delete(path = '') {
         return request('DELETE', path)
+    }
+
+    static def checkUrl(Map params, script) {
+        int tries = 0
+        int nbRetry = params.nbRetry ?: 1
+
+        while (tries <= nbRetry) {
+            try {
+                script.httpRequest(params)
+                return
+            } catch (err) {
+                if (tries >= nbRetry) {
+                    throw err
+                }
+            }
+            tries++
+        }
+
     }
 }

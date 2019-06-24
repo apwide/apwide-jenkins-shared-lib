@@ -30,7 +30,7 @@ Let's try now to set the current status of this environment.
 ###### Set Environment Status
 ```groovy
 steps {
-    apwChangeStatus(
+    apwSetEnvironmentStatus(
         baseUrl: 'http://jira-mycompany.com',
         credentialsId: 'jira-credentials',
         application: 'eCommerce',
@@ -51,7 +51,7 @@ environment {
 }
 steps {
     apwSetDeployedVersion version: '0.0.1-SNAPSHOT'
-    apwChangeStatus status: 'Up'
+    apwSetEnvironmentStatus status: 'Up'
 }
 ```
 
