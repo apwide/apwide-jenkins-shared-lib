@@ -18,12 +18,12 @@ class Environment implements Serializable {
         jira.put("/environment/${urlEncode(id)}", body)
     }
 
-    def getEnvironment(applicationName, categoryName) {
+    def get(applicationName, categoryName) {
         jira.get("/environment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}")
     }
 
     def getStatus(applicationName, categoryName) {
-        jira.get("/status-change?application=${urlEncode(applicationName)}&category=${categoryName}")
+        jira.get("/status-change?application=${urlEncode(applicationName)}&category=${categoryName}", '200:304,404')
     }
 
     def setStatus(applicationName, categoryName, statusName) {
@@ -35,8 +35,17 @@ class Environment implements Serializable {
     }
 
     def checkAndUpdateStatus(applicationName, categoryName, unavailableStatus, availableStatus, Closure checkStatusOperation = null) {
-        def env = getEnvironment(applicationName, categoryName)
-        def status = getStatus(applicationName, categoryName)
+        def env = get(applicationName, categoryName)
+        if (!checkStatusOperation && !env.url) {
+            script.echo("No check nor url provided for environment ${env.application.name}-${env.category.name}, status won't be updated")
+            return
+        }
+        def status = [:]
+        try {
+            status = getStatus(applicationName, categoryName)
+        } catch (err) {
+            // no fail on status if not exist
+        }
         def checkStatus = checkStatusOperation ?: { environment ->
             checkUrl url:environment.url,
                     nbRetry: 3,
@@ -46,11 +55,11 @@ class Environment implements Serializable {
         try {
             checkStatus(env)
         } catch (err) {
-            if (!unavailableStatus.equals(status.statusName)) {
+            if (!unavailableStatus.equals(status?.statusName)) {
                 return setStatus(applicationName, categoryName, unavailableStatus)
             }
         }
-        if (!availableStatus.equals(status.statusName)) {
+        if (!availableStatus.equals(status?.statusName)) {
             return setStatus(applicationName, categoryName, availableStatus)
         } else {
             return status

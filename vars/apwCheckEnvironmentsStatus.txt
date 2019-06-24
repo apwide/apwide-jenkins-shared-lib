@@ -1,0 +1,16 @@
+<p>Notify Apwide Golive about environments status based on check provided as closure. (notify status change only if different of what is in Golive)</p>
+<p></p>
+<dl>
+    <dt>application</dt><dd>Environment Application name. (if null, read from env.APW_APPLICATION)</dd>
+    <dt>unavailableStatus</dt><dd>Status name when environment is unavailable. (if null, read from env.APW_UNAVAILABLE_STATUS, default is 'Down')</dd>
+    <dt>availableStatus</dt><dd>Status name when environment is available. (if null, read from env.APW_AVAILABLE_STATUS, default is 'Up')</dd>
+    <dt>checkStatus</dt><dd>Closure used to check environment status. If exception is thrown, environment considered not available. If not provided,
+    A simple http request will be triggered on the environment URL</dd>
+</dl>
+<br/>
+<p>Usage example:</p>
+<pre><code>
+apwCheckEnvironmentStatus application:'eCommerce',unavailableStatus:'Down', availableStatus:'Up', checkStatus:{
+    sh 'timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q http://localhost -O /dev/null'
+}
+</code></pre>

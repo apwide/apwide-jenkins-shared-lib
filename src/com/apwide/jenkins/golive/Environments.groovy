@@ -12,7 +12,7 @@ class Environments implements Serializable {
     }
 
     def findAll(Map criteria = null) {
-        def queryString =  criteria?.findAll { ['application', 'category'].contains(it.key) }
+        def queryString =  criteria?.findAll { ['application', 'category'].contains(it.key) && it.value }
                 .collect { it -> "${it.key}=${it.value}" }
                 .stream().collect(Collectors.joining('&', '?', ''))
         jira.get("/environments${queryString}")

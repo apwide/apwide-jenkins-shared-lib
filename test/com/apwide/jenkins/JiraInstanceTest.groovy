@@ -71,6 +71,17 @@ class JiraInstanceTest extends Specification {
         foundVersion instanceof Map
     }
 
+    def "get project versions"() {
+        given:
+        def project = new Project(script, jiraConfig)
+
+        when:
+        def foundVersions = project.versions('BUBU')
+
+        then:
+        foundVersions != null
+    }
+
     def "create version"() {
         given:
         def version = new Version(script, jiraConfig)
@@ -92,7 +103,7 @@ class JiraInstanceTest extends Specification {
         def environment = new Environment(script, jiraConfig)
 
         when:
-        def updatedStatus = environment.checkAndUpdateStatus('eCommerce', 'Dev', 'Down', 'Up')
+        def updatedStatus = environment.checkAndUpdateStatus('Jira', 'Dev', 'Down', 'Up')
 
         then:
         updatedStatus != null

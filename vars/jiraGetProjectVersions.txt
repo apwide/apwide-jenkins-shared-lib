@@ -1,0 +1,5 @@
+<p>Get versions for a given project id/key. For full protocol, consult jira global variable</p>
+<p></p>
+<dl>
+    <dt>project</dt><dd>Id or key of the Jira project</dd>
+</dl>
