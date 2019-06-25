@@ -24,12 +24,12 @@ def call(Map config = null) {
             echo "Category: ${environment.category.name}"
             echo "Environment url: ${environment.url}"
 
-            return environmentClient.checkAndUpdateStatus(
-                    environment.application.name,
-                    environment.category.name,
-                    parameters.unavailableStatus,
-                    parameters.availableStatus,
-                    parameters.params.checkStatus)
+            environmentClient.checkAndUpdateStatus(
+                environment.application.name,
+                environment.category.name,
+                parameters.unavailableStatus,
+                parameters.availableStatus,
+                parameters.params.checkStatus)
         }
     }
 }
