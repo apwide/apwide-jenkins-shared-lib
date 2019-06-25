@@ -1,6 +1,12 @@
-<p>Notify Apwide Golive about environments status based on check provided as closure. (notify status change only if different of what is in Golive)</p>
+<p>
+    Notify Apwide Golive about environments status based on check provided as closure. (notify status change only if different of what is in Golive)
+    If criteria is provided, will search environments using criteria, otherwise, will use application parameter.
+    To know what are the available criteria<a href="https://confluence.apwide.com/display/TEM/Search+Environments">Apwide documentation</a>
+    Apwide environment is passed to the check status closure.
+</p>
 <p></p>
 <dl>
+    <dt>criteria</dt><dd>Search criteria map</a>
     <dt>application</dt><dd>Environment Application name. (if null, read from env.APW_APPLICATION)</dd>
     <dt>unavailableStatus</dt><dd>Status name when environment is unavailable. (if null, read from env.APW_UNAVAILABLE_STATUS, default is 'Down')</dd>
     <dt>availableStatus</dt><dd>Status name when environment is available. (if null, read from env.APW_AVAILABLE_STATUS, default is 'Up')</dd>
@@ -10,7 +16,17 @@
 <br/>
 <p>Usage example:</p>
 <pre><code>
-apwCheckEnvironmentStatus application:'eCommerce',unavailableStatus:'Down', availableStatus:'Up', checkStatus:{
-    sh 'timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q http://localhost -O /dev/null'
+apwCheckEnvironmentStatus application:'eCommerce',unavailableStatus:'Down', availableStatus:'Up', checkStatus:{ environment ->
+    sh "timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q ${environment.url} -O /dev/null"
+}
+</code></pre>
+<p>Using criteria:</pa>
+<pre><code>
+apwCheckEnvironmentStatus criteria:[
+           applicationName:'eCommerce',
+           statusName:['Up', 'Down'],
+           '# servers':'4'
+   ], unavailableStatus:'Down', availableStatus:'Up', checkStatus:{ environment ->
+    sh "timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q ${environment.url} -O /dev/null"
 }
 </code></pre>

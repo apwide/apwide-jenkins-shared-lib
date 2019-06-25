@@ -60,6 +60,37 @@ class JiraInstanceTest extends Specification {
         environments.size() > 1
     }
 
+    def "search for environments"() {
+        given:
+        def environments = new Environments(script, jiraConfig)
+
+        when:
+        def result = environments.search([
+                applicationName:'eCommerce',
+                statusName:['Up', 'Down'],
+                '# servers':'4'
+        ])
+
+        then:
+        result != null
+        result.size() > 1
+    }
+
+    def "with environments"() {
+        given:
+        def environments = new Environments(script, jiraConfig)
+
+        when:
+        environments.withEnvironments([
+                applicationName:'eCommerce',
+                statusName:['Up', 'Down'],
+                '# servers':'4'
+        ]) { environment -> script.echo environment.url }
+
+        then:
+        true
+    }
+
     def "get version information ECOM-2.20"() {
         given:
         def version = new Version(script, jiraConfig)
