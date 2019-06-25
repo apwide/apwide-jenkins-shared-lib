@@ -54,15 +54,14 @@ class Environment implements Serializable {
         }
         try {
             checkStatus(env)
+            if (!availableStatus.equals(status?.statusName)) {
+                return setStatus(applicationName, categoryName, availableStatus)
+            }
         } catch (err) {
             if (!unavailableStatus.equals(status?.statusName)) {
                 return setStatus(applicationName, categoryName, unavailableStatus)
             }
         }
-        if (!availableStatus.equals(status?.statusName)) {
-            return setStatus(applicationName, categoryName, availableStatus)
-        } else {
-            return status
-        }
+        return status
     }
 }
