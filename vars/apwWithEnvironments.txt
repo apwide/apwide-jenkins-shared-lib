@@ -1,0 +1,22 @@
+<p>
+    Retrieve environments based on criteria and pass each of them to the closure.
+    Reuse JIRA Global Environment Variable and for full protocol, consult jira global variable
+    To know what are the available criteira<a href="https://confluence.apwide.com/display/TEM/Search+Environments">Apwide documentation</a>
+</p>
+<p></p>
+<dl>
+    <dt>criteria</dt><dd>Search criteria map</a>
+    <dt>task</dt><dd>Closure receiving the environment to execute an action</dd>
+</dl>
+<p>Usage example:</p>
+<pre><code>
+apwWithEnvironments([
+    url:'http://localhost/',
+    attributes:[
+        Owner:'info@apwide.com'
+        OS:'ubuntu'
+    ]
+]) { environment ->
+    echo environment.url
+}
+</code></pre>

@@ -1,0 +1,17 @@
+<p>
+    Search for environments. Reuse JIRA Global Environment Variable and for full protocol, consult jira global variable.
+    Have a look at <a href="https://confluence.apwide.com/display/TEM/Search+Environments">Apwide Golive documentation</a> to see how to use the search api.
+</p>
+<p></p>
+<dl>
+    <dt>criteria</dt><dd>Map containing criteria to look for. (Optional)</dd>
+</dl>
+<p>Usage example:</p>
+<pre><code>
+apwSearchEnvironments: criteria:[
+    applicationName:'eCommerce',
+    statusName:['Down', 'Up', 'Deploy'],
+    database:['Oracle', 'MySql'],
+    owner:'info@apwide.com'
+]
+</code></pre>

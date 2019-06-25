@@ -10,7 +10,12 @@ def call(Map config = null) {
         def environmentClient = new Environment(this, parameters.config)
         def environmentsClient = new Environments(this, parameters.config)
 
-        def environments = environmentsClient.findAll application: parameters.application
+        def environments
+        if (parameters.params.criteria) {
+            environments = environmentsClient.search(parameters.params.criteria as Map)
+        } else {
+            environments = environmentsClient.findAll application: parameters.application
+        }
 
         echo "Environments json: ${environments.toString()}"
 
@@ -19,8 +24,12 @@ def call(Map config = null) {
             echo "Category: ${environment.category.name}"
             echo "Environment url: ${environment.url}"
 
-            return environmentClient
-                    .checkAndUpdateStatus(environment.application.name, environment.category.name, parameters.unavailableStatus, parameters.availableStatus)
+            return environmentClient.checkAndUpdateStatus(
+                    environment.application.name,
+                    environment.category.name,
+                    parameters.unavailableStatus,
+                    parameters.availableStatus,
+                    parameters.params.checkStatus)
         }
     }
 }
