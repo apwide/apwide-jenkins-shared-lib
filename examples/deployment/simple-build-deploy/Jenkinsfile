@@ -3,9 +3,8 @@
 pipeline {
     agent any
     environment {
-        JIRA_BASE_URL = 'http://192.168.0.6:8080'
-        JIRA_CREDENTIALS_ID = 'localhost-jira-admin'
-        JIRA_VERSION = '8.0.2'
+        APW_JIRA_BASE_URL = 'http://mycompany.com/jira'
+        APW_JIRA_CREDENTIALS_ID = 'localhost-jira-admin'
         APW_APPLICATION = 'eCommerce'
         VERSION = readMavenPom().getVersion()
     }

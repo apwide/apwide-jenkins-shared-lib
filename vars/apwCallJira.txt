@@ -9,8 +9,8 @@ Call JIRA Rest API.
 <br/>
 <h3>Available declarative attributes</h3>
 <dl>
-    <dt>baseUrl</dt><dd>Base URL to talk to JIRA. (default: http://localhost:8080)</dd>
-    <dt>credentialsId</dt><dd>Credentials id for calling requiring to be authenticated</dd>
+    <dt>jiraBaseUrl</dt><dd>Base URL to talk to JIRA. (default: http://localhost:8080)</dd>
+    <dt>jiraCredentialsId</dt><dd>Credentials id for calling requiring to be authenticated</dd>
     <dt>httpMode</dt><dd>HTTP Verb. One of 'GET', 'POST', 'PUT', 'DELETE'. (default: GET)</dd>
     <dt>path</dt><dd>The path of the call. (default: '')</dd>
     <dt>body</dt><dd>Body of the request (not authorized on GET)</dd>
@@ -19,15 +19,15 @@ Call JIRA Rest API.
 <br/>
 <p>Usage example:</p>
 <pre><code>
-def project = jira baseUrl:'http://localhost:2990/jira', credentialsId:'localhost-jira-admin', httpMode:'GET', path:'/rest/api/2/project/10000'
+def project = jira jiraBaseUrl:'http://localhost:2990/jira', jiraCredentialsId:'localhost-jira-admin', httpMode:'GET', path:'/rest/api/2/project/10000'
 </code></pre>
 
-<p>if baseUrl is omitted, only path will be used.</p>
+<p>if jiraBaseUrl is omitted, only path will be used.</p>
 <p>Usage if environment variable defined:</p>
 <pre><code>
 def project = jira path:'/rest/api/2/project/10000'
 </code></pre>
 <p>Same example but with named global vars:</p>
 <pre><code>
-def project = jiraGetProject id: '10000'
+def project = apwCallJiraGetProject id: '10000'
 </code></pre>

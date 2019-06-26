@@ -1,0 +1,31 @@
+@Library('jira-jenkins-shared-lib') _
+
+pipeline {
+    agent any
+    options {
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '1'))
+    }
+    triggers {
+        cron('* * * * *') // every 1 minute
+    }
+    environment {
+//        APW_JIRA_BASE_URL = 'http://mycompany.com/jira' // these variables can be defined at different level: jenkins global properties, pipeline level, stage level
+//        APW_JIRA_CREDENTIALS_ID = 'jira-credentials'
+        APW_UNAVAILABLE_STATUS = 'Down'
+        APW_AVAILABLE_STATUS = 'Up'
+    }
+    stages {
+        stage('Monitor eCommerce Dev') {
+            steps {
+                apwCheckEnvironmentStatus(
+                        application: 'eCommerce',
+                        category: 'Dev',
+                        checkStatus: { environment ->
+                            sh "timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q ${environment.url} -O /dev/null"
+                        } // this step use a custom checkStatus closure which use environment received in parameter to do its check
+                )
+            }
+        }
+    }
+}

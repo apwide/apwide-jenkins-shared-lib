@@ -10,14 +10,14 @@ class RestClient implements Serializable {
     RestClient(script, Map config, String path = '') {
         this.script = script
         this.config = config
-        this.resourceUrl = "${config.baseUrl}${path}"
+        this.resourceUrl = "${config.jiraBaseUrl}${path}"
     }
 
     private def request(httpMode = 'GET', path = '', body = null, validResponseCodes = '200:304') {
         def url = "${resourceUrl}${path}"
         try {
             def response = script.httpRequest(
-                    authentication: config.credentialsId,
+                    authentication: config.jiraCredentialsId,
                     consoleLogResponseBody: false,
                     timeout: 5,
                     httpMode: httpMode,
