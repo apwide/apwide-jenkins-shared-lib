@@ -1,0 +1,29 @@
+@Library('jira-jenkins-shared-lib') _
+
+pipeline {
+    agent any
+    options {
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '1'))
+    }
+    triggers {
+        cron('* * * * *') // every 1 minute
+    }
+    environment {
+//        APW_JIRA_BASE_URL = 'http://mycompany.com/jira' // these variables can be defined at different level: jenkins global properties, pipeline level, stage level
+//        APW_JIRA_CREDENTIALS_ID = 'jira-credentials'
+        APW_UNAVAILABLE_STATUS = 'Down'
+        APW_AVAILABLE_STATUS = 'Up'
+    }
+    stages {
+        stage('Monitor Environments managed by Environment Team') {
+            steps {
+                apwCheckEnvironmentsStatus criteria:[
+                        categoryName: ['PreProd', 'Staging'],
+                        team: 'Environment Management Team'
+                ] // use Golive search API to select environments to monitor. Monitor only environment Up or Down owned by Jon Snow
+            }
+
+        }
+    }
+}

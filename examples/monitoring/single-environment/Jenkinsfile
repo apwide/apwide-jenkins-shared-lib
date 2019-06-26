@@ -1,0 +1,32 @@
+@Library('jira-jenkins-shared-lib') _
+
+pipeline {
+    agent any
+    options {
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '1'))
+    }
+    triggers {
+        cron('* * * * *') // every 1 minute
+    }
+    environment {
+//        APW_JIRA_BASE_URL = 'http://mycompany.com/jira' // these variables can be defined at different level: jenkins global properties, pipeline level, stage level
+//        APW_JIRA_CREDENTIALS_ID = 'jira-credentials'
+        APW_UNAVAILABLE_STATUS = 'Down'
+        APW_AVAILABLE_STATUS = 'Up'
+    }
+    stages {
+        stage('Monitor eCommerce production environment') {
+            steps {
+                apwCheckEnvironmentStatus( // this step use environment information found in Apwide Golive to check and update environment status
+                        application: 'eCommerce', // can also be replaced by env variable APW_APPLICATION
+                        category: 'Production', // can also be reaplced by env variable APW_CATEGORY
+                )
+                /*
+                    In detail, it retrieves environment information from Golive, use the url found in Golive to do an HTTP call, and depending on the result,
+                    it updates environment status in Golive using the (un)available status configured.
+                 */
+            }
+        }
+    }
+}

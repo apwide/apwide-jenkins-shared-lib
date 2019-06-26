@@ -14,14 +14,12 @@ class JiraInstanceTest extends Specification {
 
     private final script = new MockPipelineScript(new MockHttpRequestPlugin(), new MockReadJsonPlugin())
     private final jiraConfig = [
-            baseUrl: 'http://192.168.0.6:8080',
-            credentialsId: 'localhost-jira-admin',
-            version: '8.0.2'
+            jiraBaseUrl: 'http://192.168.0.6:8080',
+            jiraCredentialsId: 'localhost-jira-admin'
     ]
     private final env = [
             JIRA_BASE_URL: 'http://192.168.0.6:8080',
-            JIRA_CREDENTIALS_ID: 'localhost-jira-admin',
-            JIRA_VERSION : '8.0.2'
+            JIRA_CREDENTIALS_ID: 'localhost-jira-admin'
     ]
 
     def "get list of projects"() {
