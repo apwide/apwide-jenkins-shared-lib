@@ -1,0 +1,111 @@
+/*
+{
+  "timestamp": 1561368903653,
+  "webhookEvent": "environment:created",
+  "environment": {
+    "id": 39,
+    "application": {
+      "id": 4,
+      "name": "Calculator Front",
+      "applicationScheme": {
+        "id": 1,
+        "name": "Default Application Scheme"
+      }
+    },
+    "category": {
+      "id": 14,
+      "name": "Dev",
+      "order": 5
+    },
+    "environmentPermissionScheme": {
+      "id": 1,
+      "name": "Default Environment Permission Scheme"
+    },
+    "customProperties": []
+  },
+  "user": {
+    "self": "${env.APW_JIRA_BASE_URL}/rest/api/2/user?username=jon",
+    "name": "jon",
+    "key": "jon",
+    "emailAddress": "jon.snow@stark.com",
+    "avatarUrls": {
+      "48x48": "https://www.gravatar.com/avatar/0265b4e98945e3e1bbc2cfd629f2db57?d=mm&s=48",
+      "24x24": "https://www.gravatar.com/avatar/0265b4e98945e3e1bbc2cfd629f2db57?d=mm&s=24",
+      "16x16": "https://www.gravatar.com/avatar/0265b4e98945e3e1bbc2cfd629f2db57?d=mm&s=16",
+      "32x32": "https://www.gravatar.com/avatar/0265b4e98945e3e1bbc2cfd629f2db57?d=mm&s=32"
+    },
+    "displayName": "Jon Snow",
+    "active": true,
+    "timeZone": "Europe/Zurich"
+  }
+}
+*/
+@Library('apwide-jenkins-shared-lib') _
+
+pipeline {
+    agent any
+    options {
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '1'))
+    }
+    environment {
+//        APW_JIRA_BASE_URL = 'http://mycompany.com/jira' // these variables can be defined at different level: jenkins global properties, pipeline level, stage level
+//        APW_JIRA_CREDENTIALS_ID = 'jira-credentials'
+        APW_APPLICATION = 'Calculator Front'
+    }
+    stages {
+        stage('Calculator Front Factory Web Hook') {
+            steps {
+                script {
+                    def event = readJSON text:body // event received on generic webhook trigger. Event payload is the one in comment on top
+                    def categoryName = event.environment.category.name
+                    def environmentId = event.environment.id
+                    def action = event.webhookEvent
+
+                    withEnv([  // we define local environment variables that wil be used by the apwide steps
+                            "APW_CATEGORY=${categoryName}",
+                            "APW_ENVIRONMENT_ID=${environmentId}"
+                    ]) {
+
+                        echo "Webhook event is ${event.webhookEvent}"
+                        echo "env app name: ${env.APW_APPLICATION}"
+                        echo "event app name: ${event.environment.application.name}"
+                        if (event.environment.application.name == env.APW_APPLICATION){
+                            echo "Handle ${env.APW_APPLICATION} environment"
+
+                            def applicationUrl = "https://www.apwide.com/calc/${categoryName.toLowerCase()}"
+                            def user = event.user
+
+                            if (action == "environment:created"){
+                                apwSetEnvironmentStatus status: 'Deploy'
+
+                                sleep 10 // replace this step with your own creation/provisioning logic
+
+                                apwUpdateEnvironment body:[
+                                        url:applicationUrl,
+                                        attributes: [
+                                                Location: 'Barcelona Data Center',
+                                                Team: 'Yellow Team',
+                                                Credentials: 'demo/pasw1234',
+                                                owner: "${user.emailAddress} <br/>(${user.displayName})",
+                                                '# servers': '1',
+                                        ]
+                                ]
+                                apwSetEnvironmentStatus status: 'Up'
+                            }
+
+                            else if (action == "environment:version_deployed"){
+                                apwSetEnvironmentStatus status: 'Deploy'
+
+                                sleep 20 // replace this step with your own version deployment procedure
+
+                                apwSetDeployedVersion version: event.environment.deployment.versionName
+                                apwSetEnvironmentStatus status: 'Up'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -173,7 +173,7 @@ Just pick one of the example that fit your needs or you can just follow the exam
 * [Deployment workflow](./examples/deployment/simple-build-deploy): how keep track of ongoing deployments and have a global view of which version is available where
 
 ### Self-Service provisioning
-* [Environment provisioning](./examples/self-service/): how your stakeholders could provision environment by themselves directly from Golive
+* [Environment provisioning](./examples/self-service/simple-provisioning): how your stakeholders could provision environment by themselves directly from Golive
 
 ## Prerequisites to use Jenkins Jira shared library
 * [Pipeline Utility Steps Plugin](https://wiki.jenkins.io/display/JENKINS/Pipeline+Utility+Steps+Plugin) must be installed
