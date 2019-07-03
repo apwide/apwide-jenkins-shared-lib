@@ -1,6 +1,6 @@
 # Jenkins shared library for Jira and Apwide Golive
 
-Your are at the right place if you use Jira + [Apwide Golive](https://marketplace.atlassian.com/apps/1212239/golive-environment-release-for-jira) + Jenkins and that you love automation! ;-)
+Your are at the right place if you use Jira + [Apwide Golive](https://marketplace.atlassian.com/apps/1212239/golive-environment-release-for-jira) + Jenkins and that **you love automation**! ;-)
 
 Learn how to use this open source [Jenkins Shared Library](https://jenkins.io/doc/book/pipeline/shared-libraries/) to easily push/retrieve information from Jenkins, Jira and Apwide Golive.
 
@@ -10,7 +10,7 @@ If you prefer examples over documentation, jump directly to the [pipeline exampl
 
 * [Pipeline Utility Steps Jenkins Plugin](https://wiki.jenkins.io/display/JENKINS/Pipeline+Utility+Steps+Plugin) installed
 * [Http Request Jenkins Plugin](https://wiki.jenkins.io/display/JENKINS/HTTP+Request+Plugin) installed
-* Jira user account with permission to get/update [Apwide Golive](https://marketplace.atlassian.com/apps/1212239/golive-environment-release-for-jira) data
+* Jira user account with permission to update [Apwide Golive](https://marketplace.atlassian.com/apps/1212239/golive-environment-release-for-jira) data
 
 
 ## Getting Started
