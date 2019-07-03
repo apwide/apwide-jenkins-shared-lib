@@ -90,37 +90,36 @@ To add more predefined steps: fork the project and add your own script sugars! W
 
 ## More Examples
 
-Just pick one of the example that fit your needs or you can just follow the example one by one. They start from the easiest one to the most advanced use cases.
+Just pick one of the examples. They start from the easiest one to the most advanced use cases.
 
 ### Environment Monitoring
-* [Single environment](./examples/monitoring/single-environment): discover how to monitor one single environments
-* [Custom check logic](./examples/monitoring/custom-check) : an example on how you can apply your own complex logic to check the sanity of an environment
-* [Single application](./examples/monitoring/single-application): learn how to monitor the different environments related to an application
-* [Multiple applications](./examples/monitoring/multi-application): scale your monitoring to multiple applications
-* [Advanced selection of environments](./examples/monitoring/criteria-selection): see how you can fine-tune the way you select environments that needs monitoring
+* [Single environment](./examples/monitoring/single-environment): monitor one single environment
+* [Custom check logic](./examples/monitoring/custom-check) : implement a custom logic to check the status of an environment
+* [Single application](./examples/monitoring/single-application):  monitor all environments of an application
+* [Multiple applications](./examples/monitoring/multi-application): monitor environments of several applications
+* [Advanced selection of environments](./examples/monitoring/criteria-selection): monitor a custom set of environments using search criteria
  
 ### Deployment tracking
-* [Deployment workflow](./examples/deployment/simple-build-deploy): how keep track of ongoing deployments and have a global view of which version is available where
+* [Deployment workflow](./examples/deployment/simple-build-deploy): push build and deployment information to Jira and Apwide Golive
 
-### Self-Service provisioning
-* [Environment provisioning](./examples/self-service/): how your stakeholders could provision environment by themselves directly from Apwide Golive
+### Self-Service Environments
+* [Environment self-service](./examples/self-service/): users can trigger the creation of new environments and deployments from Jira
 
 ## Predefined Global Variables
-To avoid duplication in your pipelines, Jenkins global variables can be set at different level to configure the Jenkins Shared Lib:
+To avoid duplication in your pipelines, Jenkins global variables can be set and overriden at different levels.
 
 Here are the available predefined global variables:
 * **APW_JIRA_BASE_URL** : Jira base url. (e.g. http://localhost:8080 or if you use a context http://localhost:2990/jira). Replace **jiraBaseUrl** parameter.
 * **APW_JIRA_CREDENTIALS_ID** : Id of the Jenkins credentials use to to call Jira Rest API. Replace **jiraCredentialsId** parameter. If not provided the shared library
 will look for the credentials id 'jira-credentials'
-* **APW_JIRA_PROJECT** : id of key of a given jira project that will be used when talking to jira API at project level.
+* **APW_JIRA_PROJECT** : id of key of a given jira project that will be used by steps using a Jira project (ex: creation of Jira versions)
 * **APW_APPLICATION** : Environment application name used in Apwide Golive (e.g. 'eCommerce'). Replace **application** parameter.
 * **APW_CATEGORY** : Environment category name used in Apwide Golive (e.g. 'Dev', 'Demo', 'Staging'...). Replace **category** parameter
-* **APW_UNAVAILABLE_STATUS** : Status name when environment is detected as not available during check environment status. Replace **unavailableStatus** parameter
-* **APW_AVAILABLE_STATUS** : Status name when environment is detcted as available during check environment status. Replace **availableStatus** parameter
+* **APW_UNAVAILABLE_STATUS** : Status name when environment is considered as not available by enmvironment status check. Replace **unavailableStatus** parameter
+* **APW_AVAILABLE_STATUS** : Status name when environment is considered as available by environment check status. Replace **availableStatus** parameter
 * **APW_ENVIRONMENT_ID** : Id of the Apwide Golive Environment (used when updating environment details, attributes). Replace **environmentId** parameter
 
-Most of the steps provided by the shared library are using these variables, but for each of the step, you can define inline property such as:
-With inline property
+You can override the global variables using inline properties at step level:
 ```groovy
 def project = apwCallJira(
     jiraBaseUrl: 'http://localhost:2990/jira',
