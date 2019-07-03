@@ -1,10 +1,10 @@
 # Jenkins shared library for Jira and Apwide Golive
 
-Your are at the right place if you use Jira + [Apwide Golive](https://marketplace.atlassian.com/apps/1212239/golive-environment-release-for-jira) + Jenkins and that you love automation. ;-)
+Your are at the right place if you use Jira + [Apwide Golive](https://marketplace.atlassian.com/apps/1212239/golive-environment-release-for-jira) + Jenkins and that you love automation! ;-)
 
-Learn how to use our open source [Jenkins Shared Library](https://jenkins.io/doc/book/pipeline/shared-libraries/) to easily push/retrieve information from Jenkins, Jira and Apwide Golive.
+Learn how to use this open source [Jenkins Shared Library](https://jenkins.io/doc/book/pipeline/shared-libraries/) to easily push/retrieve information from Jenkins, Jira and Apwide Golive.
 
-If you prefer examples over documentation, jump to our [pipeline examples library](./examples). You will have time to come back to this readme afterwards ;-).
+If you prefer examples over documentation, jump directly to the [pipeline examples library](./examples) and come back here later ;-).
 
 ## Pre-requisites
 
@@ -15,7 +15,7 @@ If you prefer examples over documentation, jump to our [pipeline examples librar
 
 ## Getting Started
 
-1. [Import the library]((https://stackoverflow.com/questions/41162177/jenkins-pipeline-how-to-add-help-for-global-shared-library))
+1. [Import the Jenkins Shared Library](https://stackoverflow.com/questions/41162177/jenkins-pipeline-how-to-add-help-for-global-shared-library)
 1. Create your first Hello World pipeline:
 
 ###### Push eCommerce Dev environment's deployed version to Apwide Golive
@@ -57,7 +57,7 @@ Using Jenkins variable is very powerful. Learn more how use them at different le
 * [In pipeline environment directive at pipeline or stage level](https://jenkins.io/doc/book/pipeline/syntax/#environment)
 * [Using Pipeline Basic Step withEnv on local portion](https://jenkins.io/doc/pipeline/steps/workflow-basic-steps/#withenv-set-environment-variables)
 
-## Getting more powerful: monitor all your environments
+## Getting more powerful
 
 A single step to check the url of all your environments to automatically set their status to "Up" (valid Http response) or "Down" (Http error):
 
@@ -105,7 +105,7 @@ Just pick one of the example that fit your needs or you can just follow the exam
 ### Self-Service provisioning
 * [Environment provisioning](./examples/self-service/): how your stakeholders could provision environment by themselves directly from Apwide Golive
 
-## Predefined Jenkins Global Variables
+## Predefined Global Variables
 To avoid duplication in your pipelines, Jenkins global variables can be set at different level to configure the Jenkins Shared Lib:
 
 Here are the available predefined global variables:
