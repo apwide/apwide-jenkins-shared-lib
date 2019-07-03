@@ -30,8 +30,8 @@ steps {
 }
 ```
 In this example script, we have set:
-* the **jiraBaseUrl** with user and password to reach our Jira instance running Apwide Golive (keep reading to learn how to remove these ugly hard coded values)
-* set the **version** 0.0.1-SNAPSHOT of the eCommerce (**application**) Dev (**category**) environment.
+* the **jiraBaseUrl** with user and password to reach our Jira instance running Apwide Golive (keep reading to learn how to get rid of these ugly hard coded values...)
+* set the deployed **version** of the "eCommerce Dev" environment to "0.0.1-SNAPSHOT".
 
 ## Getting a bit cleaner
 
