@@ -128,7 +128,7 @@ def project = apwCallJira(
     path: '/rest/api/2/project/10000'
 )
 ```
-With global variable
+Same example using global variables:
 ```groovy
 def project = apwCallJira httpMode: 'GET', path: '/rest/api/2/project/10000'
 ```
