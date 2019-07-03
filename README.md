@@ -2,7 +2,7 @@
 
 Your are at the right place if you use Jira + [Apwide Golive](https://marketplace.atlassian.com/apps/1212239/golive-environment-release-for-jira) + Jenkins and that **you love automation**! ;-)
 
-You should use this open source [Jenkins Shared Library](https://jenkins.io/doc/book/pipeline/shared-libraries/) to easily push/retrieve information from Jenkins, Jira and Apwide Golive.
+You should use this open source [Jenkins Shared Library](https://jenkins.io/doc/book/pipeline/shared-libraries/) to easily push/retrieve information from Jenkins, Jira and [Apwide Golive](https://marketplace.atlassian.com/apps/1212239/golive-environment-release-for-jira).
 
 If you prefer examples over documentation, jump directly to the [pipeline examples library](./examples) and come back here later ;-).
 
