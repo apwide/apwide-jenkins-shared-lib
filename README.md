@@ -160,20 +160,7 @@ You want to propose an new abstraction, feel free to create a PR !
 
 ## Use Cases
 
-Just pick one of the example that fit your needs or you can just follow the example one by one. They start from the easiest one to the most advanced use cases.
-
-### Environment Monitoring
-* [Single environment](./examples/monitoring/single-environment): discover how to monitor one single environments
-* [Custom check logic](./examples/monitoring/custom-check) : an example on how you can apply your own complex logic to check the sanity of an environment
-* [Single application](./examples/monitoring/single-application): learn how to monitor the different environments related to an application
-* [Multiple applications](./examples/monitoring/multi-application): scale your monitoring to multiple applications
-* [Advanced selection of environments](./examples/monitoring/criteria-selection): see how you can fine-tune the way you select environments that needs monitoring
- 
-### Deployment tracking
-* [Deployment workflow](./examples/deployment/simple-build-deploy): how keep track of ongoing deployments and have a global view of which version is available where
-
-### Self-Service provisioning
-* [Environment provisioning](./examples/self-service/simple-provisioning): how your stakeholders could provision environment by themselves directly from Golive
+Just pick one of the [examples](./examples) that fit your needs or you can just follow the example one by one. They start from the easiest one to the most advanced use cases.
 
 ## Prerequisites to use Jenkins Jira shared library
 * [Pipeline Utility Steps Plugin](https://wiki.jenkins.io/display/JENKINS/Pipeline+Utility+Steps+Plugin) must be installed
