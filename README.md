@@ -75,7 +75,7 @@ steps {
 }
 ```
 
-This single step will automatically set status of each environment to "Up" (valid Http response) or "Down" (Http error) based on its url.
+This single step will automatically call the url of each environment and set its status to "Up" (valid Http response) or "Down" (Http error).
 Quite powerful, isn't it ? ;-)
 
 
