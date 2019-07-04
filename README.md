@@ -11,7 +11,7 @@ If you prefer examples over documentation, jump directly to the [pipeline exampl
 * [Pipeline Utility Steps Jenkins Plugin](https://wiki.jenkins.io/display/JENKINS/Pipeline+Utility+Steps+Plugin) installed
 * [Http Request Jenkins Plugin](https://wiki.jenkins.io/display/JENKINS/HTTP+Request+Plugin) installed
 * Running Jira server with [Apwide Golive](https://marketplace.atlassian.com/apps/1212239/golive-environment-release-for-jira) installed
-* Basic understanding of Apwide Golive's [key concepts](https://confluence.apwide.com/documentation)
+* Basic understanding of Apwide Golive's [key concepts](https://www.apwide.com/documentation)
 
 
 ## Get Started
