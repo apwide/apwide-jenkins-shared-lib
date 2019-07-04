@@ -1,0 +1,163 @@
+/*
+{
+  "timestamp": 1561368903653,
+  "webhookEvent": "environment:created",
+  "environment": {
+    "id": 39,
+    "application": {
+      "id": 4,
+      "name": "Jira",
+      "applicationScheme": {
+        "id": 1,
+        "name": "Default Application Scheme"
+      }
+    },
+    "category": {
+      "id": 14,
+      "name": "Dev",
+      "order": 5
+    },
+    "environmentPermissionScheme": {
+      "id": 1,
+      "name": "Default Environment Permission Scheme"
+    },
+    "customProperties": []
+  },
+  "user": {
+    "self": "http://${env.APW_JIRA_BASE_URL}/rest/api/2/user?username=jon",
+    "name": "jon",
+    "key": "jon",
+    "emailAddress": "info@apwide.com",
+    "avatarUrls": {
+      "48x48": "https://www.gravatar.com/avatar/0265b4e98945e3e1bbc2cfd629f2db57?d=mm&s=48",
+      "24x24": "https://www.gravatar.com/avatar/0265b4e98945e3e1bbc2cfd629f2db57?d=mm&s=24",
+      "16x16": "https://www.gravatar.com/avatar/0265b4e98945e3e1bbc2cfd629f2db57?d=mm&s=16",
+      "32x32": "https://www.gravatar.com/avatar/0265b4e98945e3e1bbc2cfd629f2db57?d=mm&s=32"
+    },
+    "displayName": "Jon Snow",
+    "active": true,
+    "timeZone": "Europe/Zurich"
+  }
+}
+*/
+@Library('apwide-jenkins-shared-lib') _
+
+pipeline {
+    agent any
+    environment {
+//        APW_JIRA_BASE_URL = 'http://mycompany.com/jira' // these variables can be defined at different level: jenkins global properties, pipeline level, stage level
+//        APW_JIRA_CREDENTIALS_ID = 'jira-credentials'
+//        JIRA_HOST = 'http://mycompany.com/jira-dev' // replace this variable with the host you want to use for your JIRA
+        APW_APPLICATION = 'Jira'
+        DEFAULT_JIRA_VERSION = '7.12.1'
+        BACKUP_FILENAME = 'BakupDemoDockerAug.zip' // name of the file containing a Jira export zip and can be used to restore the environment from Apwide Golive
+    }
+    stages {
+        stage('Apwide Golive Factory Web Hook') {
+            steps {
+                script {
+                    def event = readJSON text:body
+
+                    withEnv([
+                            "APW_CATEGORY=${event.environment.category.name}",
+                            "APW_ENVIRONMENT_ID=${event.environment.id}"
+                    ]) {
+
+                        echo "Webhook event is ${event.webhookEvent}"
+
+                        if (event.environment.application.name == env.APW_APPLICATION) {
+                            echo "Handle ${env.APW_APPLICATION} environment"
+                            def action = event.webhookEvent
+
+                            def categoryId = event.environment.category.id
+                            def containerPort = containerPort(categoryId)
+                            def containerUrl = containerUrl(env.JIRA_HOST, containerPort)
+                            def containerName = containerName(env.APW_CATEGORY)
+                            def jiraHome = jiraHome(containerName)
+
+                            def user = event.user
+
+                            def jiraVersion = env.DEFAULT_JIRA_VERSION
+                            echo "jiraVersion=${jiraVersion}"
+
+                            if (action == "environment:created") { // on environment created, information are populated in Apwide Golive
+                                apwSetEnvironmentStatus status: 'In Deployment'
+                                apwUpdateEnvironment body:[
+                                        url:"http://${containerUrl}",
+                                        attributes: [
+                                                Owner: "${user.emailAddress} <br/>(${user.displayName})",
+                                                'Data Set': """
+                    <img src="/rest/plugins/1.0/com.apwide.env-xray-integration-key/media/plugin-icon" style="width:20px"/> Apwide Demo Data Set 1.0.0
+                    <a href="${containerUrl}/secure/admin/XmlRestore.jspa?filename=${jiraHome}/backup/${env.BACKUP_FILENAME}" target="_blank">(restore)</a>
+                """
+                                        ]
+                                ]
+                                apwSetDeployedVersion version: "JIRA ${jiraVersion}"
+                            }
+                            else if (action == "environment:version_deployed") { // when someone set a deployed version in Golive, container is created
+                                apwSetEnvironmentStatus status: 'In Deployment'
+                                stopContainer(containerName)
+                                removeContainer(containerName)
+                                def trimJira = {
+                                    it.startsWith('JIRA ') ? it - 'JIRA ' : it
+                                }
+                                def deployedJiraVersion = trimJira(event.environment.deployment.versionName)
+                                jiraVersion = deployedJiraVersion
+                                apwSetDeployedVersion version: "JIRA ${jiraVersion}"
+                                createContainer(containerName, env.JIRA_HOST, containerPort, jiraVersion)
+                            } else if (action == "environment:deleted") { // on deletion, container is stopped and removed
+                                stopContainer(containerName)
+                                removeContainer(containerName)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+def containerName(categoryName){
+    return "jira-server-${categoryName}"
+}
+
+def containerPort(categoryId){
+    return "805${categoryId}"
+}
+
+def containerUrl(jiraHost, port){
+    return "${jiraHost}:${port}"
+}
+
+def createContainer(name, jiraHost, port, jiraVersion){
+    def jiraHome = createJiraHome(name)
+    sh """docker create --name "${name}" -e X_PROXY_NAME='${jiraHost}' -e X_PROXY_PORT='${port}' -e X_PROXY_SCHEME='http'  -p ${port}:8080 --volume "${jiraHome}:/var/atlassian/jira" --env "CATALINA_OPTS= -Xms512m -Xmx1g -Datlassian.plugins.enable.wait=300" cptactionhank/atlassian-jira-software:${jiraVersion}"""
+    sh "docker start ${name}"
+}
+
+def stopContainer(name){
+    sh "docker stop ${name} || exit 0"
+    sleep 2
+}
+
+def removeContainer(name){
+    sh "docker rm -v ${name} || exit 0"
+    sleep 2
+    def containerDir = "${env.WORKSPACE}/${name}"
+    sh "rm -R ${containerDir} || exit 0"
+}
+
+def createJiraHome(name){
+    def containerDir = "${env.WORKSPACE}/${name}"
+    sh "mkdir -p ${containerDir}"
+    sh "unzip ${env.JENKINS_HOME}/environment-factory/reference-jira-home/jira-home.zip -d ${containerDir} || exit 0"
+    sh "chmod 777 -R ${containerDir} || exit 0"
+
+    def containerHostDir = "/data/jenkins-demo-pv0/workspace/jira-environment-factory/${name}"
+    def jiraHostHome = "${containerHostDir}/jira-home"
+    return jiraHostHome
+}
+
+def jiraHome(name){
+    return "${env.WORKSPACE}/${name}/jira-home"
+}

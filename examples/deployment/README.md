@@ -1,4 +1,2 @@
-# Deployment Examples
-
-Here some examples on how to keep track of your application/environment deployment.
-Know which version is published where, which deployment is ongoing and so on...
+# Deployment tracking
+* [Deployment workflow](./simple-build-deploy): how keep track of ongoing deployments and have a global view of which version is available where

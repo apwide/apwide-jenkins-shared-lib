@@ -1,25 +1,21 @@
-@Library('jira-jenkins-shared-lib') _
+@Library('apwide-jenkins-shared-lib') _
 
 pipeline {
     agent any
     environment {
-        APW_JIRA_BASE_URL = 'http://mycompany.com/jira'
-        APW_JIRA_CREDENTIALS_ID = 'localhost-jira-admin'
+//        APW_JIRA_BASE_URL = 'http://mycompany.com/jira' // these variables can be defined at different level: jenkins global properties, pipeline level, stage level
+//        APW_JIRA_CREDENTIALS_ID = 'jira-credentials'
         APW_APPLICATION = 'eCommerce'
-        VERSION = readMavenPom().getVersion()
+        VERSION = currentBuild.number // we use the build number as a version, but you have to provide your own version
     }
     parameters {
         choice(name: 'PROMOTE_TO_ENV', choices: ['Dev', 'Demo'], description: 'Should the output be promoted to an environment ?')
     }
-    tools {
-        maven 'mvn3'
-        jdk 'jdk8'
-    }
     stages {
-        stage('Build & Test') {
+        stage('Build & Test') { //
             steps {
                 script {
-                    sh 'mvn clean install'
+                    sh 'sleep 2s' // here is just an example of build stage, build you can define your here, or choose to put on another pipeline
                 }
             }
         }
@@ -30,19 +26,16 @@ pipeline {
             environment {
                 APW_CATEGORY = 'Dev'
                 APW_ENVIRONMENT_ID = '6'
-                ENV_URL = 'http://ecommece:8080'
+                ENV_URL = 'http://mycompany.com:8080'
                 ENV_OS = 'Windows'
                 ENV_OWNER = 'info@apwide.com'
                 ENV_DATABASE = 'Oracle'
             }
             steps {
-                // update status change to 'Deploy' for environment identified by APW_APPLICATION and APW_CATEGORY
-                apwSetEnvironmentStatus status:'Deploy'
+                apwSetEnvironmentStatus status:'Deploy' // update status change to 'Deploy' for environment identified by APW_APPLICATION and APW_CATEGORY
 
-                // simulate deployment
-                sh "sleep 5s"
+                sh "sleep 5s" // replace this step with your own deployment procedure
 
-                // update environment information with data we can collect in jenkins for environment identified by APW_ENVIRONMENT_ID
                 apwUpdateEnvironment body:[
                         url: env.ENV_URL,
                         attributes: [
@@ -50,13 +43,11 @@ pipeline {
                                 Owner: env.ENV_OWNER,
                                 Database: env.ENV_DATABASE
                         ]
-                ]
+                ] // update environment information with data we can collect in jenkins for environment identified by APW_ENVIRONMENT_ID
 
-                // update deployed version for environment identified by APW_APPLICATION and APW_CATEGORY
-                apwSetDeployedVersion version:env.VERSION
+                apwSetDeployedVersion version:env.VERSION // update deployed version for environment identified by APW_APPLICATION and APW_CATEGORY
 
-                // update status back to Up
-                apwSetEnvironmentStatus status:'Up'
+                apwSetEnvironmentStatus status:'Up' // update status back to Up
             }
         }
         stage('Deploy on Demo') {
@@ -66,16 +57,15 @@ pipeline {
             environment {
                 APW_CATEGORY = 'Demo'
                 APW_ENVIRONMENT_ID = '7'
-                ENV_URL = 'http://ecommece:9000'
+                ENV_URL = 'http://mycompany.com:9000'
                 ENV_OS = 'Ubuntu'
                 ENV_OWNER = 'support@apwide.com'
                 ENV_DATABASE = 'Oracle'
             }
             steps {
-                // APW_APPLICATION and APW_CATEGORY defined at stage level, so, specific to these steps execution
-                apwSetEnvironmentStatus status:'Deploy'
+                apwSetEnvironmentStatus status:'Deploy' // APW_APPLICATION and APW_CATEGORY defined at stage level, so, specific to these steps execution
 
-                sh "sleep 5s"
+                sh "sleep 5s" // replace this step with your own deployment procedure
 
                 apwUpdateEnvironment body:[
                         url: env.ENV_URL,
