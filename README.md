@@ -1,16 +1,25 @@
 # Jenkins shared library for Jira and Apwide Golive
 
-This project is a shared library to get and update information between a Jenkins pipeline
-and a Jira instance ([Apwide Golive plugin](https://www.apwide.com)).
+Your are at the right place if you use Jira + [Apwide Golive](https://marketplace.atlassian.com/apps/1212239/golive-environment-release-for-jira) + Jenkins and if **you love automation**!
 
-## Getting Started
+You should use this open source [Jenkins Shared Library](https://jenkins.io/doc/book/pipeline/shared-libraries/) to easily exchange information between Jenkins, Jira and [Apwide Golive](https://marketplace.atlassian.com/apps/1212239/golive-environment-release-for-jira).
 
-Just [import the library]((https://stackoverflow.com/questions/41162177/jenkins-pipeline-how-to-add-help-for-global-shared-library)) in your jenkins
-and use the predefined steps.
+If you prefer examples over documentation, jump directly to the [pipeline examples library](./examples) and come back here later.
 
-For example, set the current deployed version of an eCommerce dev environment in Apwide Golive.
+## Pre-requisites
 
-###### Set Environment Deployed Version
+* [Pipeline Utility Steps Jenkins Plugin](https://wiki.jenkins.io/display/JENKINS/Pipeline+Utility+Steps+Plugin) installed
+* [Http Request Jenkins Plugin](https://wiki.jenkins.io/display/JENKINS/HTTP+Request+Plugin) installed
+* Running Jira server with [Apwide Golive](https://marketplace.atlassian.com/apps/1212239/golive-environment-release-for-jira) installed
+* Basic understanding of Apwide Golive's [key concepts](https://www.apwide.com/documentation)
+
+
+## Get Started
+
+1. [Import the Jenkins Shared Library](https://stackoverflow.com/questions/41162177/jenkins-pipeline-how-to-add-help-for-global-shared-library)
+1. Create your first Hello World pipeline:
+
+###### Push eCommerce Dev environment's deployed version to Apwide Golive
 ```groovy
 steps {
     apwSetDeployedVersion(
@@ -21,27 +30,15 @@ steps {
     )
 }
 ```
-So, we've specified the **jiraBaseUrl** to reach our jira instance including user and password and we've
-set the **version** 0.0.1-SNAPSHOT of the environment **category** name Dev used for the **application** name eCommerce.
+In this example script, we have set:
+* **jiraBaseUrl**, user and password to connect to Jira with Apwide Golive (keep reading to learn how to get rid of these ugly hard coded values...)
+* deployed **version** of the "eCommerce Dev" environment to "0.0.1-SNAPSHOT"
 
-Let's try now to set the current status of this environment. 
+## A bit cleaner
 
-###### Set Environment Status
-```groovy
-steps {
-    apwSetEnvironmentStatus(
-        jiraBaseUrl: 'http://mycompany.com/jira',
-        jiraCredentialsId: 'jira-credentials',
-        application: 'eCommerce',
-        category: 'Dev',
-        status: 'Up'
-    )
-}
-```
-Set inline user and password was probably not the best way to go, so, we replaced it by the id of a jenkins credentials containing our user and password.
+You can use Jenkins credentials instead of hard coding user/password in your pipeline.
+Usage of predefined global variables also makes your pipeline more readable:
 
-Now, imagine we want to do both in the steps, set the deployed version and change the status. We start having a lot of duplication. So, that's why the shared
-lib looks for predefined environment variables.
 ```groovy
 environment {
     APW_JIRA_BASE_URL = 'http://mycompany.com/jira'
@@ -55,100 +52,37 @@ steps {
 }
 ```
 
-Much more concise, isn't it ? What is good with environment variable, is they can be defined at different level in Jenkins:
+Much more concise, isn't it ?
+
+Using Jenkins variable is very powerful. Learn more how use them at different levels:
 * [Jenkins Global Environment Variables](https://wiki.jenkins.io/display/JENKINS/Global+Variable+String+Parameter+Plugin)
 * [In pipeline environment directive at pipeline or stage level](https://jenkins.io/doc/book/pipeline/syntax/#environment)
 * [Using Pipeline Basic Step withEnv on local portion](https://jenkins.io/doc/pipeline/steps/workflow-basic-steps/#withenv-set-environment-variables)
 
-So, depending on how transverse is your concept/categorization, you can decide where to configure it.
-Imagine we want to monitor our environments and update their status in Apwide Golive based on an HTTP check. However, in Apwide Golive,
-You can configure the list of status name an environment can have.
+## More powerful
 
-So, your organization:
-* has single jira instance
-* has several development teams working each on a specific application, including one on the eCommerce application
-* use 3 level of environments: 'Dev', 'Demo', 'Production'
-* wants to monitoring environment per development team/application
-* use the same status cross application for available and unavailable environments
+You just need a single step to check the url of all your Apwide environments:
 
-You could configure at [jenkins global level](https://wiki.jenkins.io/display/JENKINS/Global+Variable+String+Parameter+Plugin) the:
-* APW_JIRA_BASE_URL : base url to reach JIRA
-* APW_JIRA_CREDENTIALS_ID : id referencing [jenkins credentials](https://jenkins.io/doc/book/using/using-credentials/)
-* APW_UNAVAILABLE_STATUS : let's put it 'Dead' because it's what has been configured in Apwide Golive (D) (default value is 'Down')
-* APW_AVAILABLE_STATUS : here your company use 'Alive' for example. (default value is 'Up')
-
-So, now you could define your pipeline this way
 ```groovy
-pipeline {
-    environment {
-        APW_APPLICATION = 'eCommerce'
-    }
-    stages {
-        stage('Check eCommerce Dev') {
-            steps {
-                apwCheckEnvironmentStatus (
-                    category: 'Dev',
-                    check: { sh 'timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q http://ecommerce.mycompany.com:8180 -O /dev/null' }
-                )
-            }
-        }
-        stage('Check eCommerce Demo') {
-            steps {
-                apwCheckEnvironmentStatus (
-                    category: 'Demo',
-                    check: { sh 'timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q http://ecommerce.mycompany.com:8080 -O /dev/null' }
-                )
-            }
-        }
-        stage('Check eCommerce Production') {
-            steps {
-                apwCheckEnvironmentStatus (
-                    category: 'Production',
-                    check: { sh 'timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q http://ecommerce.mycompany.com:9000 -O /dev/null' }
-                )
-            }
-        }
-    }
+environment {
+    APW_JIRA_BASE_URL = 'http://mycompany.com/jira'
+    APW_JIRA_CREDENTIALS_ID = 'jira-credentials'
+    APW_UNAVAILABLE_STATUS = 'Down'
+    APW_AVAILABLE_STATUS = 'Up'
+}
+steps {
+    apwCheckEnvironmentsStatus
 }
 ```
 
-So, we defined the common **APW_APPLICATION** at the pipeline level and the rest is completely hidden in your jenkins global configuration because
-there is nothing specific to your pipeline.
+This single step will automatically call the url of each environment and set its status to "Up" (valid Http response) or "Down" (Http error).
+Quite powerful, isn't it ? ;-)
 
-Imagine now you have several steps to do for each environment. Here, we're going to print a message only. You could also define env variable at stage level:
-```groovy
-pipeline {
-    environment {
-     APW_APPLICATION = 'eCommerce'
-    }
-    stages {
-        stage('Check eCommerce Dev') {
-            environment {
-                APW_CATEGORY = 'Dev'
-            }
-            steps {
-                echo "checking status of ${env.APW_CATEGORY}"
-                apwCheckEnvironmentStatus check: { sh 'timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q http://ecommerce.mycompany.com:8180 -O /dev/null' }
-            }
-        }
-        stage('Check eCommerce Demo') {
-            steps {
-                echo "checking status of ${env.APW_CATEGORY}"
-                apwCheckEnvironmentStatus check: { sh 'timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q http://ecommerce.mycompany.com:8080 -O /dev/null' }
-            }
-        }
-        stage('Check eCommerce Production') {
-            steps {
-                echo "checking status of ${env.APW_CATEGORY}"
-                apwCheckEnvironmentStatus check: { sh 'timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q http://ecommerce.mycompany.com:9000 -O /dev/null' }
-            }
-        }
-    }
-}
- ```
-If you want to have more examples, let's check one of the use cases below.
 
-You're not satisfied by exposed global variables, do your call to jira by yourself:
+## Direct calls to Jira and Apwide Golive Rest API
+
+You can also make direct calls to any endpoints of Jira and Apwide Golive REST API using this more generic step:
+
 ```groovy
 steps {
     apwCallJira httpMode: 'GET', path: '/rest/api/2/project/10000'
@@ -156,47 +90,42 @@ steps {
 }
 ```
 
-You want to propose an new abstraction, feel free to create a PR !
+To add more predefined steps: fork the project and add your own script sugars! We will be happy to merge your pull requests! ;-)
 
-## Use Cases
+## More Examples
 
-Just pick one of the example that fit your needs or you can just follow the example one by one. They start from the easiest one to the most advanced use cases.
+Browse our "examples" folder to get inspired and to reuse portion of scripts to write your own pipelines. They start from the easiest  to the most advanced ones. A quick overview:
 
 ### Environment Monitoring
-* [Single environment](./examples/monitoring/single-environment): discover how to monitor one single environments
-* [Custom check logic](./examples/monitoring/custom-check) : an example on how you can apply your own complex logic to check the sanity of an environment
-* [Single application](./examples/monitoring/single-application): learn how to monitor the different environments related to an application
-* [Multiple applications](./examples/monitoring/multi-application): scale your monitoring to multiple applications
-* [Advanced selection of environments](./examples/monitoring/criteria-selection): see how you can fine-tune the way you select environments that needs monitoring
+* [Single environment](./examples/monitoring/single-environment): monitor one single environment
+* [Custom check logic](./examples/monitoring/custom-check) : implement a custom logic to check the status of an environment
+* [Single application](./examples/monitoring/single-application):  monitor all environments of an application
+* [Multiple applications](./examples/monitoring/multi-application): monitor environments of several applications
+* [Advanced selection of environments](./examples/monitoring/criteria-selection): monitor a custom set of environments using search criteria
  
 ### Deployment tracking
-* [Deployment workflow](./examples/deployment/simple-build-deploy): how keep track of ongoing deployments and have a global view of which version is available where
+* [Deployment workflow](./examples/deployment/simple-build-deploy): push build and deployment information to Jira and Apwide Golive
 
-### Self-Service provisioning
-* [Environment provisioning](./examples/self-service/): how your stakeholders could provision environment by themselves directly from Golive
+### Self-Service Environments
+* [Environment self-service](./examples/self-service/): users can trigger the creation of new environments and deployments from Jira
 
-## Prerequisites to use Jenkins Jira shared library
-* [Pipeline Utility Steps Plugin](https://wiki.jenkins.io/display/JENKINS/Pipeline+Utility+Steps+Plugin) must be installed
-* [Http Request Plugin](https://wiki.jenkins.io/display/JENKINS/HTTP+Request+Plugin) must be installed
+## Predefined Global Variables
+To avoid duplication in your pipelines, Jenkins global variables can be set and overriden at different levels.
 
-## Available Environment Variables
-To avoid duplication in your pipelines, some Jira and Apwide environment variables can be configured at different level depending
-on the granularity:
+Here are the available predefined global variables:
 
-Here are the available environment variables:
+### Jira global variables
 * **APW_JIRA_BASE_URL** : Jira base url. (e.g. http://localhost:8080 or if you use a context http://localhost:2990/jira). Replace **jiraBaseUrl** parameter.
 * **APW_JIRA_CREDENTIALS_ID** : Id of the Jenkins credentials use to to call Jira Rest API. Replace **jiraCredentialsId** parameter. If not provided the shared library
 will look for the credentials id 'jira-credentials'
-* **APW_JIRA_PROJECT** : id of key of a given jira project that will be used when talking to jira API at project level.
-* **APW_APPLICATION** : Environment application name used in Apwide Golive (e.g. 'eCommerce'). Replace **application** parameter.
-* **APW_CATEGORY** : Environment category name used in Apwide Golive (e.g. 'Dev', 'Demo', 'Staging'...). Replace **category** parameter
-* **APW_UNAVAILABLE_STATUS** : Status name when environment is detected as not available during check environment status. Replace **unavailableStatus** parameter
-* **APW_AVAILABLE_STATUS** : Status name when environment is detcted as available during check environment status. Replace **availableStatus** parameter
-* **APW_ENVIRONMENT_ID** : Id of the Apwide Golive Environment (used when updating environment details, attributes). Replace **environmentId** parameter
+* **APW_JIRA_PROJECT** : id of key of a given jira project that will be used by steps using a Jira project (ex: creation of Jira versions)
 
-Most of the steps provided by the shared library are using these variables, but for each of the step, you can define inline property such as:
-With inline property
+Note that you can also override the global variables using inline properties at step level like in this example:
 ```groovy
+environment {
+    APW_JIRA_BASE_URL = 'http://mycompany.com/jira'
+    APW_JIRA_CREDENTIALS_ID = 'jira-credentials'
+}
 def project = apwCallJira(
     jiraBaseUrl: 'http://localhost:2990/jira',
     jiraCredentialsId: 'localhost-jira-admin',
@@ -204,13 +133,18 @@ def project = apwCallJira(
     path: '/rest/api/2/project/10000'
 )
 ```
-With global variable
-```groovy
-def project = apwCallJira httpMode: 'GET', path: '/rest/api/2/project/10000'
-```
+This allows you to easily deal with multiple Jira and Apwide Golive servers if required.
 
-To know name of parameters, please consult [Parameters](./src/com/apwide/jenkins/util/Parameters.groovy) Global Variable Reference on the pipeline where you've imported the shared lib
-after [having successfully ran the job once](https://stackoverflow.com/questions/41162177/jenkins-pipeline-how-to-add-help-for-global-shared-library).
+### Apwide Golive global variables
+* **APW_APPLICATION** : Environment application name used in Apwide Golive (e.g. 'eCommerce'). Replace **application** parameter.
+* **APW_CATEGORY** : Environment category name used in Apwide Golive (e.g. 'Dev', 'Demo', 'Staging'...). Replace **category** parameter
+* **APW_UNAVAILABLE_STATUS** : Status name when environment is considered as not available by enmvironment status check. Replace **unavailableStatus** parameter
+* **APW_AVAILABLE_STATUS** : Status name when environment is considered as available by environment check status. Replace **availableStatus** parameter
+* **APW_ENVIRONMENT_ID** : Id of the Apwide Golive Environment (used when updating environment details, attributes). Replace **environmentId** parameter
+
+### Browse documentation in Jenkins UI
+You can browse the list of step parameters and global variables of the shared lib in [Parameters](./src/com/apwide/jenkins/util/Parameters.groovy) Global Variable Reference. 
+This documentation will be visible from the pipeline editor only **after [having successfully ran the job once](https://stackoverflow.com/questions/41162177/jenkins-pipeline-how-to-add-help-for-global-shared-library)**.
 
 ## References
 * [How to setup a Jenkins shared library](https://jenkins.io/doc/book/pipeline/shared-libraries/)
