@@ -36,8 +36,8 @@ In this example script, we have set:
 
 ## A bit cleaner
 
-You can use Jenkins credentials instead of setting user/password to connect to Jira in your pipeline.
-Usage of predefined global variables will make your pipeline more readable:
+You can use Jenkins credentials instead of hard coding user/password in your pipeline.
+Usage of predefined global variables will also make your pipeline more readable:
 
 ```groovy
 environment {
