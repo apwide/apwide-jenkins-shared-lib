@@ -4,7 +4,7 @@ Your are at the right place if you use Jira + [Apwide Golive](https://marketplac
 
 You should use this open source [Jenkins Shared Library](https://jenkins.io/doc/book/pipeline/shared-libraries/) to easily exchange information between Jenkins, Jira and [Apwide Golive](https://marketplace.atlassian.com/apps/1212239/golive-environment-release-for-jira).
 
-If you prefer examples over documentation, jump directly to the [pipeline examples library](./examples) and come back here later ;-).
+If you prefer examples over documentation, jump directly to the [pipeline examples library](./examples) and come back here later.
 
 ## Pre-requisites
 
@@ -37,7 +37,7 @@ In this example script, we have set:
 ## A bit cleaner
 
 You can use Jenkins credentials instead of hard coding user/password in your pipeline.
-Usage of predefined global variables will also make your pipeline more readable:
+Usage of predefined global variables also makes your pipeline more readable:
 
 ```groovy
 environment {
