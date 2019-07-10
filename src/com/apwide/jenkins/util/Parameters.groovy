@@ -21,6 +21,7 @@ class Parameters implements Serializable {
                 environmentId:     params.environmentId     ?: params.config?.environmentId     ?: script.env.APW_ENVIRONMENT_ID      ?: null,
                 application:       params.application       ?: params.config?.application       ?: script.env.APW_APPLICATION         ?: null,
                 category:          params.category          ?: params.config?.category          ?: script.env.APW_CATEGORY            ?: null,
+                permissionScheme:  params.permissionScheme  ?: params.config?.permissionScheme  ?: script.env.APW_PERMISSION_SCHEME   ?: null,
                 unavailableStatus: params.unavailableStatus ?: params.config?.unavailableStatus ?: script.env.APW_UNAVAILABLE_STATUS  ?: 'Down',
                 availableStatus:   params.availableStatus   ?: params.config?.availableStatus   ?: script.env.APW_AVAILABLE_STATUS    ?: 'Up',
                 buildFailOnError:  buildFailOnError
@@ -51,5 +52,9 @@ class Parameters implements Serializable {
 
     String getProject() {
         config.project
+    }
+
+    String getPermissionScheme() {
+        config.permissionScheme
     }
 }

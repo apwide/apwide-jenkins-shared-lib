@@ -1,0 +1,18 @@
+<p>Create Apwide Golive environment</p>
+<p></p>
+<dl>
+    <dt>application</dt><dd>Environment Application name. (if null, read from env.APW_APPLICATION)</dd>
+    <dt>category</dt><dd>Environment Category name. (if null, read from env.APW_CATEGORY)</dd>
+    <dt>permissionScheme</dt><dd>Permission Scheme name. (if null, read from env.APW_PERMISSION_SCHEME)</dd>
+    <dt>body</dt><dd>Environment payload use to push data on creation.</dd>
+</dl>
+<br/>
+<p>Usage example:</p>
+<pre><code>
+apwCreateEnvironment application:'eCommerce', category:'Dev', permissionScheme:'Default Environment Permission Scheme', [
+    url: 'http://my.company.com/myEnv',
+    attributes: [
+        database: 'Oracle'
+    ]
+]
+</code></pre>

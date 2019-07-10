@@ -23,6 +23,20 @@ class Environment implements Serializable {
         update(env.id, body)
     }
 
+    def create(applicationName, categoryName, permissionSchemeName, body = null) {
+        jira.post("/environment", [
+                application: [
+                        name: applicationName
+                ],
+                category: [
+                        name: categoryName
+                ],
+                environmentPermissionScheme: [
+                        name: permissionSchemeName
+                ]
+        ] << (body ?: [:]))
+    }
+
     def get(applicationName, categoryName) {
         jira.get("/environment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}")
     }
