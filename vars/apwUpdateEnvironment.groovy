@@ -5,6 +5,10 @@ import static com.apwide.jenkins.util.Utilities.executeStep
 
 def call(Map config = null) {
     executeStep(this, config) { script, Parameters parameters ->
-        return new Environment(this, parameters.config).update(parameters.environmentId, parameters.body)
+        if (parameters.environmentId) {
+            return new Environment(this, parameters.config).update(parameters.environmentId, parameters.body)
+        } else {
+            return new Environment(this, parameters.config).update(parameters.application, parameters.category, parameters.body)
+        }
     }
 }

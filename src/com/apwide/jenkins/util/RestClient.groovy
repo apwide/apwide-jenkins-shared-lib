@@ -18,7 +18,7 @@ class RestClient implements Serializable {
         try {
             def response = script.httpRequest(
                     authentication: config.jiraCredentialsId,
-                    consoleLogResponseBody: false,
+                    consoleLogResponseBody: true,
                     timeout: 5,
                     httpMode: httpMode,
                     requestBody: toJsonText(body),

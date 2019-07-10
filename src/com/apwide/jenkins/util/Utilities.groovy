@@ -7,8 +7,11 @@ import static groovy.lang.Closure.DELEGATE_FIRST
 
 class Utilities {
 
-    static String urlEncode(String text) {
-        return java.net.URLEncoder.encode(text, 'UTF-8')
+    static String urlEncode(value) {
+        if (value instanceof String) {
+            return java.net.URLEncoder.encode(value, 'UTF-8')
+        }
+        return value
     }
 
     static boolean areDependenciesAvailable(script, buildFailOnError) {
