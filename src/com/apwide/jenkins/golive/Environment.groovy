@@ -18,6 +18,11 @@ class Environment implements Serializable {
         jira.put("/environment/${urlEncode(id)}", body)
     }
 
+    def update(applicationName, categoryName, body) {
+        def env = get(applicationName, categoryName)
+        update(env.id, body)
+    }
+
     def get(applicationName, categoryName) {
         jira.get("/environment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}")
     }
