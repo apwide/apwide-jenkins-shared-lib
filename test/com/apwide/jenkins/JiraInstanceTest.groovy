@@ -2,6 +2,7 @@ package com.apwide.jenkins
 
 import com.apwide.jenkins.golive.Environment
 import com.apwide.jenkins.golive.Environments
+import com.apwide.jenkins.golive.Golive
 import com.apwide.jenkins.jira.Project
 import com.apwide.jenkins.jira.Version
 import com.apwide.jenkins.util.MockHttpRequestPlugin
@@ -152,5 +153,33 @@ class JiraInstanceTest extends Specification {
 
         then:
         parameters != null
+    }
+
+    def "create environment and categories"() {
+        given:
+        def golive = new Golive(script, jiraConfig)
+
+        when:
+        def env = golive.createEnvironmentAndCategoryIfNotExist(
+                'eCommerce',
+                'Test2',
+                'Default Environment Permission Scheme')
+
+        then:
+        env != null
+    }
+
+    def "create environment"() {
+        given:
+        def environment = new Environment(script, jiraConfig)
+
+        when:
+        def env = environment.create(
+                'eCommerce',
+                'Test2',
+                'Default Environment Permission Scheme')
+
+        then:
+        env != null
     }
 }
