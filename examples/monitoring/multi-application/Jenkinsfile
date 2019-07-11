@@ -1,4 +1,4 @@
-@Library('jira-jenkins-shared-lib') _
+@Library('apwide-jenkins-shared-lib') _
 
 pipeline {
     agent any
