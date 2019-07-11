@@ -6,7 +6,6 @@ pipeline {
 //        APW_JIRA_BASE_URL = 'http://mycompany.com/jira' // these variables can be defined at different level: jenkins global properties, pipeline level, stage level
 //        APW_JIRA_CREDENTIALS_ID = 'jira-credentials'
         APW_APPLICATION = 'eCommerce'
-        VERSION = currentBuild.number // we use the build number as a version, but you have to provide your own version
     }
     parameters {
         choice(name: 'PROMOTE_TO_ENV', choices: ['Dev', 'Demo'], description: 'Should the output be promoted to an environment ?')
@@ -45,7 +44,7 @@ pipeline {
                         ]
                 ] // update environment information with data we can collect in jenkins for environment identified by APW_ENVIRONMENT_ID
 
-                apwSetDeployedVersion version:env.VERSION // update deployed version for environment identified by APW_APPLICATION and APW_CATEGORY
+                apwSetDeployedVersion version:currentBuild.number // update deployed version for environment identified by APW_APPLICATION and APW_CATEGORY
 
                 apwSetEnvironmentStatus status:'Up' // update status back to Up
             }
@@ -76,7 +75,7 @@ pipeline {
                         ]
                 ]
 
-                apwSetDeployedVersion version:env.VERSION
+                apwSetDeployedVersion version:currentBuild.number
                 apwSetEnvironmentStatus status:'Up'
             }
         }
