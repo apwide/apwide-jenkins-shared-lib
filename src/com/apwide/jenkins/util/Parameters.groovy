@@ -12,7 +12,7 @@ class Parameters implements Serializable {
         this.httpMode = params.httpMode ?: 'GET'
         this.path = params.path ?: ''
         this.body = params.body ?: null
-        this.buildFailOnError = params.buildFailOnError == null || params.buildFailOnError
+        this.buildFailOnError = params.buildFailOnError != null ? params.buildFailOnError : script.env.APW_BUILD_FAIL_ON_ERROR == null || script.env.APW_BUILD_FAIL_ON_ERROR
 
         this.config = [
                 jiraBaseUrl:         params.jiraBaseUrl         ?: params.config?.jiraBaseUrl         ?: script.env.APW_JIRA_BASE_URL         ?: 'http://localhost:2990/jira',
