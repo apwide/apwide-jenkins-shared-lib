@@ -9,10 +9,12 @@
 <br/>
 <p>Usage example:</p>
 <pre><code>
-apwCreateEnvironmentAndCategory application:'eCommerce', category:'Dev', permissionScheme:'Default Environment Permission Scheme', [
+apwCreateEnvironmentAndCategory application:'eCommerce', category:'Dev', permissionScheme:'Default Environment Permission Scheme', body:[
     url: 'http://my.company.com/myEnv',
     attributes: [
-        database: 'Oracle'
+        Database: [
+            value: 'Oracle'
+        ]
     ]
 ]
 </code></pre>
