@@ -1,0 +1,13 @@
+<p>Update Apwide Golive application</p>
+<p></p>
+<dl>
+    <dt>category</dt><dd>Category name. (if null, read from env.APW_CATEGORY)</dd>
+    <dt>body</dt><dd>Category payload use to push data on creation.</dd>
+</dl>
+<br/>
+<p>Usage example:</p>
+<pre><code>
+apwUpdateEnvironmentCategory category:'Dev 1', [
+    order: 100
+]
+</code></pre>
