@@ -1,0 +1,10 @@
+<p>Delete Apwide Golive environment category</p>
+<p></p>
+<dl>
+    <dt>category</dt><dd>Category name. (if null, read from env.APW_CATEGORY)</dd>
+</dl>
+<br/>
+<p>Usage example:</p>
+<pre><code>
+apwDeleteEnvironmentCategory category:'Dev 1'
+</code></pre>
