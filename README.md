@@ -146,6 +146,47 @@ This allows you to easily deal with multiple Jira and Apwide Golive servers if r
 You can browse the list of step parameters and global variables of the shared lib in [Parameters](./src/com/apwide/jenkins/util/Parameters.groovy) Global Variable Reference. 
 This documentation will be visible from the pipeline editor only **after [having successfully ran the job once](https://stackoverflow.com/questions/41162177/jenkins-pipeline-how-to-add-help-for-global-shared-library)**.
 
+## Provided Pipeline Steps
+
+### Call any REST endpoint
+* [apwCallJira](/vars/apwCallJira.txt)
+
+### Manage Environment
+* [apwCreateEnvironment](/vars/apwCreateEnvironment.txt)
+* [apwCreateEnvironmentAndCategory](/vars/apwCreateEnvironmentAndCategory.txt)
+* [apwUpdateEnvironment](/vars/apwUpdateEnvironment.txt)
+* [apwSetDeployedVersion](/vars/apwSetDeployedVersion.txt)
+* [apwSetEnvironmentStatus](/vars/apwSetEnvironmentStatus.txt)
+
+### Search and List Environments
+* [apwGetEnvironment](/vars/apwGetEnvironment.txt)
+* [apwGetEnvironments](/vars/apwGetEnvironments.txt)
+* [apwSearchEnvironments](/vars/apwSearchEnvironments.txt)
+* [apwWithEnvironments](/vars/apwWithEnvironments.txt)
+
+### Manage Application
+* [apwCreateApplication](/vars/apwCreateApplication.txt)
+* [apwUpdateApplication](/vars/apwUpdateApplication.txt)
+* [apwDeleteApplication](/vars/apwDeleteApplication.txt)
+
+### Manage Category
+* [apwCreateEnvironmentCategory](/vars/apwCreateEnvironmentCategory.txt)
+* [apwUpdateEnvironmentCategory](/vars/apwUpdateEnvironmentCategory.txt)
+* [apwDeleteEnvironmentCategory](/vars/apwDeleteEnvironmentCategory.txt)
+
+### Monitor Environments
+* [apwCheckEnvironmentStatus](/vars/apwCheckEnvironmentStatus.txt)
+* [apwCheckEnvironmentsStatus](/vars/apwCheckEnvironmentsStatus.txt)
+
+### Jira Project
+* [apwJiraGetProject](/vars/apwJiraGetProject.txt)
+
+### Jira Version
+* [apwJiraGetProjectVersions](/vars/apwJiraGetProjectVersions.txt)
+* [apwJiraCreateVersion](/vars/apwJiraCreateVersion.txt)
+* [apwJiraUpdateVersion](/vars/apwJiraUpdateVersion.txt)
+
+
 ## References
 * [How to setup a Jenkins shared library](https://jenkins.io/doc/book/pipeline/shared-libraries/)
 * [How to configure credentials](https://jenkins.io/doc/book/using/using-credentials/)
