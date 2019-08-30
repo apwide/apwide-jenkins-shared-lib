@@ -14,6 +14,7 @@ class RestClient implements Serializable {
     }
 
     private def request(httpMode = 'GET', path = '', body = null, validResponseCodes = '200:304') {
+        def previousResult = script.currentBuild.result
         def url = "${resourceUrl}${path}"
         try {
             def response = script.httpRequest(
@@ -31,8 +32,12 @@ class RestClient implements Serializable {
             script.echo "Url: ${httpMode} ${url}"
             script.echo "Body: ${body}"
             if (config.buildFailOnError) {
+                script.echo "Build marked to fail"
                 throw err
             }
+            script.echo "Build marked to not fail"
+            script.echo "Previous build result ${previousResult}"
+            script.currentBuild.result = previousResult
             return null
         }
     }
