@@ -1,14 +1,15 @@
 import com.apwide.jenkins.golive.Environment
 import com.apwide.jenkins.golive.Environments
 import com.apwide.jenkins.util.Parameters
+import com.apwide.jenkins.util.ScriptWrapper
 
 import static com.apwide.jenkins.util.Utilities.executeStep
 
 def call(Map config = null) {
-    executeStep(this, config) { script, Parameters parameters ->
+    executeStep(this, config) { ScriptWrapper script, Parameters parameters ->
 
-        def environmentClient = new Environment(this, parameters.config)
-        def environmentsClient = new Environments(this, parameters.config)
+        def environmentClient = new Environment(script, parameters.config)
+        def environmentsClient = new Environments(script, parameters.config)
 
         def environments
         if (parameters.params.criteria) {
@@ -17,12 +18,12 @@ def call(Map config = null) {
             environments = environmentsClient.findAll application: parameters.application
         }
 
-        echo "Environments json: ${environments.toString()}"
+        script.debug "Environments json: ${environments.toString()}"
 
         for (environment in environments) {
-            echo "Application : ${environment.application.name}"
-            echo "Category: ${environment.category.name}"
-            echo "Environment url: ${environment.url}"
+            script.debug "Application : ${environment.application.name}"
+            script.debug "Category: ${environment.category.name}"
+            script.debug "Environment url: ${environment.url}"
 
             environmentClient.checkAndUpdateStatus(
                 environment.application.name,

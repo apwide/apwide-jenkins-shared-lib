@@ -1,6 +1,7 @@
 package com.apwide.jenkins.golive
 
 import com.apwide.jenkins.util.RestClient
+import com.apwide.jenkins.util.ScriptWrapper
 
 import static com.apwide.jenkins.util.RestClient.checkUrl
 import static com.apwide.jenkins.util.Utilities.urlEncode
@@ -9,7 +10,7 @@ class Environment implements Serializable {
     private final script
     private final RestClient jira
 
-    Environment(Object script, Map jiraConfig) {
+    Environment(ScriptWrapper script, Map jiraConfig) {
         this.script = script
         this.jira = new RestClient(script, jiraConfig, '/rest/apwide/tem/1.1')
     }
@@ -38,7 +39,7 @@ class Environment implements Serializable {
     }
 
     def get(applicationName, categoryName) {
-        jira.get("/environment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}")
+        jira.get("/environment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", '200:304,404')
     }
 
     def getStatus(applicationName, categoryName) {
@@ -56,7 +57,7 @@ class Environment implements Serializable {
     def checkAndUpdateStatus(applicationName, categoryName, unavailableStatus, availableStatus, Closure checkStatusOperation = null) {
         def env = get(applicationName, categoryName)
         if (!checkStatusOperation && !env.url) {
-            script.echo("No check nor url provided for environment ${env.application.name}-${env.category.name}, status won't be updated")
+            script.debug("No check nor url provided for environment ${env.application.name}-${env.category.name}, status won't be updated")
             return
         }
         def status = [:]

@@ -12,4 +12,6 @@ class MockPipelineScript {
     def httpRequest = httpRequestPlugin.&httpRequest
     def readJSON = readJsonPlugin.&readJSON
     def echo = System.out.&println
+    def env = [:]
+    def currentBuild = [:]
 }

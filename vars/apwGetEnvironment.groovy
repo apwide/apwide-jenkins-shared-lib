@@ -1,10 +1,11 @@
 import com.apwide.jenkins.golive.Environment
 import com.apwide.jenkins.util.Parameters
+import com.apwide.jenkins.util.ScriptWrapper
 
 import static com.apwide.jenkins.util.Utilities.executeStep
 
 def call(Map config = null) {
-    executeStep(this, config) { script, Parameters parameters ->
-        return new Environment(this, parameters.config).get(parameters.application, parameters.category)
+    executeStep(this, config) { ScriptWrapper script, Parameters parameters ->
+        return new Environment(script, parameters.config).get(parameters.application, parameters.category)
     }
 }

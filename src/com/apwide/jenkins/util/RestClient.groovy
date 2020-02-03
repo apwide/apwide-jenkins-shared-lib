@@ -3,7 +3,7 @@ package com.apwide.jenkins.util
 import static com.apwide.jenkins.util.JsonMarshaller.toJsonText
 
 class RestClient implements Serializable {
-    private final script
+    private final ScriptWrapper script
     private final Map config
     private final String resourceUrl
 
@@ -14,7 +14,7 @@ class RestClient implements Serializable {
     }
 
     private def request(httpMode = 'GET', path = '', body = null, validResponseCodes = '200:304') {
-        def previousResult = script.currentBuild.result
+        def previousResult = script.getCurrentBuildResult()
         def url = "${resourceUrl}${path}"
         try {
             def response = script.httpRequest(
@@ -28,16 +28,16 @@ class RestClient implements Serializable {
                     validResponseCodes: validResponseCodes)
             return response.content ? script.readJSON(text: response.content) : null
         } catch (err) {
-            script.echo "Error during Rest call: ${err}"
-            script.echo "Url: ${httpMode} ${url}"
-            script.echo "Body: ${body}"
+            script.debug("Error during Rest call: ${err}")
+            script.debug("Url: ${httpMode} ${url}")
+            script.debug("Body: ${body}")
             if (config.buildFailOnError) {
-                script.echo "Build marked to fail"
+                script.debug("Build marked to fail")
                 throw err
             }
-            script.echo "Build marked to not fail"
-            script.echo "Previous build result ${previousResult}"
-            script.currentBuild.result = previousResult
+            script.debug("Build marked to not fail")
+            script.debug("Previous build result ${previousResult}")
+            script.setCurrentBuildResult(previousResult)
             return null
         }
     }
@@ -58,7 +58,7 @@ class RestClient implements Serializable {
         return request('DELETE', path)
     }
 
-    static def checkUrl(Map params, script) {
+    static def checkUrl(Map params, ScriptWrapper script) {
         int tries = 0
         int nbRetry = params.nbRetry ?: 1
 

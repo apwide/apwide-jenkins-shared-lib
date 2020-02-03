@@ -1,15 +1,14 @@
 package com.apwide.jenkins.golive
 
 import com.apwide.jenkins.util.RestClient
+import com.apwide.jenkins.util.ScriptWrapper
 
 import static com.apwide.jenkins.util.Utilities.urlEncode
 
 class Applications implements Serializable {
-    private final script
     private final RestClient jira
 
-    Applications(Object script, Map jiraConfig) {
-        this.script = script
+    Applications(ScriptWrapper script, Map jiraConfig) {
         this.jira = new RestClient(script, jiraConfig, '/rest/apwide/tem/1.1')
     }
 

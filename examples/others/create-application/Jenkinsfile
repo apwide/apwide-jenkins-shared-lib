@@ -16,6 +16,8 @@ pipeline {
         APW_UNAVAILABLE_STATUS = 'Down'
         APW_AVAILABLE_STATUS = 'Up'
         APW_APPLICATION = 'Jira'
+        APW_BUILD_FAIL_ON_ERROR = false
+        APW_LOG_LEVEL = 'OFF'
     }
     stages {
         stage('Create Jira Application') {
