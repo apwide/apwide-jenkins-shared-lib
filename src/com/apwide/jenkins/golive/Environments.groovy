@@ -1,6 +1,7 @@
 package com.apwide.jenkins.golive
 
 import com.apwide.jenkins.util.RestClient
+import com.apwide.jenkins.util.ScriptWrapper
 
 import static com.apwide.jenkins.util.Utilities.urlEncode
 
@@ -9,7 +10,7 @@ import static java.util.stream.Collectors.joining
 class Environments implements Serializable {
     private final RestClient jira
 
-    Environments(Object script, Map jiraConfig) {
+    Environments(ScriptWrapper script, Map jiraConfig) {
         jira = new RestClient(script, jiraConfig, '/rest/apwide/tem/1.1')
     }
 

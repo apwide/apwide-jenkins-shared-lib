@@ -1,13 +1,14 @@
 package com.apwide.jenkins.jira
 
 import com.apwide.jenkins.util.RestClient
+import com.apwide.jenkins.util.ScriptWrapper
 
 import static com.apwide.jenkins.util.Utilities.urlEncode
 
 class Version implements Serializable {
     private final RestClient jira
 
-    Version(Object script, Map jiraConfig) {
+    Version(ScriptWrapper script, Map jiraConfig) {
         jira = new RestClient(script, jiraConfig, '/rest/api/2/version')
     }
 

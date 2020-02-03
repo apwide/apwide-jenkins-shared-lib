@@ -1,13 +1,13 @@
 package com.apwide.jenkins.golive
 
+import com.apwide.jenkins.util.ScriptWrapper
+
 class Golive {
-    final script
     final Categories categories
     final Environment environment
     final Environments environments
 
-    Golive(Object script, Map jiraConfig) {
-        this.script = script
+    Golive(ScriptWrapper script, Map jiraConfig) {
         categories = new Categories(script, jiraConfig)
         environment = new Environment(script, jiraConfig)
         environments = new Environments(script, jiraConfig)

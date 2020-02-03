@@ -13,9 +13,6 @@ class Parameters implements Serializable {
         this.path = params.path ?: ''
         this.body = params.body ?: null
 
-        script.echo "buildFailOnError ${params.buildFailOnError}"
-        script.echo "APW_BUILD_FAIL_ON_ERROR ${script.env.APW_BUILD_FAIL_ON_ERROR}"
-
         if (params.buildFailOnError != null) {
             this.buildFailOnError = params.buildFailOnError
         } else {
@@ -33,6 +30,7 @@ class Parameters implements Serializable {
                 applicationSchemeId: params.applicationSchemeId ?: params.config?.applicationSchemeId ?: script.env.APW_APPLICATION_SCHEME_ID ?: null,
                 unavailableStatus:   params.unavailableStatus   ?: params.config?.unavailableStatus   ?: script.env.APW_UNAVAILABLE_STATUS    ?: 'Down',
                 availableStatus:     params.availableStatus     ?: params.config?.availableStatus     ?: script.env.APW_AVAILABLE_STATUS      ?: 'Up',
+                logLevel:            params.logLevel            ?: params.config?.logLevel            ?: script.env.APW_LOG_LEVEL             ?: 'DEBUG',
 
                 buildFailOnError:  buildFailOnError
         ]
@@ -70,5 +68,9 @@ class Parameters implements Serializable {
 
     String getApplicationSchemeId() {
         config.applicationSchemeId
+    }
+
+    String logLevel() {
+        config.logLevel
     }
 }

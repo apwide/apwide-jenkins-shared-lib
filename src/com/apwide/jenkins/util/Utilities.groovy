@@ -1,6 +1,5 @@
 package com.apwide.jenkins.util
 
-
 import hudson.model.Result
 
 import static groovy.lang.Closure.DELEGATE_FIRST
@@ -14,19 +13,19 @@ class Utilities {
         return value
     }
 
-    static boolean areDependenciesAvailable(script, buildFailOnError) {
+    static boolean areDependenciesAvailable(ScriptWrapper script, buildFailOnError) {
         return isMethodAvailable(script, 'Http Request', buildFailOnError) { script.httpRequest() } &&
                 isMethodAvailable(script, 'Pipeline Utility Steps', buildFailOnError) { script.readJSON() }
     }
 
-    static private boolean isMethodAvailable(script, pluginName, jiraBuildFailOnError, Closure method) {
+    static private boolean isMethodAvailable(ScriptWrapper script, pluginName, jiraBuildFailOnError, Closure method) {
 //        script.echo "Check availability of plugin '${pluginName}'"
         try {
             method()
         } catch (NoSuchMethodError ex) {
-            script.echo "Plugin '${pluginName}' not available"
+            script.debug("Plugin '${pluginName}' not available")
             if (jiraBuildFailOnError) {
-                script.currentBuild.result = Result.FAILURE
+                script.setCurrentBuildResult(Result.FAILURE)
             }
             return false
         } catch (err) {
@@ -38,13 +37,14 @@ class Utilities {
 
     static executeStep(script, Map config, Closure action) {
         Parameters parameters = new Parameters(script, config ?: [:])
+        ScriptWrapper wrappedScript = new ScriptWrapper(script, parameters)
 
-        if (!areDependenciesAvailable(script, parameters.buildFailOnError)) {
+        if (!areDependenciesAvailable(wrappedScript, parameters.buildFailOnError)) {
             return
         }
 
         try {
-            return action(this, parameters)
+            return action(wrappedScript, parameters)
         } catch(err) {
             if (parameters.buildFailOnError) {
                 throw err
@@ -54,7 +54,7 @@ class Utilities {
     }
 
     static executeStep(script, Closure body = null, Closure action) {
-        // we should fine a way to generically bind script context to body closure
+        // we should find a way to generically bind script context to body closure
         Map params = [
                 currentBuild: script.currentBuild,
                 env: script.env
@@ -67,13 +67,14 @@ class Utilities {
         }
 
         Parameters parameters = new Parameters(script, params)
+        ScriptWrapper wrappedScript = new ScriptWrapper(script, parameters)
 
-        if (!areDependenciesAvailable(script, parameters.buildFailOnError)) {
+        if (!areDependenciesAvailable(wrappedScript, parameters.buildFailOnError)) {
             return
         }
 
         try {
-            return action(this, parameters)
+            return action(wrappedScript, parameters)
         } catch(err) {
             if (parameters.buildFailOnError) {
                 throw err
