@@ -25,6 +25,7 @@ class RestClient implements Serializable {
                     requestBody: toJsonText(body),
                     contentType: 'APPLICATION_JSON',
                     url: url,
+                    quiet: !script.isLogEnabled(),
                     validResponseCodes: validResponseCodes)
             return response.content ? script.readJSON(text: response.content) : null
         } catch (err) {
