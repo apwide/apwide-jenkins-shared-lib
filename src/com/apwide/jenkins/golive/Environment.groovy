@@ -43,7 +43,7 @@ class Environment implements Serializable {
     }
 
     def getStatus(applicationName, categoryName) {
-        jira.get("/status-change?application=${urlEncode(applicationName)}&category=${categoryName}", '200:304,404')
+        jira.get("/status-change?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", '200:304,404')
     }
 
     def setStatus(applicationName, categoryName, statusName) {
@@ -66,20 +66,31 @@ class Environment implements Serializable {
         } catch (err) {
             // no fail on status if not exist
         }
-        def checkStatus = checkStatusOperation ?: { environment ->
-            checkUrl url:environment.url,
-                    nbRetry: 3,
-                    httpMode: 'GET',
-                    this.script
+        def checkStatus = checkStatusOperation
+        if (!checkStatus) {
+            checkStatus = { environment ->
+                checkUrl url:environment.url,
+                        nbRetry: 3,
+                        httpMode: 'GET',
+                        this.script
+            }
+            script.debug("Status is going to be checked with default check status (environment URL)")
+        } else {
+            script.debug("status is going to be checked with custom check status body")
         }
         try {
+            script.debug("check status")
             checkStatus(env)
             if (!availableStatus.equals(status?.statusName)) {
+                script.debug("set status to ${availableStatus}")
                 return setStatus(applicationName, categoryName, availableStatus)
             }
         } catch (err) {
             if (!unavailableStatus.equals(status?.statusName)) {
+                script.debug("set status to ${unavailableStatus}")
                 return setStatus(applicationName, categoryName, unavailableStatus)
+            } else {
+                script.debug("unexpected error on checking status")
             }
         }
         return status
