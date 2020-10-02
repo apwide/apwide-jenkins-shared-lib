@@ -1,5 +1,6 @@
 package com.apwide.jenkins.golive
 
+import com.apwide.jenkins.util.Parameters
 import com.apwide.jenkins.util.RestClient
 import com.apwide.jenkins.util.ScriptWrapper
 
@@ -10,8 +11,8 @@ import static java.util.stream.Collectors.joining
 class Environments implements Serializable {
     private final RestClient jira
 
-    Environments(ScriptWrapper script, Map jiraConfig) {
-        jira = new RestClient(script, jiraConfig, '/rest/apwide/tem/1.1')
+    Environments(ScriptWrapper script, Parameters parameters) {
+        this.jira = new RestClient(script, parameters.getConfig(), parameters.getGoliveBaseUrl())
     }
 
     def findAll(Map criteria = null) {

@@ -1,5 +1,6 @@
 package com.apwide.jenkins.jira
 
+import com.apwide.jenkins.util.Parameters
 import com.apwide.jenkins.util.RestClient
 import com.apwide.jenkins.util.ScriptWrapper
 
@@ -8,8 +9,8 @@ import static com.apwide.jenkins.util.Utilities.urlEncode
 class Version implements Serializable {
     private final RestClient jira
 
-    Version(ScriptWrapper script, Map jiraConfig) {
-        jira = new RestClient(script, jiraConfig, '/rest/api/2/version')
+    Version(ScriptWrapper script, Parameters parameters) {
+        jira = new RestClient(script, parameters.getConfig(), parameters.getJiraUrl('/rest/api/2/version'))
     }
 
     def create(Map version) {

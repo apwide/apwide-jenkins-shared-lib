@@ -1,5 +1,6 @@
 package com.apwide.jenkins.golive
 
+import com.apwide.jenkins.util.Parameters
 import com.apwide.jenkins.util.RestClient
 import com.apwide.jenkins.util.ScriptWrapper
 
@@ -8,8 +9,8 @@ import static com.apwide.jenkins.util.Utilities.urlEncode
 class Categories implements Serializable {
     private final RestClient jira
 
-    Categories(ScriptWrapper script, Map jiraConfig) {
-        this.jira = new RestClient(script, jiraConfig, '/rest/apwide/tem/1.1')
+    Categories(ScriptWrapper script, Parameters parameters) {
+        this.jira = new RestClient(script, parameters.getConfig(), parameters.getGoliveBaseUrl())
     }
 
     def findAll() {

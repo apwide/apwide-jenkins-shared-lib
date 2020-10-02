@@ -6,18 +6,19 @@ pipeline {
         disableConcurrentBuilds()
         buildDiscarder(logRotator(numToKeepStr: '1'))
     }
-    triggers {
-        cron('* * * * *') // every 1 minute
-    }
+//    triggers {
+//        cron('* * * * *') // every 1 minute
+//    }
     environment {
 //        APW_JIRA_BASE_URL = 'http://mycompany.com/jira' // these variables can be defined at different level: jenkins global properties, pipeline level, stage level
 //        APW_JIRA_CREDENTIALS_ID = 'jira-credentials'
+        APW_GOLIVE_CLOUD_CREDENTIALS_ID = 'goliveCloudCredentialsId'
         APW_APPLICATION_SCHEME_ID = 1
         APW_UNAVAILABLE_STATUS = 'Down'
         APW_AVAILABLE_STATUS = 'Up'
         APW_APPLICATION = 'Jira'
         APW_BUILD_FAIL_ON_ERROR = false
-        APW_LOG_LEVEL = 'OFF'
+//        APW_LOG_LEVEL = 'OFF'
     }
     stages {
         stage('Create Jira Application') {

@@ -7,6 +7,6 @@ import static com.apwide.jenkins.util.Utilities.executeStep
 def call(Map config = null) {
     executeStep(this, config) { ScriptWrapper script, Parameters parameters ->
         // take parameters from input params directly because we don't want to have global environment variable resolution here
-        return new Environments(script, parameters.config).findAll(application: parameters.params.application, category: parameters.params.category)
+        return new Environments(script, parameters).findAll(application: parameters.params.application, category: parameters.params.category)
     }
 }

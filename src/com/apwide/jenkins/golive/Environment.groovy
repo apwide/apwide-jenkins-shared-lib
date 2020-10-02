@@ -1,5 +1,6 @@
 package com.apwide.jenkins.golive
 
+import com.apwide.jenkins.util.Parameters
 import com.apwide.jenkins.util.RestClient
 import com.apwide.jenkins.util.ScriptWrapper
 
@@ -10,9 +11,9 @@ class Environment implements Serializable {
     private final script
     private final RestClient jira
 
-    Environment(ScriptWrapper script, Map jiraConfig) {
+    Environment(ScriptWrapper script, Parameters parameters) {
         this.script = script
-        this.jira = new RestClient(script, jiraConfig, '/rest/apwide/tem/1.1')
+        this.jira = new RestClient(script, parameters.getConfig(), parameters.getGoliveBaseUrl())
     }
 
     def update(id, body) {
