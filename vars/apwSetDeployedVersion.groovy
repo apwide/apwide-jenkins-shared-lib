@@ -6,6 +6,6 @@ import static com.apwide.jenkins.util.Utilities.executeStep
 
 def call(Map config = null) {
     executeStep(this, config) { ScriptWrapper script, Parameters parameters ->
-        return new Environment(script, parameters.config).setDeployedVersion(parameters.application, parameters.category, parameters.params.version)
+        return new Environment(script, parameters).setDeployedVersion(parameters.application, parameters.category, parameters.params.version)
     }
 }

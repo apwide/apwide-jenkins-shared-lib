@@ -6,7 +6,7 @@ import static com.apwide.jenkins.util.Utilities.executeStep
 
 def call(Map config = null) {
     executeStep(this, config) { ScriptWrapper script, Parameters parameters ->
-        return new Environment(script, parameters.config)
+        return new Environment(script, parameters)
             .checkAndUpdateStatus(parameters.application, parameters.category, parameters.unavailableStatus, parameters.availableStatus,
                 parameters.params.checkStatus)
     }

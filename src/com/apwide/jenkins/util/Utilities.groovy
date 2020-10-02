@@ -19,7 +19,6 @@ class Utilities {
     }
 
     static private boolean isMethodAvailable(ScriptWrapper script, pluginName, jiraBuildFailOnError, Closure method) {
-//        script.echo "Check availability of plugin '${pluginName}'"
         try {
             method()
         } catch (NoSuchMethodError ex) {
@@ -31,7 +30,6 @@ class Utilities {
         } catch (err) {
             // do nothing
         }
-//        script.echo "Plugin '${pluginName}' available"
         return true
     }
 
@@ -82,8 +80,4 @@ class Utilities {
         }
         return null
     }
-
-//    static String render(String text, Map parameters) {
-//        return new SimpleTemplateEngine().createTemplate(text).make(parameters).toString()
-//    }
 }

@@ -1,5 +1,6 @@
 package com.apwide.jenkins.golive
 
+import com.apwide.jenkins.util.Parameters
 import com.apwide.jenkins.util.ScriptWrapper
 
 class Golive {
@@ -7,10 +8,10 @@ class Golive {
     final Environment environment
     final Environments environments
 
-    Golive(ScriptWrapper script, Map jiraConfig) {
-        categories = new Categories(script, jiraConfig)
-        environment = new Environment(script, jiraConfig)
-        environments = new Environments(script, jiraConfig)
+    Golive(ScriptWrapper script, Parameters parameters) {
+        categories = new Categories(script, parameters)
+        environment = new Environment(script, parameters)
+        environments = new Environments(script, parameters)
     }
 
     def createEnvironmentAndCategoryIfNotExist(applicationName, categoryName, permissionSchemeName, body = null) {

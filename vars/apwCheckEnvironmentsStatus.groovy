@@ -8,8 +8,8 @@ import static com.apwide.jenkins.util.Utilities.executeStep
 def call(Map config = null) {
     executeStep(this, config) { ScriptWrapper script, Parameters parameters ->
 
-        def environmentClient = new Environment(script, parameters.config)
-        def environmentsClient = new Environments(script, parameters.config)
+        def environmentClient = new Environment(script, parameters)
+        def environmentsClient = new Environments(script, parameters)
 
         def environments
         if (parameters.params.criteria) {

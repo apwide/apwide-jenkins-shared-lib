@@ -5,6 +5,6 @@ import static com.apwide.jenkins.util.Utilities.executeStep
 
 def call(Map config = null) {
     executeStep(this, config) { ScriptWrapper script, parameters ->
-        return new Project(script, parameters.config).get(parameters.params.id)
+        return new Project(script, parameters).get(parameters.params.id)
     }
 }

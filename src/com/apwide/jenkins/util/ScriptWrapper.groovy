@@ -34,6 +34,20 @@ class ScriptWrapper {
         }
     }
 
+    def string(params) {
+        return this.script.string(params)
+    }
+
+    def withCredentials(params, Closure task) {
+        script.withCredentials(params) {
+            task()
+        }
+    }
+
+    def env(key) {
+        this.script.env[key]
+    }
+
     private boolean isLogEnabled() {
         return LogLevel.levelFrom(this.params.logLevel()) == DEBUG
     }
