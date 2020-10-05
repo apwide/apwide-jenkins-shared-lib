@@ -90,7 +90,47 @@ steps {
 }
 ```
 
-To add more predefined steps: fork the project and add your own script sugars! We will be happy to merge your pull requests! ;-)
+## Want to talk to Golive cloud
+
+Thanks to specific environment variables, this shared library is able to talk to Golive Cloud. To do that:
+
+```groovy
+environment {
+    APW_GOLIVE_CLOUD_CREDENTIALS_ID = 'golive-cloud-credentials'
+    APW_UNAVAILABLE_STATUS = 'Down'
+    APW_AVAILABLE_STATUS = 'Up'
+}
+steps {
+    apwCheckEnvironmentsStatus
+}
+```
+
+For this we've just:
+* On Golive, [generated a new API token](https://www.apwide.com/golive/cloud/environments/help/how-to-use-api-tokens) from the integrations page
+* Stored this token as a simple [secret text](https://www.jenkins.io/doc/book/using/using-credentials/#types-of-credentials) in our jenkins credentials store
+* Filled the environment variable *APW_JIRA_CLOUD_CREDENTIALS_ID* with the credentials id used to store the token.
+
+Note: if a Golive cloud credentials id is found by a pipeline, the steps will try to execute REST API calls on Golive cloud.
+
+## Want to talk to Jira cloud too
+
+You can access your specific Jira cloud instance REST API with the corresponding environment variables:
+
+```groovy
+environment {
+    APW_JIRA_CLOUD_CREDENTIALS_ID = "jira-cloud-credentials"
+    APW_JIRA_CLOUD_BASE_URL = 'https://mycompany.atlassian.net'
+}
+steps {
+    apwCallJira httpMode: 'GET', path: '/rest/api/2/project'
+}
+```
+To do so, we had to:
+* [generate a new API token](https://confluence.atlassian.com/cloud/api-tokens-938839638.html) for Jira
+* Store the user email-address and the corresponding token as [username and password secret](https://www.jenkins.io/doc/book/using/using-credentials/#types-of-credentials) in our jenkins credentials store
+* Filled the environment variable *APW_JIRA_CLOUD_CREDENTIALS_ID* with the credentials id used to store the username and token.
+
+Note: if a Jira cloud credentials id AND a Jira cloud base url is found by a pipeline, the steps will try to execute REST API calls on Jira cloud.
 
 ## More Examples
 
@@ -115,10 +155,12 @@ To avoid duplication in your pipelines, Jenkins global variables can be set and 
 Here are the available predefined global variables:
 
 ### Jira global variables
-* **APW_JIRA_BASE_URL** : Jira base url. (e.g. http://localhost:8080 or if you use a context http://localhost:2990/jira). Replace **jiraBaseUrl** parameter.
-* **APW_JIRA_CREDENTIALS_ID** : Id of the Jenkins credentials use to to call Jira Rest API. Replace **jiraCredentialsId** parameter. If not provided the shared library
+* **APW_JIRA_BASE_URL** : Jira server/datacenter base url. (e.g. http://localhost:8080 or if you use a context http://localhost:2990/jira). Replace **jiraBaseUrl** parameter.
+* **APW_JIRA_CREDENTIALS_ID** : Id of the Jenkins credentials to use to call Jira Rest API. Replace **jiraCredentialsId** parameter. If not provided the shared library
 will look for the credentials id 'jira-credentials'
 * **APW_JIRA_PROJECT** : id of key of a given jira project that will be used by steps using a Jira project (ex: creation of Jira versions)
+* **APW_JIRA_CLOUD_BASE_URL** : For Jira cloud, the URL of the specific instance(e.g. https://mycompany.atlassian.net). Replace **jiraCloudBaseUrl** parameter.
+* **APW_JIRA_CLOUD_CREDENTIALS_ID** : For Jira cloud, the Jenkins credentials id (username/password type) to use to call Jira Cloud REST API. Replace **jiraCloudCredentialsId** parameter.
 
 Note that you can also override the global variables using inline properties at step level like in this example:
 ```groovy
@@ -141,6 +183,7 @@ This allows you to easily deal with multiple Jira and Apwide Golive servers if r
 * **APW_UNAVAILABLE_STATUS** : Status name when environment is considered as not available by enmvironment status check. Replace **unavailableStatus** parameter
 * **APW_AVAILABLE_STATUS** : Status name when environment is considered as available by environment check status. Replace **availableStatus** parameter
 * **APW_ENVIRONMENT_ID** : Id of the Apwide Golive Environment (used when updating environment details, attributes). Replace **environmentId** parameter
+* **APW_GOLIVE_CLOUD_CREDENTIALS_ID** : If shared lib used to talk to Golive Cloud, id of the Jenkins credentials to use to call Golive Cloud REST API. Replace **goliveCloudCredentialsId** parameter
 
 ### Browse documentation in Jenkins UI
 You can browse the list of step parameters and global variables of the shared lib in [Parameters](./src/com/apwide/jenkins/util/Parameters.groovy) Global Variable Reference. 

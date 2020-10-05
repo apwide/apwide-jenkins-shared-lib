@@ -3,14 +3,15 @@ package com.apwide.jenkins.golive
 import com.apwide.jenkins.util.Parameters
 import com.apwide.jenkins.util.RestClient
 import com.apwide.jenkins.util.ScriptWrapper
+import com.apwide.jenkins.util.auth.GoliveAuthenticator
 
 import static com.apwide.jenkins.util.Utilities.urlEncode
 
 class Applications implements Serializable {
     private final RestClient jira
 
-    Applications(ScriptWrapper script = null, Parameters parameters = null) {
-        this.jira = new RestClient(script, parameters.getConfig(), parameters.getGoliveBaseUrl())
+    Applications(ScriptWrapper script, Parameters parameters) {
+        this.jira = new RestClient(script, parameters.getConfig(), new GoliveAuthenticator(script, parameters), parameters.getGoliveBaseUrl())
     }
 
     def findAll() {

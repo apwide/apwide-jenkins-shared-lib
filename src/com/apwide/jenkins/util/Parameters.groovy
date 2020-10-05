@@ -24,6 +24,8 @@ class Parameters implements Serializable {
         this.config = [
             jiraBaseUrl:              params.jiraBaseUrl              ?: params.config?.jiraBaseUrl              ?: script.env.APW_JIRA_BASE_URL               ?: 'http://localhost:2990/jira',
             jiraCredentialsId:        params.jiraCredentialsId        ?: params.config?.jiraCredentialsId        ?: script.env.APW_JIRA_CREDENTIALS_ID         ?: 'jira-credentials',
+            jiraCloudCredentialsId:   params.jiraCloudCredentialsId   ?: params.config?.jiraCloudCredentialsId   ?: script.env.APW_JIRA_CLOUD_CREDENTIALS_ID   ?: null,
+            jiraCloudBaseUrl:         params.jiraCloudBaseUrl         ?: params.config?.jiraCloudBaseUrl         ?: script.env.APW_JIRA_CLOUD_BASE_URL         ?: null,
             goliveCloudCredentialsId: params.goliveCloudCredentialsId ?: params.config?.goliveCloudCredentialsId ?: script.env.APW_GOLIVE_CLOUD_CREDENTIALS_ID ?: null,
             project:                  params.project                  ?: params.config?.project                  ?: script.env.APW_JIRA_PROJECT                ?: null,
             environmentId:            params.environmentId            ?: params.config?.environmentId            ?: script.env.APW_ENVIRONMENT_ID              ?: null,
@@ -48,11 +50,37 @@ class Parameters implements Serializable {
 
     @NonCPS
     String getGoliveBaseUrl() {
-        config.goliveCloudCredentialsId ? 'https://golive.apwide.net/api' :  "${config.jiraBaseUrl}/rest/apwide/tem/1.1"
+        hasGoliveCloudCredentials() ? 'https://golive.apwide.net/api' :  "${config.jiraBaseUrl}/rest/apwide/tem/1.1"
+    }
+
+    @NonCPS
+    String getGoliveCloudCredentialsId() {
+        return config.goliveCloudCredentialsId
+    }
+
+    String getJiraCloudCredentialsId() {
+        config.jiraCloudCredentialsId
+    }
+
+    String getJiraCredentialsId() {
+        config.jiraCredentialsId
+    }
+
+    boolean isJiraCloud() {
+        config.jiraCloudCredentialsId != null && config.jiraCloudBaseUrl != null
+    }
+
+    boolean isCloud() {
+        hasGoliveCloudCredentials()
+    }
+
+    @NonCPS
+    boolean hasGoliveCloudCredentials() {
+        config.goliveCloudCredentialsId != null
     }
 
     String getJiraUrl(String path = '') {
-        "${config.jiraBaseUrl}${path}"
+        isJiraCloud() ? "${config.jiraCloudBaseUrl}" : "${config.jiraBaseUrl}${path}"
     }
 
     String getApplication() {
