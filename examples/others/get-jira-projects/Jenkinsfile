@@ -12,18 +12,19 @@ pipeline {
     environment {
 //        APW_JIRA_BASE_URL = 'http://mycompany.com/jira' // these variables can be defined at different level: jenkins global properties, pipeline level, stage level
 //        APW_JIRA_CREDENTIALS_ID = 'jira-credentials'
-//        APW_GOLIVE_CLOUD_CREDENTIALS_ID = 'goliveCloudCredentialsId' // generate a token from golive, add it as simple secret in jenkins credentials, and provides the id here
-        APW_APPLICATION_SCHEME_ID = 1
-        APW_UNAVAILABLE_STATUS = 'Down'
-        APW_AVAILABLE_STATUS = 'Up'
-        APW_APPLICATION = 'Jira'
+        APW_JIRA_CLOUD_CREDENTIALS_ID = "jira-cloud-credentials"
+        APW_JIRA_CLOUD_BASE_URL = 'https://mycompany.atlassian.net'
         APW_BUILD_FAIL_ON_ERROR = false
 //        APW_LOG_LEVEL = 'OFF'
     }
     stages {
-        stage('Create Jira Application') {
+        stage('Get jira projects') {
             steps {
-                apwCreateApplication()
+                script {
+                    def projects = apwCallJira(httpMode: 'GET', path: '/rest/api/2/project')
+                    echo "output projects"
+                    echo "${projects}"
+                }
             }
 
         }

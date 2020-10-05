@@ -1,38 +1,40 @@
 package com.apwide.jenkins.util
 
+import com.apwide.jenkins.util.auth.AuthenticationContext
+import com.apwide.jenkins.util.auth.Authenticator
+
 import static com.apwide.jenkins.util.JsonMarshaller.toJsonText
 
 class RestClient implements Serializable {
     private final ScriptWrapper script
     private final Map config
     private final String resourceUrl
+    private final Authenticator authenticator;
 
-    RestClient(script, Map config, String resourceUrl = '') {
+    RestClient(script, Map config, Authenticator authenticator, String resourceUrl) {
         this.script = script
         this.config = config
         this.resourceUrl = resourceUrl
+        this.authenticator = authenticator
     }
 
     private def request(httpMode = 'GET', path = '', body = null, validResponseCodes = '200:304') {
-        if (config.goliveCloudCredentialsId) {
-            script.withCredentials([script.string(credentialsId: config.goliveCloudCredentialsId, variable: 'APW_INTERNAL_GOLIVE_CLOUD_CREDENTIALS_ID')]) {
-                def token = this.script.env("APW_INTERNAL_GOLIVE_CLOUD_CREDENTIALS_ID")
-                return executeRequest(httpMode, path, body, validResponseCodes, token)
-            }
-        } else {
-            return executeRequest(httpMode, path, body, validResponseCodes)
+        script.debug("trigger request")
+        authenticator.authenticate { AuthenticationContext authContext ->
+            return executeRequest(httpMode, path, body, validResponseCodes, authContext)
         }
     }
 
-    private def executeRequest(httpMode = 'GET', path = '', body = null, validResponseCodes = '200:304', String goliveCloudToken = null) {
+    private def executeRequest(httpMode = 'GET', path = '', body = null, validResponseCodes = '200:304', AuthenticationContext authContext) {
+        script.debug("execute request")
+        script.debug("credentials id ${authContext.getCredentialsId()}")
+        script.debug("customHeaders ${authContext.getCredentialsHeader()}")
         def previousResult = script.getCurrentBuildResult()
         def url = "${resourceUrl}${path}"
-        def authentication = goliveCloudToken ? null : config.jiraCredentialsId
-        def authenticationHeaders = goliveCloudToken ? [[name: 'api-key', value: goliveCloudToken, markValue: true]] : null
         try {
             def response = script.httpRequest(
-                    authentication: authentication,
-                    customHeaders: authenticationHeaders,
+                    authentication: authContext.getCredentialsId(),
+                    customHeaders: authContext.getCredentialsHeader(),
                     consoleLogResponseBody: true,
                     timeout: 5,
                     httpMode: httpMode,
