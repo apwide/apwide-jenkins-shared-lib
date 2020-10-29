@@ -31,18 +31,21 @@ class RestClient implements Serializable {
         script.debug("customHeaders ${authContext.getCredentialsHeader()}")
         def previousResult = script.getCurrentBuildResult()
         def url = "${resourceUrl}${path}"
+
+        def requestOptions = [
+            authentication: authContext.getCredentialsId(),
+            customHeaders: authContext.getCredentialsHeader(),
+            consoleLogResponseBody: true,
+            timeout: 5,
+            httpMode: httpMode,
+            requestBody: toJsonText(body),
+            contentType: 'APPLICATION_JSON',
+            url: url,
+            quiet: !script.isLogEnabled(),
+            validResponseCodes: validResponseCodes
+        ] << (config.httpRequestOptions ?: [:])
         try {
-            def response = script.httpRequest(
-                    authentication: authContext.getCredentialsId(),
-                    customHeaders: authContext.getCredentialsHeader(),
-                    consoleLogResponseBody: true,
-                    timeout: 5,
-                    httpMode: httpMode,
-                    requestBody: toJsonText(body),
-                    contentType: 'APPLICATION_JSON',
-                    url: url,
-                    quiet: !script.isLogEnabled(),
-                    validResponseCodes: validResponseCodes)
+            def response = script.httpRequest(requestOptions)
             return response.content ? script.readJSON(text: response.content) : null
         } catch (err) {
             script.debug("Error during Rest call: ${err}")

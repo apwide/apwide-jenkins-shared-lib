@@ -37,7 +37,8 @@ class Parameters implements Serializable {
             availableStatus:          params.availableStatus          ?: params.config?.availableStatus          ?: script.env.APW_AVAILABLE_STATUS            ?: 'Up',
             logLevel:                 params.logLevel                 ?: params.config?.logLevel                 ?: script.env.APW_LOG_LEVEL                   ?: 'DEBUG',
 
-            buildFailOnError:  buildFailOnError
+            buildFailOnError:  buildFailOnError,
+            httpRequestOptions: params.httpRequestOptions ?: params.config?.httpRequestOptions
         ]
 
         this.params = params
