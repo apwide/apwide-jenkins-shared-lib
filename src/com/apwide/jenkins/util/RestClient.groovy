@@ -44,6 +44,10 @@ class RestClient implements Serializable {
             quiet: !script.isLogEnabled(),
             validResponseCodes: validResponseCodes
         ] << (config.httpRequestOptions ?: [:])
+
+        script.debug("request Options")
+        script.debug("$requestOptions")
+
         try {
             def response = script.httpRequest(requestOptions)
             return response.content ? script.readJSON(text: response.content) : null
