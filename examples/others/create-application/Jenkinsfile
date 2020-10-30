@@ -1,4 +1,4 @@
-@Library('apwide-jenkins-shared-lib') _
+@Library('apwide-jenkins-shared-lib@feature/timeout') _
 
 pipeline {
     agent any
@@ -24,8 +24,11 @@ pipeline {
         stage('Create Jira Application') {
             steps {
                 apwCreateApplication(httpRequestOptions: [
-                        timeout: 20,
+                        timeout: 10,
                         validResponseCodes: "400"
+                ])
+                apwGetEnvironments(httpRequestOptions: [
+                        timeout: 1
                 ])
             }
 
