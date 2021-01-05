@@ -52,8 +52,13 @@ class Environment implements Serializable {
         jira.put("/status-change?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", [name: statusName])
     }
 
-    def setDeployedVersion(applicationName, categoryName, deployedVersion) {
-        jira.put("/deployment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", [versionName: deployedVersion])
+    def setDeployedVersion(applicationName, categoryName, deployedVersion, buildNumber, description, attributes) {
+        jira.put("/deployment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", [
+                versionName: deployedVersion,
+                buildNumber: buildNumber,
+                description: description,
+                attributes: attributes
+        ])
     }
 
     def checkAndUpdateStatus(applicationName, categoryName, unavailableStatus, availableStatus, Closure checkStatusOperation = null) {
