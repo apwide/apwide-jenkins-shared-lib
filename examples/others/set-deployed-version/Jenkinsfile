@@ -1,0 +1,35 @@
+@Library('apwide-jenkins-shared-lib@feature/buildNumber') _
+
+pipeline {
+    agent any
+    options {
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '1'))
+    }
+//    triggers {
+//        cron('* * * * *') // every 1 minute
+//    }
+    environment {
+//        APW_JIRA_BASE_URL = 'http://mycompany.com/jira' // these variables can be defined at different level: jenkins global properties, pipeline level, stage level
+//        APW_JIRA_CREDENTIALS_ID = 'jira-credentials'
+        APW_GOLIVE_CLOUD_CREDENTIALS_ID = 'goliveCloudCredentialsId' // generate a token from golive, add it as simple secret in jenkins credentials, and provides the id here
+        APW_BUILD_FAIL_ON_ERROR = true
+//        APW_LOG_LEVEL = 'OFF'
+    }
+    stages {
+        stage('Update deployed version with build information') {
+            steps {
+                apwSetDeployedVersion application: 'Jira',
+                        category: 'Integration2',
+                        version: '0.0.1-SNAPSHOT',
+                        buildNumber: currentBuild.number,
+                        description: env.JOB_NAME,
+                        attributes: [
+                                'Owner': 'Marvin',
+                                'trigger'  : env.BUILD_URL
+                        ]
+            }
+
+        }
+    }
+}
