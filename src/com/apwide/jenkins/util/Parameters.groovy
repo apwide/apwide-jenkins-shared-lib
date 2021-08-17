@@ -67,6 +67,7 @@ class Parameters implements Serializable {
         config.jiraCredentialsId
     }
 
+    @NonCPS
     boolean isJiraCloud() {
         config.jiraCloudCredentialsId != null && config.jiraCloudBaseUrl != null
     }
@@ -80,6 +81,7 @@ class Parameters implements Serializable {
         config.goliveCloudCredentialsId != null
     }
 
+    @NonCPS
     String getJiraUrl(String path = '') {
         isJiraCloud() ? "${config.jiraCloudBaseUrl}" : "${config.jiraBaseUrl}${path}"
     }
