@@ -61,10 +61,14 @@ class Environment implements Serializable {
         ])
     }
 
-    def checkAndUpdateStatus(applicationName, categoryName, unavailableStatus, availableStatus, Closure checkStatusOperation = null) {
+    def checkAndUpdateStatus(applicationName, categoryName, unavailableStatus, availableStatus, String dontTouchStatus = null, Closure checkStatusOperation = null) {
         def env = get(applicationName, categoryName)
         if (!checkStatusOperation && !env.url) {
             script.debug("No check nor url provided for environment ${env.application.name}-${env.category.name}, status won't be updated")
+            return
+        }
+        if (dontTouchStatus != null && env.status*.name == dontTouchStatus) {
+            script.debug("Environment ${applicationName} ${categoryName} is in dont touch state ${dontTouchStatus} and so, it's status won't be modified")
             return
         }
         def status = [:]

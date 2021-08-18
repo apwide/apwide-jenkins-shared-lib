@@ -8,6 +8,6 @@ def call(Map config = null) {
     executeStep(this, config) { ScriptWrapper script, Parameters parameters ->
         return new Environment(script, parameters)
             .checkAndUpdateStatus(parameters.application, parameters.category, parameters.unavailableStatus, parameters.availableStatus,
-                parameters.params.checkStatus)
+                parameters.dontTouchStatus, parameters.params.checkStatus)
     }
 }

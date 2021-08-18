@@ -30,6 +30,7 @@ def call(Map config = null) {
                 environment.category.name,
                 parameters.unavailableStatus,
                 parameters.availableStatus,
+                parameters.dontTouchStatus,
                 parameters.params.checkStatus)
         }
     }

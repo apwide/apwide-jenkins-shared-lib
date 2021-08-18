@@ -36,6 +36,7 @@ class Parameters implements Serializable {
             unavailableStatus:        params.unavailableStatus        ?: params.config?.unavailableStatus        ?: script.env.APW_UNAVAILABLE_STATUS          ?: 'Down',
             availableStatus:          params.availableStatus          ?: params.config?.availableStatus          ?: script.env.APW_AVAILABLE_STATUS            ?: 'Up',
             logLevel:                 params.logLevel                 ?: params.config?.logLevel                 ?: script.env.APW_LOG_LEVEL                   ?: 'DEBUG',
+            dontTouchStatus:          params.dontTouchStatus          ?: params.config?.dontTouchStatus          ?: script.env.APW_DONT_TOUCH_STATUS           ?: null,
 
             buildFailOnError:  buildFailOnError,
             httpRequestOptions: params.httpRequestOptions ?: params.config?.httpRequestOptions
@@ -120,5 +121,9 @@ class Parameters implements Serializable {
 
     String logLevel() {
         config.logLevel
+    }
+
+    String getDontTouchStatus() {
+        return config.dontTouchStatus
     }
 }
