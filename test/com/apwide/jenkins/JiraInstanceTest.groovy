@@ -39,7 +39,7 @@ class JiraInstanceTest extends Specification {
 
     def "get list of environments"() {
         given:
-        def golive = new Environments(script, jiraConfig)
+        def golive = new Environments(script, new Parameters(script, jiraConfig))
 
         when:
         def environments = golive.findAll()
@@ -52,7 +52,7 @@ class JiraInstanceTest extends Specification {
 
     def "get list of environments for eCommerce application"() {
         given:
-        def golive = new Environments(script, jiraConfig)
+        def golive = new Environments(script, new Parameters(script, jiraConfig))
 
         when:
         def environments = golive.findAll application:'eCommerce'
@@ -64,7 +64,7 @@ class JiraInstanceTest extends Specification {
 
     def "search for environments"() {
         given:
-        def environments = new Environments(script, jiraConfig)
+        def environments = new Environments(script, new Parameters(script, jiraConfig))
 
         when:
         def result = environments.search([
@@ -80,7 +80,7 @@ class JiraInstanceTest extends Specification {
 
     def "with environments"() {
         given:
-        def environments = new Environments(script, jiraConfig)
+        def environments = new Environments(script, new Parameters(script, jiraConfig))
 
         when:
         environments.withEnvironments([
@@ -95,7 +95,7 @@ class JiraInstanceTest extends Specification {
 
     def "get version information ECOM-3.1"() {
         given:
-        def version = new Version(script, jiraConfig)
+        def version = new Version(script, new Parameters(script, jiraConfig))
 
         when:
         def foundVersion = version.get("10210")
@@ -117,7 +117,7 @@ class JiraInstanceTest extends Specification {
 
     def "create version"() {
         given:
-        def version = new Version(script, jiraConfig)
+        def version = new Version(script, new Parameters(script, jiraConfig))
         def versionName = "Pipeline Version ${new Date().getTime()}"
         when:
         def createdVersion = version.create(
@@ -133,7 +133,7 @@ class JiraInstanceTest extends Specification {
 
     def "check environment status"() {
         given:
-        def environment = new Environment(script, jiraConfig)
+        def environment = new Environment(script, new Parameters(script, jiraConfig))
 
         when:
         def updatedStatus = environment.checkAndUpdateStatus('eCommerce', 'Dev1', 'Down', 'Up')
@@ -160,7 +160,7 @@ class JiraInstanceTest extends Specification {
 
     def "create environment and categories"() {
         given:
-        def golive = new Golive(script, jiraConfig)
+        def golive = new Golive(script, new Parameters(script, jiraConfig))
 
         when:
         def env = golive.createEnvironmentAndCategoryIfNotExist(
@@ -174,7 +174,7 @@ class JiraInstanceTest extends Specification {
 
     def "create environment"() {
         given:
-        def environment = new Environment(script, jiraConfig)
+        def environment = new Environment(script, new Parameters(script, jiraConfig))
 
         when:
         def env = environment.create(

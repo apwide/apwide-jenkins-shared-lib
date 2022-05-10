@@ -5,8 +5,10 @@ import static com.apwide.jenkins.util.ScriptWrapper.LogLevel.DEBUG
 class ScriptWrapper {
     final script
     final Parameters params
+    final env
 
     ScriptWrapper(script, Parameters params) {
+        this.env = script.env
         this.script = script
         this.params = params
     }
