@@ -72,7 +72,11 @@ class ScriptWrapper {
         return script.currentBuild.changeSets
     }
 
-    ScriptWrapper getPreviousBuild(){
-        return new ScriptWrapper(script.previous)
+    def getPreviousBuild(){
+        return script.currentBuild.getPreviousBuild()
+    }
+
+    def getUrl(){
+        return script.currentBuild.absoluteUrl
     }
 }

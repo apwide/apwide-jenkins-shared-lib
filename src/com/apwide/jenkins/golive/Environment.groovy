@@ -10,12 +10,14 @@ import static com.apwide.jenkins.util.RestClient.checkUrl
 import static com.apwide.jenkins.util.Utilities.urlEncode
 
 class Environment implements Serializable {
-    private final script
+    private final ScriptWrapper script
     private final RestClient jira
+    private final String jiraBaseUrl
 
     Environment(ScriptWrapper script, Parameters parameters) {
         this.script = script
         this.jira = new RestClient(script, parameters.getConfig(), new GoliveAuthenticator(script, parameters), parameters.getGoliveBaseUrl())
+        this.jiraBaseUrl = parameters.getJiraUrl()
     }
 
     def update(id, body) {
@@ -32,7 +34,7 @@ class Environment implements Serializable {
                 application: [
                         name: applicationName
                 ],
-                category: [
+                category   : [
                         name: categoryName
                 ],
                 environmentPermissionScheme: [
@@ -63,14 +65,21 @@ class Environment implements Serializable {
     }
 
     def sendDeploymentInfo(applicationName, categoryName, deployedVersion, buildNumber, description, attributes) {
-        def issueKeyExtractor = new ChangeLogIssueKeyExtractor()
-        def issueKeys = issueKeyExtractor.extractIssueKeys(script)
         jira.put("/deployment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", [
                 versionName: deployedVersion,
                 buildNumber: buildNumber,
-                description: """Issue Keys: ${issueKeys}""",
+                description: render(script, buildNumber),
                 attributes: attributes
         ])
+    }
+
+    private def render(ScriptWrapper script, buildNumber) {
+        def issueKeyExtractor = new ChangeLogIssueKeyExtractor()
+        def issueKeys = issueKeyExtractor.extractIssueKeys(script)
+        def text = """<a href="${script.getUrl()}" target="_blank"><b>Deployment #${buildNumber}</a></b> ✅<br>"""
+        issueKeys.each {it -> text+=("""<br><a href="${jiraBaseUrl}/browse/${urlEncode(it)}" target="_blank">${it}</a>""")}
+        // TODO !! description is limited to 256 chars!!!
+        return text
     }
 
     def checkAndUpdateStatus(applicationName, categoryName, unavailableStatus, availableStatus, String dontTouchStatus = null, Closure checkStatusOperation = null) {
@@ -92,7 +101,7 @@ class Environment implements Serializable {
         def checkStatus = checkStatusOperation
         if (!checkStatus) {
             checkStatus = { environment ->
-                checkUrl url:environment.url,
+                checkUrl url: environment.url,
                         nbRetry: 3,
                         httpMode: 'GET',
                         this.script
