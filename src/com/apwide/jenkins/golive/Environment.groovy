@@ -1,5 +1,6 @@
 package com.apwide.jenkins.golive
 
+import com.apwide.jenkins.issue.ChangeLogIssueKeyExtractor
 import com.apwide.jenkins.util.Parameters
 import com.apwide.jenkins.util.RestClient
 import com.apwide.jenkins.util.ScriptWrapper
@@ -57,6 +58,17 @@ class Environment implements Serializable {
                 versionName: deployedVersion,
                 buildNumber: buildNumber,
                 description: description,
+                attributes: attributes
+        ])
+    }
+
+    def sendDeploymentInfo(applicationName, categoryName, deployedVersion, buildNumber, description, attributes) {
+        def issueKeyExtractor = new ChangeLogIssueKeyExtractor()
+        def issueKeys = issueKeyExtractor.extractIssueKeys(script)
+        jira.put("/deployment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", [
+                versionName: deployedVersion,
+                buildNumber: buildNumber,
+                description: """Issue Keys: ${issueKeys}""",
                 attributes: attributes
         ])
     }

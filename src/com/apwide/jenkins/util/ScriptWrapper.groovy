@@ -1,5 +1,8 @@
 package com.apwide.jenkins.util
 
+import hudson.model.Result
+import hudson.scm.ChangeLogSet
+
 import static com.apwide.jenkins.util.ScriptWrapper.LogLevel.DEBUG
 
 class ScriptWrapper {
@@ -13,7 +16,7 @@ class ScriptWrapper {
         this.params = params
     }
 
-    def getCurrentBuildResult() {
+    Result getCurrentBuildResult() {
         return this.script.currentBuild.result
     }
 
@@ -63,5 +66,13 @@ class ScriptWrapper {
             }
             return OFF;
         }
+    }
+
+    List<ChangeLogSet<? extends ChangeLogSet.Entry>> getChangeSets(){
+        return script.currentBuild.changeSets
+    }
+
+    ScriptWrapper getPreviousBuild(){
+        return new ScriptWrapper(script.previous)
     }
 }

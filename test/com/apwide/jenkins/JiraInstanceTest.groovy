@@ -185,4 +185,5 @@ class JiraInstanceTest extends Specification {
         then:
         env != null
     }
+
 }

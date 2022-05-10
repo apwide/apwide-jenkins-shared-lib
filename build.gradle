@@ -27,6 +27,7 @@ ext {
     hudsonVersion = '3.3.0'
     httpBuilderVersion = '0.7.1'
     groovyCpsVersion = '1.28'
+
 }
 
 dependencies {
@@ -35,6 +36,7 @@ dependencies {
     implementation("org.eclipse.hudson:hudson-core:$hudsonVersion") {
         exclude group:'org.eclipse.hudson', module:'hudson-remoting'
     }
+    implementation "org.jenkins-ci.plugins:git:4.6.0@jar"
     testImplementation (
             "junit:junit:$junitVersion",
             "org.spockframework:spock-core:$spockVersion",
@@ -44,4 +46,7 @@ dependencies {
 
 repositories {
     mavenCentral()
+    maven {
+        url "https://repo.jenkins-ci.org/public/"
+    }
 }
