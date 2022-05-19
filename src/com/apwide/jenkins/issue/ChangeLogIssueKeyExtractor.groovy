@@ -54,8 +54,9 @@ class ChangeLogIssueKeyExtractor implements IssueKeyExtractor {
                 }
             }
         }
-
-        return allIssueKeys.collect({it.getValue()}).unique(false)
+        def stringIssueKeys = allIssueKeys.collect({it.getValue()}).unique(false)
+        script.debug("String issue Keys: ${stringIssueKeys}")
+        return stringIssueKeys
     }
 
     private boolean isBuildSuccessful(final build) {

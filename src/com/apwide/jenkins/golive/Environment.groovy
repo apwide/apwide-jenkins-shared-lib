@@ -31,10 +31,10 @@ class Environment implements Serializable {
 
     def create(applicationName, categoryName, permissionSchemeName, body = null) {
         jira.post("/environment", [
-                application: [
+                application                : [
                         name: applicationName
                 ],
-                category   : [
+                category                   : [
                         name: categoryName
                 ],
                 environmentPermissionScheme: [
@@ -60,25 +60,35 @@ class Environment implements Serializable {
                 versionName: deployedVersion,
                 buildNumber: buildNumber,
                 description: description,
-                attributes: attributes
+                attributes : attributes
         ])
     }
 
     def sendDeploymentInfo(applicationName, categoryName, deployedVersion, buildNumber, description, attributes) {
-        jira.put("/deployment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", [
-                versionName: deployedVersion,
-                buildNumber: buildNumber,
-                description: render(script, buildNumber),
-                attributes: attributes
-        ])
+        script.debug("apwSendDeploymentInfo to Golive...")
+        try{
+            script.debug("applicationName=${applicationName}, categoryName=${categoryName}, deployedVersion=${deployedVersion}, buildNumber=${buildNumber}, description=${description}, attributes=${attributes}")
+            jira.put("/deployment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", [
+                    versionName: deployedVersion,
+                    buildNumber: buildNumber,
+                    description: render(script, buildNumber),
+                    attributes : attributes
+            ])
+        } catch (Throwable e){
+            script.debug("Unexpected error in apwSendDeploymentInfo to Golive: ${e}")
+            script.debug("Error message: ${e.getMessage()}")
+            throw e
+        }
     }
 
     private def render(ScriptWrapper script, buildNumber) {
         def issueKeyExtractor = new ChangeLogIssueKeyExtractor()
         def issueKeys = issueKeyExtractor.extractIssueKeys(script)
-        def text = """<a href="${script.getUrl()}" target="_blank"><b>Deployment #${buildNumber}</a></b> ✅<br>"""
-        issueKeys.each {it -> text+=("""<br><a href="${jiraBaseUrl}/browse/${urlEncode(it)}" target="_blank">${it}</a>""")}
-        // TODO !! description is limited to 256 chars!!!
+        def text = """Deployment #${buildNumber} ✅"""
+        issueKeys.each { it -> text += ("""<br> ${it}""") }
+        if (text.size() >= 255){ // TODO: length limitation should be higher
+            text = text.substring(0, 252) + '...'
+        }
         return text
     }
 
