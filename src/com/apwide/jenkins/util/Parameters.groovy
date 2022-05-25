@@ -37,6 +37,7 @@ class Parameters implements Serializable {
             availableStatus:          params.availableStatus          ?: params.config?.availableStatus          ?: script.env.APW_AVAILABLE_STATUS            ?: 'Up',
             logLevel:                 params.logLevel                 ?: params.config?.logLevel                 ?: script.env.APW_LOG_LEVEL                   ?: 'DEBUG',
             dontTouchStatus:          params.dontTouchStatus          ?: params.config?.dontTouchStatus          ?: script.env.APW_DONT_TOUCH_STATUS           ?: null,
+            forceGoliveServer:        params.forceGoliveServer        ?: params.config?.forceGoliveServer        ?: script.env.APW_FORCE_GOLIVE_SERVER         ?: false,
 
             buildFailOnError:  buildFailOnError,
             httpRequestOptions: params.httpRequestOptions ?: params.config?.httpRequestOptions
@@ -52,7 +53,7 @@ class Parameters implements Serializable {
 
     @NonCPS
     String getGoliveBaseUrl() {
-        hasGoliveCloudCredentials() ? 'https://golive.apwide.net/api' :  "${config.jiraBaseUrl}/rest/apwide/tem/1.1"
+        isCloud() ? 'https://golive.apwide.net/api' :  "${config.jiraBaseUrl}/rest/apwide/tem/1.1"
     }
 
     @NonCPS
@@ -73,8 +74,9 @@ class Parameters implements Serializable {
         config.jiraCloudCredentialsId != null && config.jiraCloudBaseUrl != null
     }
 
+    @NonCPS
     boolean isCloud() {
-        hasGoliveCloudCredentials()
+        hasGoliveCloudCredentials() && !config.forceGoliveServer
     }
 
     @NonCPS
