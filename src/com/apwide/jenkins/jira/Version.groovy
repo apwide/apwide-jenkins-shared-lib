@@ -11,7 +11,7 @@ class Version implements Serializable {
     private final RestClient jira
 
     Version(ScriptWrapper script, Parameters parameters) {
-        jira = new RestClient(script, parameters.getConfig(), new JiraAuthenticator(script, parameters), parameters.getJiraUrl('/rest/api/2/version'))
+        jira = new RestClient(script, parameters.getConfig(), new JiraAuthenticator(script, parameters), parameters.getJiraAPIUrl('/version'))
     }
 
     def create(Map version) {

@@ -3,6 +3,7 @@ package com.apwide.jenkins
 import com.apwide.jenkins.golive.Environment
 import com.apwide.jenkins.golive.Environments
 import com.apwide.jenkins.golive.Golive
+import com.apwide.jenkins.jira.Issue
 import com.apwide.jenkins.jira.Project
 import com.apwide.jenkins.jira.Version
 import com.apwide.jenkins.util.MockHttpRequestPlugin
@@ -184,6 +185,17 @@ class JiraInstanceTest extends Specification {
 
         then:
         env != null
+    }
+
+    def "get issue info"() {
+        given:
+        def issue = new Issue(script, new Parameters(script, jiraConfig))
+
+        when:
+        def issueInfo = issue.getIssueInfo("ITSM-1")
+
+        then:
+        issueInfo != null
     }
 
 }

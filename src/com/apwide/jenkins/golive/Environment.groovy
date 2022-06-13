@@ -1,6 +1,7 @@
 package com.apwide.jenkins.golive
 
 import com.apwide.jenkins.issue.ChangeLogIssueKeyExtractor
+import com.apwide.jenkins.jira.Issue
 import com.apwide.jenkins.util.Parameters
 import com.apwide.jenkins.util.RestClient
 import com.apwide.jenkins.util.ScriptWrapper
@@ -11,17 +12,17 @@ import static com.apwide.jenkins.util.Utilities.urlEncode
 
 class Environment implements Serializable {
     private final ScriptWrapper script
-    private final RestClient jira
-    private final String jiraBaseUrl
+    private final RestClient golive
+    private final Issue issue
 
     Environment(ScriptWrapper script, Parameters parameters) {
         this.script = script
-        this.jira = new RestClient(script, parameters.getConfig(), new GoliveAuthenticator(script, parameters), parameters.getGoliveBaseUrl())
-        this.jiraBaseUrl = parameters.getJiraUrl()
+        this.golive = new RestClient(script, parameters.getConfig(), new GoliveAuthenticator(script, parameters), parameters.getGoliveBaseUrl())
+        this.issue = new Issue(script, parameters)
     }
 
     def update(id, body) {
-        jira.put("/environment/${urlEncode(id)}", body)
+        golive.put("/environment/${urlEncode(id)}", body)
     }
 
     def update(applicationName, categoryName, body) {
@@ -30,7 +31,7 @@ class Environment implements Serializable {
     }
 
     def create(applicationName, categoryName, permissionSchemeName, body = null) {
-        jira.post("/environment", [
+        golive.post("/environment", [
                 application                : [
                         name: applicationName
                 ],
@@ -44,19 +45,19 @@ class Environment implements Serializable {
     }
 
     def get(applicationName, categoryName) {
-        jira.get("/environment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", '200:304,404')
+        golive.get("/environment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", '200:304,404')
     }
 
     def getStatus(applicationName, categoryName) {
-        jira.get("/status-change?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", '200:304,404')
+        golive.get("/status-change?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", '200:304,404')
     }
 
     def setStatus(applicationName, categoryName, statusName) {
-        jira.put("/status-change?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", [name: statusName])
+        golive.put("/status-change?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", [name: statusName])
     }
 
     def setDeployedVersion(applicationName, categoryName, deployedVersion, buildNumber, description, attributes) {
-        jira.put("/deployment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", [
+        golive.put("/deployment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", [
                 versionName: deployedVersion,
                 buildNumber: buildNumber,
                 description: description,
@@ -68,7 +69,7 @@ class Environment implements Serializable {
         script.debug("apwSendDeploymentInfo to Golive...")
         try{
             script.debug("applicationName=${applicationName}, categoryName=${categoryName}, deployedVersion=${deployedVersion}, buildNumber=${buildNumber}, description=${description}, attributes=${attributes}")
-            jira.put("/deployment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", [
+            golive.put("/deployment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", [
                     versionName: deployedVersion,
                     buildNumber: buildNumber,
                     description: render(script, buildNumber),
@@ -84,9 +85,12 @@ class Environment implements Serializable {
     private def render(ScriptWrapper script, buildNumber) {
         def issueKeyExtractor = new ChangeLogIssueKeyExtractor()
         def issueKeys = issueKeyExtractor.extractIssueKeys(script)
-        def text = """Deployment #${buildNumber} ✅"""
-        issueKeys.each { it -> text += ("""<br> ${it}""") }
-        if (text.size() >= 255){ // TODO: length limitation should be higher
+        def text = """✅ Job #${buildNumber}"""
+        issueKeys.each {it ->
+            String issueInfo = issue.getIssueInfo(it)
+                text += ("\n ${issueInfo!=null?issueInfo:it}")
+        }
+        if (text.size() >= 255){ // TODO: length limitation removed in Golive 9.1.+
             text = text.substring(0, 252) + '...'
         }
         return text
