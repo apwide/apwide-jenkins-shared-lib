@@ -6,14 +6,13 @@
     <dt>category</dt><dd>Environment Category name. (if null, read from env.APW_CATEGORY)</dd>
     <dt>version</dt><dd>Deployed version name</dd>
     <dt>buildNumber</dt><dd>Build number. (if enabled in Golive)</dd>
-    <dt>description</dt><dd>Description. (if enabled in Golive)</dd>
     <dt>attributes</dt><dd>Deployment attributes map. (attribute key must exist in Golive)</dd>
 </dl>
 <br/>
 <p>Usage example with unique environment id (Golive v9.+):</p>
 <pre>
 <code>
- apwSendDeploymentInfo environmentId:'123', version:'0.0.1-SNAPSHOT', buildNumber:'123244', description:'Development build', attributes: [
+ apwSendDeploymentInfo environmentId:'123', version:'0.0.1-SNAPSHOT', buildNumber:'123244', attributes: [
         'initiator': 'Marvin',
         'trigger': 'Commit'
     ]
@@ -23,7 +22,7 @@
 <p>Usage example with application / category (before Golive v9.x):</p>
 <pre>
 <code>
- apwSendDeploymentInfo application:'eCommerce', category:'Dev', version:'0.0.1-SNAPSHOT', buildNumber:'123244', description:'Development build', attributes: [
+ apwSendDeploymentInfo application:'eCommerce', category:'Dev', version:'0.0.1-SNAPSHOT', buildNumber:'123244', attributes: [
         'initiator': 'Marvin',
         'trigger': 'Commit'
     ]
