@@ -1,5 +1,6 @@
 package com.apwide.jenkins
 
+import com.apwide.jenkins.golive.Deployment
 import com.apwide.jenkins.golive.Environment
 import com.apwide.jenkins.golive.Environments
 import com.apwide.jenkins.golive.Golive
@@ -196,6 +197,26 @@ class JiraInstanceTest extends Specification {
 
         then:
         issueInfo != null
+    }
+
+    def "send deployment info"() {
+        given:
+        def deployment = new Deployment(script, new Parameters(script, jiraConfig))
+        def versionName = "V 23.23.23"
+        def buildNumber = 299
+        def environmentId = 16
+        def description ="""✅ Job #308
+<a href="https://apwide.atlassian.net/browse/TEM-2507" target="_blank">TEM-2507</a> Slack notifications fail when tags contains href + title is in the payload (PROD)
+"""
+
+        when:
+        def deploymentResult = deployment.sendDeploymentInfo(environmentId+"",null, null, versionName, buildNumber, description, null)
+
+        then:
+        deploymentResult != null
+        deploymentResult.environmentId == environmentId
+        deploymentResult.versionName == versionName
+        deploymentResult.description == description
     }
 
 }

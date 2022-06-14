@@ -17,7 +17,7 @@ class ScriptWrapper {
     }
 
     Result getCurrentBuildResult() {
-        return this.script.currentBuild.result
+        return this.script.currentBuild?.result
     }
 
     def httpRequest(Map params) {
@@ -69,14 +69,14 @@ class ScriptWrapper {
     }
 
     List<ChangeLogSet<? extends ChangeLogSet.Entry>> getChangeSets(){
-        return script.currentBuild.changeSets
+        return script.currentBuild?.changeSets
     }
 
     def getPreviousBuild(){
-        return script.currentBuild.getPreviousBuild()
+        return script.currentBuild?.getPreviousBuild()
     }
 
     def getUrl(){
-        return script.currentBuild.absoluteUrl
+        return script.currentBuild?.absoluteUrl
     }
 }

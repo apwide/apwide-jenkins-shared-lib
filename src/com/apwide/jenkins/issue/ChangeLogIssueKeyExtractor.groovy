@@ -17,15 +17,15 @@ class ChangeLogIssueKeyExtractor implements IssueKeyExtractor {
 
         final Collection<IssueKey> allIssueKeys = new ArrayList<IssueKey>()
         final List<ChangeLogSet<? extends ChangeLogSet.Entry>> changeSets =
-                new ArrayList<>(script.getChangeSets())
+                script.getChangeSets()? new ArrayList<>(script.getChangeSets()) : new ArrayList<>()
 
         script.debug("ChangeLogSet: ${changeSets}")
 
         def previousBuild = script.getPreviousBuild()
         script.debug("Previous build: ${previousBuild}")
         script.debug("Previous build result: ${previousBuild.getResult()}")
-        while (Objects.nonNull(previousBuild) && !isBuildSuccessful(previousBuild)) {
-            changeSets.addAll(previousBuild.getChangeSets())
+        while (Objects.nonNull(previousBuild) && Objects.nonNull(previousBuild.getChangeSets()) && !isBuildSuccessful(previousBuild)) {
+            changeSets.addAll((Set)previousBuild.getChangeSets())
             script.debug("Previous build change sets added: ${previousBuild.getChangeSets()}")
             previousBuild = previousBuild.getPreviousBuild()
         }

@@ -1,6 +1,5 @@
 package com.apwide.jenkins.golive
 
-import com.apwide.jenkins.issue.ChangeLogIssueKeyExtractor
 import com.apwide.jenkins.jira.Issue
 import com.apwide.jenkins.util.Parameters
 import com.apwide.jenkins.util.RestClient
@@ -63,37 +62,6 @@ class Environment implements Serializable {
                 description: description,
                 attributes : attributes
         ])
-    }
-
-    def sendDeploymentInfo(applicationName, categoryName, deployedVersion, buildNumber, description, attributes) {
-        script.debug("apwSendDeploymentInfo to Golive...")
-        try{
-            script.debug("applicationName=${applicationName}, categoryName=${categoryName}, deployedVersion=${deployedVersion}, buildNumber=${buildNumber}, description=${description}, attributes=${attributes}")
-            golive.put("/deployment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", [
-                    versionName: deployedVersion,
-                    buildNumber: buildNumber,
-                    description: render(script, buildNumber),
-                    attributes : attributes
-            ])
-        } catch (Throwable e){
-            script.debug("Unexpected error in apwSendDeploymentInfo to Golive: ${e}")
-            script.debug("Error message: ${e.getMessage()}")
-            throw e
-        }
-    }
-
-    private def render(ScriptWrapper script, buildNumber) {
-        def issueKeyExtractor = new ChangeLogIssueKeyExtractor()
-        def issueKeys = issueKeyExtractor.extractIssueKeys(script)
-        def text = """✅ Job #${buildNumber}"""
-        issueKeys.each {it ->
-            String issueInfo = issue.getIssueInfo(it)
-                text += ("\n ${issueInfo!=null?issueInfo:it}")
-        }
-        if (text.size() >= 255){ // TODO: length limitation removed in Golive 9.1.+
-            text = text.substring(0, 252) + '...'
-        }
-        return text
     }
 
     def checkAndUpdateStatus(applicationName, categoryName, unavailableStatus, availableStatus, String dontTouchStatus = null, Closure checkStatusOperation = null) {
