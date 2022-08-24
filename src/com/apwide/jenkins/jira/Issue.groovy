@@ -41,9 +41,11 @@ class Issue implements Serializable {
             def issueSummary = issueResource.fields.summary
             return """<a href="${issueUrl(urlEncode(issueKey))}" target="_blank">${issueKey}</a> ${issueSummary}"""
         }
-        catch (e){
-            script.debug "Error getting issue with id=${issueIdOrKey} :"
-            script.debug(e)
+        catch (Throwable e){
+            script.debug "Error getting issue with id=${issueIdOrKey} : ${e}"
+            script.debug("Exception: ${e}")
+            script.debug("Message: ${e.getMessage()}")
+            script.debug("Cause: ${e.getCause()}")
             return null
         }
 
