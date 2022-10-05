@@ -73,7 +73,11 @@ class Parameters implements Serializable {
 
     @NonCPS
     boolean isJiraCloud() {
-        config.jiraCloudCredentialsId != null && config.jiraCloudBaseUrl != null
+        if (params.jiraBaseUrl != null || params.jiraCredentialsId != null )
+            return false
+        if (params.jiraCloudCredentialsId != null || params.jiraCloudBaseUrl!= null )
+            return true
+        return config.jiraCloudCredentialsId != null && config.jiraCloudBaseUrl != null
     }
 
     @NonCPS
