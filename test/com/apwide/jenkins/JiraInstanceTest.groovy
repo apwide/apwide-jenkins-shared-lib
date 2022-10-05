@@ -138,10 +138,22 @@ class JiraInstanceTest extends Specification {
         def environment = new Environment(script, new Parameters(script, jiraConfig))
 
         when:
-        def updatedStatus = environment.checkAndUpdateStatus('eCommerce', 'Dev1', 'Down', 'Up')
+        def updatedStatus = environment.checkAndUpdateStatus(58, 'Down', 'Up')
 
         then:
         updatedStatus != null
+    }
+
+    def "set status"() {
+        given:
+        def environment = new Environment(script, new Parameters(script, jiraConfig))
+        def newStatus = 'Up'
+
+        when:
+        def updatedStatus = environment.setStatus(58, newStatus)
+
+        then:
+        updatedStatus.status.name == newStatus
     }
 
     def "concat map"() {

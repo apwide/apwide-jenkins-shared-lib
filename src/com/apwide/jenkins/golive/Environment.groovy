@@ -47,12 +47,16 @@ class Environment implements Serializable {
         golive.get("/environment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", '200:304,404')
     }
 
-    def getStatus(applicationName, categoryName) {
-        golive.get("/status-change?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", '200:304,404')
+    def get(environmentId) {
+        golive.get("/environment/${environmentId}", '200:304,404')
     }
 
-    def setStatus(applicationName, categoryName, statusName) {
-        golive.put("/status-change?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", [name: statusName])
+    def getStatus(environmentId) {
+        golive.get("/status-change?environmentId=${environmentId}", '200:304,404')
+    }
+
+    def setStatus(environmentId, statusName) {
+        golive.put("/status-change?environmentId=${environmentId}", [name: statusName])
     }
 
     def setDeployedVersion(applicationName, categoryName, deployedVersion, buildNumber, description, attributes) {
@@ -64,8 +68,10 @@ class Environment implements Serializable {
         ])
     }
 
-    def checkAndUpdateStatus(applicationName, categoryName, unavailableStatus, availableStatus, String dontTouchStatus = null, Closure checkStatusOperation = null) {
-        def env = get(applicationName, categoryName)
+    def checkAndUpdateStatus(environmentId, unavailableStatus, availableStatus, String dontTouchStatus = null, Closure checkStatusOperation = null) {
+        def env = get(environmentId)
+        def applicationName = env.application.name
+        def categoryName = env.category.name
         if (!checkStatusOperation && !env.url) {
             script.debug("No check nor url provided for environment ${env.application.name}-${env.category.name}, status won't be updated")
             return
@@ -76,7 +82,7 @@ class Environment implements Serializable {
         }
         def status = [:]
         try {
-            status = getStatus(applicationName, categoryName)
+            status = getStatus(environmentId)
         } catch (err) {
             // no fail on status if not exist
         }
@@ -97,12 +103,12 @@ class Environment implements Serializable {
             checkStatus(env)
             if (!availableStatus.equals(status?.statusName)) {
                 script.debug("set status to ${availableStatus}")
-                return setStatus(applicationName, categoryName, availableStatus)
+                return setStatus(environmentId, availableStatus)
             }
         } catch (err) {
             if (!unavailableStatus.equals(status?.statusName)) {
                 script.debug("set status to ${unavailableStatus}")
-                return setStatus(applicationName, categoryName, unavailableStatus)
+                return setStatus(environmentId, unavailableStatus)
             } else {
                 script.debug("unexpected error on checking status")
             }

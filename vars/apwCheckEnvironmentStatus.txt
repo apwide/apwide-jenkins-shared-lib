@@ -4,6 +4,7 @@ Apwide environment is passed to the check closure.
 </p>
 <p></p>
 <dl>
+    <dt>environmentId</dt><dd>Environment id. (if null, read from env.APW_ENVIRONMENT_ID)</dd>
     <dt>application</dt><dd>Environment Application name. (if null, read from env.APW_APPLICATION)</dd>
     <dt>category</dt><dd>Environment Category name. (if null, read from env.APW_CATEGORY)</dd>
     <dt>unavailableStatus</dt><dd>Status name when environment is unavailable. (if null, read from env.APW_UNAVAILABLE_STATUS, default is 'Down')</dd>
@@ -14,6 +15,9 @@ Apwide environment is passed to the check closure.
 <br/>
 <p>Usage example:</p>
 <pre><code>
+apwCheckEnvironmentStatus environmentId: 58, unavailableStatus:'Down', availableStatus:'Up', checkStatus:{ environment ->
+    sh 'timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q ${environment.url} -O /dev/null'
+}
 apwCheckEnvironmentStatus application:'eCommerce', category:'Dev', unavailableStatus:'Down', availableStatus:'Up', checkStatus:{ environment ->
     sh 'timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q ${environment.url} -O /dev/null'
 }

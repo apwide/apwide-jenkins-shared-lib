@@ -1,7 +1,7 @@
 <p>Send deployment information and the list of issue keys referenced in commits to Golive and Jira.</p>
 <p></p>
 <dl>
-    <dt>environmentId</dt><dd>Environment Id. (Supported by Golive v9.+)</dd>
+    <dt>environmentId</dt><dd>Environment Id. (Supported by Golive v9.+) (if null, read from env.APW_ENVIRONMENT_ID)</dd>
     <dt>application</dt><dd>Environment Application name. (if null, read from env.APW_APPLICATION)</dd>
     <dt>category</dt><dd>Environment Category name. (if null, read from env.APW_CATEGORY)</dd>
     <dt>version</dt><dd>Deployed version name</dd>

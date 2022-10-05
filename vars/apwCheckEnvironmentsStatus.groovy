@@ -24,10 +24,10 @@ def call(Map config = null) {
             script.debug "Application : ${environment.application.name}"
             script.debug "Category: ${environment.category.name}"
             script.debug "Environment url: ${environment.url}"
+            script.debug "Environment id: ${environment.id}"
 
             environmentClient.checkAndUpdateStatus(
-                environment.application.name,
-                environment.category.name,
+                environment.id,
                 parameters.unavailableStatus,
                 parameters.availableStatus,
                 parameters.dontTouchStatus,

@@ -7,7 +7,6 @@ import com.apwide.jenkins.util.RestClient
 import com.apwide.jenkins.util.ScriptWrapper
 import com.apwide.jenkins.util.auth.GoliveAuthenticator
 
-import static com.apwide.jenkins.util.RestClient.checkUrl
 import static com.apwide.jenkins.util.Utilities.urlEncode
 
 class Deployment implements Serializable {
