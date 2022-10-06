@@ -5,7 +5,8 @@
     <dt>application</dt><dd>Environment Application name. (if null, read from env.APW_APPLICATION)</dd>
     <dt>category</dt><dd>Environment Category name. (if null, read from env.APW_CATEGORY)</dd>
     <dt>version</dt><dd>Deployed version name</dd>
-    <dt>buildNumber</dt><dd>Build number. (if enabled in Golive)</dd>
+    <dt>buildNumber</dt><dd>Build number. (if null, the jenkins build number will be used)</dd>
+    <dt>description</dt><dd>Free text description of the deployment (let it null to use the auto generated description based on last commits)</dd>
     <dt>attributes</dt><dd>Deployment attributes map. (attribute key must exist in Golive)</dd>
 </dl>
 <br/>

@@ -34,11 +34,13 @@ class Deployment implements Serializable {
     def sendDeploymentInfo(environmentId, applicationName, categoryName, deployedVersion, buildNumber, description, attributes) {
         script.debug("apwSendDeploymentInfo to Golive...")
         try{
-            script.debug("applicationName=${applicationName}, categoryName=${categoryName}, deployedVersion=${deployedVersion}, buildNumber=${buildNumber}, description=${description}, attributes=${attributes}")
+            def computedBuildNumber = buildNumber?:script.getBuildNumber()
+            def computedDescription = description?:render(script, computedBuildNumber)
+            script.debug("applicationName=${applicationName}, categoryName=${categoryName}, deployedVersion=${deployedVersion}, buildNumber=${computedBuildNumber}, description=${computedDescription}, attributes=${attributes}")
             return golive.put("/deployment?${environmentId ? "environmentId=$environmentId":""}&application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", [
                     versionName: deployedVersion,
-                    buildNumber: buildNumber,
-                    description: description?:render(script, buildNumber),
+                    buildNumber: computedBuildNumber,
+                    description: computedDescription,
                     attributes : attributes
             ])
         } catch (Throwable e){

@@ -79,4 +79,8 @@ class ScriptWrapper {
     def getUrl(){
         return script.currentBuild?.absoluteUrl
     }
+
+    def getBuildNumber(){
+        return script.currentBuild?.number
+    }
 }
