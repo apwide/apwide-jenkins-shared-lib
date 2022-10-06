@@ -8,7 +8,7 @@ def call(Map config = null) {
     executeStep(this, config) { ScriptWrapper script, Parameters parameters ->
 
         def environmentClient = new Environment(script, parameters)
-        def environmentId = parameters.environmentId || environmentClient.get(parameters.application, parameters.category).id
+        def environmentId = parameters.getEnvironmentId() || environmentClient.get(parameters.getApplication(), parameters.getCategory()).id
 
         return environmentClient.setStatus(environmentId, parameters.params.status)
     }

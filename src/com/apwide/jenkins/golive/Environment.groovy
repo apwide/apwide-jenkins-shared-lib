@@ -59,14 +59,14 @@ class Environment implements Serializable {
         golive.put("/status-change?environmentId=${environmentId}", [name: statusName])
     }
 
-    def setDeployedVersion(applicationName, categoryName, deployedVersion, buildNumber, description, attributes) {
+    /*def setDeployedVersion(applicationName, categoryName, deployedVersion, buildNumber, description, attributes) {
         golive.put("/deployment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", [
                 versionName: deployedVersion,
                 buildNumber: buildNumber,
                 description: description,
                 attributes : attributes
         ])
-    }
+    }*/
 
     def checkAndUpdateStatus(environmentId, unavailableStatus, availableStatus, String dontTouchStatus = null, Closure checkStatusOperation = null) {
         def env = get(environmentId)
