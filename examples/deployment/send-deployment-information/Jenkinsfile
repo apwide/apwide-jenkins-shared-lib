@@ -1,0 +1,38 @@
+@Library('apwide-jenkins-shared-lib') _
+
+pipeline {
+    agent any
+    environment {
+//        APW_JIRA_BASE_URL = 'http://mycompany.com/jira' // these variables can be defined at different level: jenkins global properties, pipeline level, stage level
+//        APW_JIRA_CREDENTIALS_ID = 'jira-credentials'
+        VERSION_NAME = "2.1.5.0"
+        BUILD_NUMBER = currentBuild.number
+
+        DEV_ENV_ID = 6
+
+    }
+    parameters {
+        choice(name: 'PROMOTE_TO_ENV', choices: ['Dev', 'Demo'], description: 'Should the output be promoted to an environment ?')
+    }
+    stages {
+        stage('Build & Test') { //
+            steps {
+                script {
+                    sh 'sleep 2s' // here is just an example of build stage, build you can define your here, or choose to put on another pipeline
+                }
+            }
+        }
+        stage('Deploy on Dev') {
+            when {
+                equals expected: 'Dev', actual: params.PROMOTE_TO_ENV
+            }
+            steps {
+                sh "sleep 5s" // replace this step with your own deployment procedure
+
+                apwSendDeploymentInfo environmentId: env.DEV_ENV_ID, version: env.VERSION_NAME, buildNumber: env.BUILD_NUMBER
+                // this pushes the deployment information (deployed version + buildNumber) to Golive
+                // N.B. This also automatically add the list of Jira tickets found in commit history (since the last successful build) to the deployment description
+            }
+        }
+    }
+}
