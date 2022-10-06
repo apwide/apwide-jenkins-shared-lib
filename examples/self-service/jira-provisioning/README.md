@@ -1,4 +1,4 @@
-This pipeline provision Jira environment on demand from Apwide Golive triggers. It uses webhooks to send events from Jira to jenkis and to
+This pipeline provision Jira environment on demand from Apwide Golive triggers. It uses webhooks to send events from Jira to jenkins and to
 trigger the execution of the job.
 
 You must have configured [jira webhook](https://confluence.atlassian.com/adminjiraserver/managing-webhooks-938846912.html) first and

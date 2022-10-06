@@ -48,7 +48,6 @@ pipeline {
 //        APW_JIRA_BASE_URL = 'http://mycompany.com/jira' // these variables can be defined at different level: jenkins global properties, pipeline level, stage level
 //        APW_JIRA_CREDENTIALS_ID = 'jira-credentials'
 //        JIRA_HOST = 'http://mycompany.com/jira-dev' // replace this variable with the host you want to use for your JIRA
-        APW_APPLICATION = 'Jira'
         DEFAULT_JIRA_VERSION = '7.12.1'
         BACKUP_FILENAME = 'BakupDemoDockerAug.zip' // name of the file containing a Jira export zip and can be used to restore the environment from Apwide Golive
     }
@@ -59,6 +58,7 @@ pipeline {
                     def event = readJSON text:body
 
                     withEnv([
+                            "APW_APPLICATION=${event.environment.application.name}",
                             "APW_CATEGORY=${event.environment.category.name}",
                             "APW_ENVIRONMENT_ID=${event.environment.id}"
                     ]) {

@@ -30,10 +30,7 @@ class Applications implements Serializable {
 
     def create(applicationName, applicationSchemeId, body = null) {
         jira.post("/application", [
-                name: applicationName,
-                applicationScheme: [
-                        id: applicationSchemeId
-                ]
+                name: applicationName
         ] << (body ?: [:]))
     }
 
@@ -49,20 +46,6 @@ class Applications implements Serializable {
         jira.put("/application/${urlEncode(application.id)}", [
                 name: applicationName
         ] << (body ?: [:]))
-    }
-
-    def createOrUpdate(applicationName, applicationSchemeId, body = null) {
-        def application = get(applicationName)
-        if (!application) {
-            return create(applicationName, applicationSchemeId, body)
-        } else {
-            return update(application.id, [
-                    name: applicationName,
-                    applicationScheme: [
-                        id: applicationSchemeId
-                    ]
-            ] << (body ?: [:]))
-        }
     }
 
     def delete(String applicationName) {

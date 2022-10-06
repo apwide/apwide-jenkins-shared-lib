@@ -51,7 +51,6 @@ pipeline {
     environment {
 //        APW_JIRA_BASE_URL = 'http://mycompany.com/jira' // these variables can be defined at different level: jenkins global properties, pipeline level, stage level
 //        APW_JIRA_CREDENTIALS_ID = 'jira-credentials'
-        APW_APPLICATION = 'Calculator Front'
     }
     stages {
         stage('Calculator Front Factory Web Hook') {
@@ -59,10 +58,12 @@ pipeline {
                 script {
                     def event = readJSON text:body // event received on generic webhook trigger. Event payload is the one in comment on top
                     def categoryName = event.environment.category.name
+                    def applicationName = event.environment.application.name
                     def environmentId = event.environment.id
                     def action = event.webhookEvent
 
                     withEnv([  // we define local environment variables that wil be used by the apwide steps
+                            "APW_APPLICATION=${applicationName}",
                             "APW_CATEGORY=${categoryName}",
                             "APW_ENVIRONMENT_ID=${environmentId}"
                     ]) {

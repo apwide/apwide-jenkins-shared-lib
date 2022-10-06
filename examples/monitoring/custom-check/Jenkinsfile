@@ -19,8 +19,7 @@ pipeline {
         stage('Monitor eCommerce Dev') {
             steps {
                 apwCheckEnvironmentStatus(
-                        application: 'eCommerce',
-                        category: 'Dev',
+                        environmentId: 234,
                         checkStatus: { environment ->
                             sh "timeout 5 wget --retry-connrefused --tries=5 --waitretry=1 -q ${environment.url} -O /dev/null"
                         } // this step use a custom checkStatus closure which use environment received in parameter to do its check
