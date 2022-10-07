@@ -144,6 +144,7 @@ Browse our "examples" folder to get inspired and to reuse portion of scripts to 
 * [Advanced selection of environments](./examples/monitoring/criteria-selection): monitor a custom set of environments using search criteria
  
 ### Deployment tracking
+* [CI Deployment workflow](./send-deployment-information): how to automatically push deployment information (including the list of deployed Jira tickets!) to Golive and Jira
 * [Deployment workflow](./examples/deployment/simple-build-deploy): push build and deployment information to Jira and Apwide Golive
 
 ### Self-Service Environments
