@@ -199,6 +199,7 @@ This documentation will be visible from the pipeline editor only **after [having
 * [apwCreateEnvironment](/vars/apwCreateEnvironment.txt)
 * [apwCreateEnvironmentAndCategory](/vars/apwCreateEnvironmentAndCategory.txt)
 * [apwUpdateEnvironment](/vars/apwUpdateEnvironment.txt)
+* [apwSendDeploymentInfo](/vars/apwSendDeploymentInfo.txt)
 * [apwSetDeployedVersion](/vars/apwSetDeployedVersion.txt)
 * [apwSetEnvironmentStatus](/vars/apwSetEnvironmentStatus.txt)
 
