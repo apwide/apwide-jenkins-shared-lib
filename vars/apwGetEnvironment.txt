@@ -1,11 +1,13 @@
 <p>Get Apwide Golive environment detail</p>
 <p></p>
 <dl>
+    <dt>environmentId</dt><dd>Environment id. (if null, read from env.APW_ENVIRONMENT_ID)</dd>
     <dt>application</dt><dd>Environment Application name. (if null, read from env.APW_APPLICATION)</dd>
     <dt>category</dt><dd>Environment Category name. (if null, read from env.APW_CATEGORY)</dd>
 </dl>
 <br/>
 <p>Usage example:</p>
 <pre><code>
+apwGetEnvironment environmentId: 58
 apwGetEnvironment application:'eCommerce', category:'Dev'
 </code></pre>

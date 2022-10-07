@@ -48,17 +48,6 @@ class Categories implements Serializable {
         ] << (body ?: [:]))
     }
 
-    def createOrUpdate(categoryName, body = null) {
-        def category = get(categoryName)
-        if (!category) {
-            return create(categoryName, body)
-        } else {
-            return update(category.id, [
-                    name: categoryName
-            ] << (body ?: [:]))
-        }
-    }
-
     def delete(String categoryName) {
         def category = get(categoryName)
         if (!category) {

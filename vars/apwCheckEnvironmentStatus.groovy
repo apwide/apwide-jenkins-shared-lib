@@ -6,8 +6,12 @@ import static com.apwide.jenkins.util.Utilities.executeStep
 
 def call(Map config = null) {
     executeStep(this, config) { ScriptWrapper script, Parameters parameters ->
-        return new Environment(script, parameters)
-            .checkAndUpdateStatus(parameters.application, parameters.category, parameters.unavailableStatus, parameters.availableStatus,
+
+        def environmentClient = new Environment(script, parameters)
+        def environmentId = parameters.getEnvironmentId() || environmentClient.get(parameters.getApplication(), parameters.getCategory()).id
+
+        return environmentClient
+                .checkAndUpdateStatus(environmentId, parameters.unavailableStatus, parameters.availableStatus,
                 parameters.dontTouchStatus, parameters.params.checkStatus)
     }
 }

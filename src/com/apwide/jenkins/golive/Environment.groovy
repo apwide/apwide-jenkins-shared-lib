@@ -1,5 +1,6 @@
 package com.apwide.jenkins.golive
 
+import com.apwide.jenkins.jira.Issue
 import com.apwide.jenkins.util.Parameters
 import com.apwide.jenkins.util.RestClient
 import com.apwide.jenkins.util.ScriptWrapper
@@ -9,16 +10,18 @@ import static com.apwide.jenkins.util.RestClient.checkUrl
 import static com.apwide.jenkins.util.Utilities.urlEncode
 
 class Environment implements Serializable {
-    private final script
-    private final RestClient jira
+    private final ScriptWrapper script
+    private final RestClient golive
+    private final Issue issue
 
     Environment(ScriptWrapper script, Parameters parameters) {
         this.script = script
-        this.jira = new RestClient(script, parameters.getConfig(), new GoliveAuthenticator(script, parameters), parameters.getGoliveBaseUrl())
+        this.golive = new RestClient(script, parameters.getConfig(), new GoliveAuthenticator(script, parameters), parameters.getGoliveBaseUrl())
+        this.issue = new Issue(script, parameters)
     }
 
     def update(id, body) {
-        jira.put("/environment/${urlEncode(id)}", body)
+        golive.put("/environment/${urlEncode(id)}", body)
     }
 
     def update(applicationName, categoryName, body) {
@@ -27,11 +30,11 @@ class Environment implements Serializable {
     }
 
     def create(applicationName, categoryName, permissionSchemeName, body = null) {
-        jira.post("/environment", [
-                application: [
+        golive.post("/environment", [
+                application                : [
                         name: applicationName
                 ],
-                category: [
+                category                   : [
                         name: categoryName
                 ],
                 environmentPermissionScheme: [
@@ -41,28 +44,34 @@ class Environment implements Serializable {
     }
 
     def get(applicationName, categoryName) {
-        jira.get("/environment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", '200:304,404')
+        golive.get("/environment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", '200:304,404')
     }
 
-    def getStatus(applicationName, categoryName) {
-        jira.get("/status-change?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", '200:304,404')
+    def get(environmentId) {
+        golive.get("/environment/${environmentId}", '200:304,404')
     }
 
-    def setStatus(applicationName, categoryName, statusName) {
-        jira.put("/status-change?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", [name: statusName])
+    def getStatus(environmentId) {
+        golive.get("/status-change?environmentId=${environmentId}", '200:304,404')
     }
 
-    def setDeployedVersion(applicationName, categoryName, deployedVersion, buildNumber, description, attributes) {
-        jira.put("/deployment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", [
+    def setStatus(environmentId, statusName) {
+        golive.put("/status-change?environmentId=${environmentId}", [name: statusName])
+    }
+
+    /*def setDeployedVersion(applicationName, categoryName, deployedVersion, buildNumber, description, attributes) {
+        golive.put("/deployment?application=${urlEncode(applicationName)}&category=${urlEncode(categoryName)}", [
                 versionName: deployedVersion,
                 buildNumber: buildNumber,
                 description: description,
-                attributes: attributes
+                attributes : attributes
         ])
-    }
+    }*/
 
-    def checkAndUpdateStatus(applicationName, categoryName, unavailableStatus, availableStatus, String dontTouchStatus = null, Closure checkStatusOperation = null) {
-        def env = get(applicationName, categoryName)
+    def checkAndUpdateStatus(environmentId, unavailableStatus, availableStatus, String dontTouchStatus = null, Closure checkStatusOperation = null) {
+        def env = get(environmentId)
+        def applicationName = env.application.name
+        def categoryName = env.category.name
         if (!checkStatusOperation && !env.url) {
             script.debug("No check nor url provided for environment ${env.application.name}-${env.category.name}, status won't be updated")
             return
@@ -73,14 +82,14 @@ class Environment implements Serializable {
         }
         def status = [:]
         try {
-            status = getStatus(applicationName, categoryName)
+            status = getStatus(environmentId)
         } catch (err) {
             // no fail on status if not exist
         }
         def checkStatus = checkStatusOperation
         if (!checkStatus) {
             checkStatus = { environment ->
-                checkUrl url:environment.url,
+                checkUrl url: environment.url,
                         nbRetry: 3,
                         httpMode: 'GET',
                         this.script
@@ -94,12 +103,12 @@ class Environment implements Serializable {
             checkStatus(env)
             if (!availableStatus.equals(status?.statusName)) {
                 script.debug("set status to ${availableStatus}")
-                return setStatus(applicationName, categoryName, availableStatus)
+                return setStatus(environmentId, availableStatus)
             }
         } catch (err) {
             if (!unavailableStatus.equals(status?.statusName)) {
                 script.debug("set status to ${unavailableStatus}")
-                return setStatus(applicationName, categoryName, unavailableStatus)
+                return setStatus(environmentId, unavailableStatus)
             } else {
                 script.debug("unexpected error on checking status")
             }

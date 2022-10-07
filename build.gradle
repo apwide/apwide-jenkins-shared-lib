@@ -27,15 +27,17 @@ ext {
     hudsonVersion = '3.3.0'
     httpBuilderVersion = '0.7.1'
     groovyCpsVersion = '1.28'
+
 }
 
 dependencies {
-    compile "org.codehaus.groovy:groovy-all:$groovyVersion"
-    compile "com.cloudbees:groovy-cps:$groovyCpsVersion"
-    compile("org.eclipse.hudson:hudson-core:$hudsonVersion") {
+    implementation "org.codehaus.groovy:groovy-all:$groovyVersion"
+    implementation "com.cloudbees:groovy-cps:$groovyCpsVersion"
+    implementation("org.eclipse.hudson:hudson-core:$hudsonVersion") {
         exclude group:'org.eclipse.hudson', module:'hudson-remoting'
     }
-    testCompile (
+    implementation "org.jenkins-ci.plugins:git:4.6.0@jar"
+    testImplementation (
             "junit:junit:$junitVersion",
             "org.spockframework:spock-core:$spockVersion",
             "org.codehaus.groovy.modules.http-builder:http-builder:$httpBuilderVersion"
@@ -44,4 +46,7 @@ dependencies {
 
 repositories {
     mavenCentral()
+    maven {
+        url "https://repo.jenkins-ci.org/public/"
+    }
 }

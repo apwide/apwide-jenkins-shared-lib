@@ -1,4 +1,4 @@
-@Library('apwide-jenkins-shared-lib@feature/buildNumber') _
+@Library('apwide-jenkins-shared-lib') _
 
 pipeline {
     agent any
@@ -19,15 +19,15 @@ pipeline {
     stages {
         stage('Update deployed version with build information') {
             steps {
-                apwSetDeployedVersion application: 'Jira',
-                        category: 'Integration2',
-                        version: '0.0.1-SNAPSHOT',
-                        buildNumber: currentBuild.number,
-                        description: env.JOB_NAME,
-                        attributes: [
-                                'Owner': 'Marvin',
-                                'trigger'  : env.BUILD_URL
-                        ]
+                apwSetDeployedVersion(
+                  environmentId: 345,
+                  version: '0.0.1-SNAPSHOT',
+                  buildNumber: currentBuild.number,
+                  description: env.JOB_NAME,
+                  attributes: [
+                          'Owner': 'Marvin',
+                          'trigger'  : env.BUILD_URL
+                ])
             }
 
         }

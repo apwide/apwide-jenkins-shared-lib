@@ -5,7 +5,6 @@ pipeline {
     environment {
 //        APW_JIRA_BASE_URL = 'http://mycompany.com/jira' // these variables can be defined at different level: jenkins global properties, pipeline level, stage level
 //        APW_JIRA_CREDENTIALS_ID = 'jira-credentials'
-        APW_APPLICATION = 'eCommerce'
     }
     parameters {
         choice(name: 'PROMOTE_TO_ENV', choices: ['Dev', 'Demo'], description: 'Should the output be promoted to an environment ?')
@@ -23,7 +22,6 @@ pipeline {
                 equals expected: 'Dev', actual: params.PROMOTE_TO_ENV
             }
             environment {
-                APW_CATEGORY = 'Dev'
                 APW_ENVIRONMENT_ID = '6'
                 ENV_URL = 'http://mycompany.com:8080'
                 ENV_OS = 'Windows'
@@ -31,7 +29,7 @@ pipeline {
                 ENV_DATABASE = 'Oracle'
             }
             steps {
-                apwSetEnvironmentStatus status:'Deploy' // update status change to 'Deploy' for environment identified by APW_APPLICATION and APW_CATEGORY
+                apwSetEnvironmentStatus status:'Deploy' // update status change to 'Deploy' for environment identified by APW_ENVIRONMENT_ID
 
                 sh "sleep 5s" // replace this step with your own deployment procedure
 
@@ -44,7 +42,7 @@ pipeline {
                         ]
                 ] // update environment information with data we can collect in jenkins for environment identified by APW_ENVIRONMENT_ID
 
-                apwSetDeployedVersion version:currentBuild.number // update deployed version for environment identified by APW_APPLICATION and APW_CATEGORY
+                apwSetDeployedVersion version:currentBuild.number // update deployed version for environment identified by APW_ENVIRONMENT_ID
 
                 apwSetEnvironmentStatus status:'Up' // update status back to Up
             }
@@ -54,7 +52,6 @@ pipeline {
                 equals expected: 'Demo', actual: params.PROMOTE_TO_ENV
             }
             environment {
-                APW_CATEGORY = 'Demo'
                 APW_ENVIRONMENT_ID = '7'
                 ENV_URL = 'http://mycompany.com:9000'
                 ENV_OS = 'Ubuntu'
@@ -62,7 +59,7 @@ pipeline {
                 ENV_DATABASE = 'Oracle'
             }
             steps {
-                apwSetEnvironmentStatus status:'Deploy' // APW_APPLICATION and APW_CATEGORY defined at stage level, so, specific to these steps execution
+                apwSetEnvironmentStatus status:'Deploy' // APW_ENVIRONMENT_ID defined at stage level, so, specific to these steps execution
 
                 sh "sleep 5s" // replace this step with your own deployment procedure
 

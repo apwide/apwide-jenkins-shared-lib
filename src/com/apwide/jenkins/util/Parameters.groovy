@@ -10,6 +10,9 @@ class Parameters implements Serializable {
     final Map config
     final Map params
 
+    private final JiraServerAPIBasePath = "/rest/api/2"
+    private final JiraCloudAPIBasePath = "/rest/api/3"
+
     Parameters(script, Map params) {
         this.httpMode = params.httpMode ?: 'GET'
         this.path = params.path ?: ''
@@ -71,7 +74,11 @@ class Parameters implements Serializable {
 
     @NonCPS
     boolean isJiraCloud() {
-        config.jiraCloudCredentialsId != null && config.jiraCloudBaseUrl != null
+        if (params.jiraBaseUrl != null || params.jiraCredentialsId != null )
+            return false
+        if (params.jiraCloudCredentialsId != null || params.jiraCloudBaseUrl!= null )
+            return true
+        return config.jiraCloudCredentialsId != null && config.jiraCloudBaseUrl != null
     }
 
     @NonCPS
@@ -87,6 +94,11 @@ class Parameters implements Serializable {
     @NonCPS
     String getJiraUrl(String path = '') {
         isJiraCloud() ? "${config.jiraCloudBaseUrl}" : "${config.jiraBaseUrl}${path}"
+    }
+
+    @NonCPS
+    String getJiraAPIUrl(String path = '') {
+        isJiraCloud() ? "${config.jiraCloudBaseUrl}${JiraCloudAPIBasePath}${path}" : "${config.jiraBaseUrl}${JiraServerAPIBasePath}${path}"
     }
 
     String getApplication() {

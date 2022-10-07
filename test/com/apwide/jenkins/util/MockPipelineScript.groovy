@@ -4,6 +4,16 @@ class MockPipelineScript {
     private final httpRequestPlugin
     private final readJsonPlugin
 
+    class Build{
+        def changeSets
+        def result
+        Build previousBuild
+
+        Build(Build previousBuild){
+            this.previousBuild = previousBuild
+        }
+    }
+
     MockPipelineScript(httpRequestPlugin, readJsonPlugin) {
         this.httpRequestPlugin = httpRequestPlugin
         this.readJsonPlugin = readJsonPlugin
@@ -13,5 +23,7 @@ class MockPipelineScript {
     def readJSON = readJsonPlugin.&readJSON
     def echo = System.out.&println
     def env = [:]
-    def currentBuild = [:]
+    Build previousBuild = new Build(null)
+    Build currentBuild = new Build(previousBuild)
+
 }

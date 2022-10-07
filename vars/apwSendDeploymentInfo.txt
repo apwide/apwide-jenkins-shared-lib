@@ -1,27 +1,31 @@
-<p>Notify Apwide Golive a new version has been deployed on an environment. Reuse JIRA Global Environment Variable and for full protocol, consult jira global variable</p>
+<p>Send deployment information and the list of issue keys referenced in commits to Golive and Jira.</p>
 <p></p>
 <dl>
     <dt>environmentId</dt><dd>Environment Id. (Supported by Golive v9.+) (if null, read from env.APW_ENVIRONMENT_ID)</dd>
     <dt>application</dt><dd>Environment Application name. (if null, read from env.APW_APPLICATION)</dd>
     <dt>category</dt><dd>Environment Category name. (if null, read from env.APW_CATEGORY)</dd>
     <dt>version</dt><dd>Deployed version name</dd>
-    <dt>buildNumber</dt><dd>Build number. (if enabled in Golive)</dd>
-    <dt>description</dt><dd>Description. (if enabled in Golive)</dd>
+    <dt>buildNumber</dt><dd>Build number. (if null, the jenkins build number will be used)</dd>
+    <dt>description</dt><dd>Free text description of the deployment (let it null to use the auto generated description based on last commits)</dd>
     <dt>attributes</dt><dd>Deployment attributes map. (attribute key must exist in Golive)</dd>
 </dl>
 <br/>
 <p>Usage example with unique environment id (Golive v9.+):</p>
-<pre><code>
-apwSetDeployedVersion environmentId:'123', version:'0.0.1-SNAPSHOT', buildNumber:'123244', description:'Development build', attributes: [
+<pre>
+<code>
+ apwSendDeploymentInfo environmentId:'123', version:'0.0.1-SNAPSHOT', buildNumber:'123244', attributes: [
         'initiator': 'Marvin',
         'trigger': 'Commit'
     ]
-</code></pre>
+</code>
+</pre>
 <br/>
 <p>Usage example with application / category (before Golive v9.x):</p>
-<pre><code>
-apwSetDeployedVersion application:'eCommerce', category:'Dev', version:'0.0.1-SNAPSHOT', buildNumber:'123244', description:'Development build', attributes: [
+<pre>
+<code>
+ apwSendDeploymentInfo application:'eCommerce', category:'Dev', version:'0.0.1-SNAPSHOT', buildNumber:'123244', attributes: [
         'initiator': 'Marvin',
         'trigger': 'Commit'
     ]
-</code></pre>
+</code>
+</pre>

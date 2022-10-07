@@ -1,18 +1,23 @@
 package com.apwide.jenkins.util
 
+import hudson.model.Result
+import hudson.scm.ChangeLogSet
+
 import static com.apwide.jenkins.util.ScriptWrapper.LogLevel.DEBUG
 
 class ScriptWrapper {
     final script
     final Parameters params
+    final env
 
     ScriptWrapper(script, Parameters params) {
+        this.env = script.env
         this.script = script
         this.params = params
     }
 
-    def getCurrentBuildResult() {
-        return this.script.currentBuild.result
+    Result getCurrentBuildResult() {
+        return this.script.currentBuild?.result
     }
 
     def httpRequest(Map params) {
@@ -61,5 +66,21 @@ class ScriptWrapper {
             }
             return OFF;
         }
+    }
+
+    List<ChangeLogSet<? extends ChangeLogSet.Entry>> getChangeSets(){
+        return script.currentBuild?.changeSets
+    }
+
+    def getPreviousBuild(){
+        return script.currentBuild?.getPreviousBuild()
+    }
+
+    def getUrl(){
+        return script.currentBuild?.absoluteUrl
+    }
+
+    def getBuildNumber(){
+        return script.currentBuild?.number
     }
 }

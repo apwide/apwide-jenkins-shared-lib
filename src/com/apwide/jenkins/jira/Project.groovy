@@ -11,7 +11,7 @@ class Project implements Serializable {
     private final RestClient jira
 
     Project(ScriptWrapper script, Parameters parameters) {
-        jira = new RestClient(script, parameters.getConfig(), new JiraAuthenticator(script, parameters), parameters.getJiraUrl('/rest/api/2/project'))
+        jira = new RestClient(script, parameters.getConfig(), new JiraAuthenticator(script, parameters), parameters.getJiraAPIUrl('/project'))
     }
 
     Project(Object script, Map config) {
