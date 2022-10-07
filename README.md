@@ -19,20 +19,21 @@ If you prefer examples over documentation, jump directly to the [pipeline exampl
 1. [Import the Jenkins Shared Library](https://stackoverflow.com/questions/41162177/jenkins-pipeline-how-to-add-help-for-global-shared-library)
 1. Create your first Hello World pipeline:
 
-###### Push eCommerce Dev environment's deployed version to Apwide Golive
+###### Push environment's deployment information to Apwide Golive
 ```groovy
 steps {
-    apwSetDeployedVersion(
+    apwSendDeploymentInfo(
         jiraBaseUrl: 'http://admin:admin@mycompany.com/jira',
-        application: 'eCommerce',
-        category: 'Dev',
+        environmentId: 23, // since Golive 9.+, id of environments can be found in UI or by API
         version: '0.0.1-SNAPSHOT'
     )
 }
 ```
 In this example script, we have set:
 * **jiraBaseUrl**, user and password to connect to Jira with Apwide Golive (keep reading to learn how to get rid of these ugly hard coded values...)
-* deployed **version** of the "eCommerce Dev" environment to "0.0.1-SNAPSHOT"
+* deployed **version** of the environment with id=28 to "0.0.1-SNAPSHOT"
+
+N.B. Build number and the history of Jira tickets found in the latest commits are also automatically pushed to Golive by the new [apwSendDeploymentInfo](./examples/deployment/send-deployment-information) step
 
 ## A bit cleaner
 
@@ -43,11 +44,10 @@ Usage of predefined global variables also makes your pipeline more readable:
 environment {
     APW_JIRA_BASE_URL = 'http://mycompany.com/jira'
     APW_JIRA_CREDENTIALS_ID = 'jira-credentials'
-    APW_APPLICATION = 'eCommerce'
-    APW_CATEGORY = 'Dev'
+    APW_ENVIRONMENT_ID = 28
 }
 steps {
-    apwSetDeployedVersion version: '0.0.1-SNAPSHOT'
+    apwSendDeploymentInfo version: '0.0.1-SNAPSHOT'
     apwSetEnvironmentStatus status: 'Up'
 }
 ```
@@ -144,7 +144,7 @@ Browse our "examples" folder to get inspired and to reuse portion of scripts to 
 * [Advanced selection of environments](./examples/monitoring/criteria-selection): monitor a custom set of environments using search criteria
  
 ### Deployment tracking
-* [CI Deployment workflow](./send-deployment-information): how to automatically push deployment information (including the list of deployed Jira tickets!) to Golive and Jira
+* [CI Deployment workflow](./examples/deployment/send-deployment-information): how to automatically push deployment information (including the list of deployed Jira tickets!) to Golive and Jira
 * [Deployment workflow](./examples/deployment/simple-build-deploy): push build and deployment information to Jira and Apwide Golive
 
 ### Self-Service Environments
@@ -179,11 +179,11 @@ def project = apwCallJira(
 This allows you to easily deal with multiple Jira and Apwide Golive servers if required.
 
 ### Apwide Golive global variables
+* **APW_ENVIRONMENT_ID** : Id of the Apwide Golive Environment (used when updating environment details, attributes, deployment,...). Replace **environmentId** parameter
 * **APW_APPLICATION** : Environment application name used in Apwide Golive (e.g. 'eCommerce'). Replace **application** parameter.
 * **APW_CATEGORY** : Environment category name used in Apwide Golive (e.g. 'Dev', 'Demo', 'Staging'...). Replace **category** parameter
-* **APW_UNAVAILABLE_STATUS** : Status name when environment is considered as not available by enmvironment status check. Replace **unavailableStatus** parameter
+* **APW_UNAVAILABLE_STATUS** : Status name when environment is considered as not available by environment status check. Replace **unavailableStatus** parameter
 * **APW_AVAILABLE_STATUS** : Status name when environment is considered as available by environment check status. Replace **availableStatus** parameter
-* **APW_ENVIRONMENT_ID** : Id of the Apwide Golive Environment (used when updating environment details, attributes). Replace **environmentId** parameter
 * **APW_GOLIVE_CLOUD_CREDENTIALS_ID** : If shared lib used to talk to Golive Cloud, id of the Jenkins credentials to use to call Golive Cloud REST API. Replace **goliveCloudCredentialsId** parameter
 
 ### Browse documentation in Jenkins UI
