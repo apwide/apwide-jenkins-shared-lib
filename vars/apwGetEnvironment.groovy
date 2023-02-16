@@ -7,7 +7,7 @@ import static com.apwide.jenkins.util.Utilities.executeStep
 def call(Map config = null) {
     executeStep(this, config) { ScriptWrapper script, Parameters parameters ->
         def environmentClient = new Environment(script, parameters)
-        def environmentId = parameters.getEnvironmentId() || environmentClient.get(parameters.getApplication(), parameters.getCategory()).id
+        def environmentId = parameters.getEnvironmentId() ?: environmentClient.get(parameters.getApplication(), parameters.getCategory()).id
 
         return environmentClient.get(environmentId)
     }
