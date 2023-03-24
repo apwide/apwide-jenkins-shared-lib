@@ -50,11 +50,6 @@ class Parameters implements Serializable {
     }
 
     @NonCPS
-    Map getConfig() {
-        config
-    }
-
-    @NonCPS
     String getGoliveBaseUrl() {
         isCloud() ? 'https://golive.apwide.net/api' :  "${config.jiraBaseUrl}/rest/apwide/tem/1.1"
     }
