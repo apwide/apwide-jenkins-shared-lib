@@ -51,6 +51,10 @@ class Environment implements Serializable {
         golive.get("/environment/${environmentId}", '200:304,404')
     }
 
+    def delete(environmentId) {
+        golive.delete("/environment/${environmentId}", '200:304,404')
+    }
+
     def getStatus(environmentId) {
         golive.get("/status-change?environmentId=${environmentId}", '200:304,404')
     }

@@ -78,8 +78,8 @@ class RestClient implements Serializable {
         return request('GET', path, null, validResponseCodes)
     }
 
-    def delete(path = '') {
-        return request('DELETE', path)
+    def delete(path = '', validResponseCodes  = '200:304') {
+        return request('DELETE', path, null, validResponseCodes)
     }
 
     static def checkUrl(Map params, ScriptWrapper script) {
