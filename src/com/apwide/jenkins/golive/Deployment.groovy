@@ -15,13 +15,17 @@ class Deployment implements Serializable {
     private final ScriptWrapper script
     private final RestClient golive
     private final Issue issue
+    private final Parameters parameters
     private final boolean isCloud
+    private final boolean forceDeployIssueInDescription
 
     Deployment(ScriptWrapper script, Parameters parameters) {
         this.script = script
         this.golive = new RestClient(script, parameters.getConfig(), new GoliveAuthenticator(script, parameters), parameters.getGoliveBaseUrl())
         this.issue = new Issue(script, parameters)
         this.isCloud = parameters.isCloud()
+        this.parameters = parameters
+        this.forceDeployIssueInDescription = parameters.forceDeployIssuesInDescription()
     }
 
     def setDeployedVersion(environmentId, applicationName, categoryName, deployedVersion, buildNumber, description, attributes) {
@@ -50,7 +54,7 @@ class Deployment implements Serializable {
               description=${computedDescription},
               attributes=${attributes}
               issues=${deploymentIssues}
-            """)
+            """.stripIndent())
 
             def payload = [
                 versionName: deployedVersion,
@@ -58,7 +62,8 @@ class Deployment implements Serializable {
                 description: computedDescription,
                 attributes : attributes
             ]
-            if (goliveStatus.supportsDeploymentIssues()) {
+
+            if (goliveStatus.mustAddIssuesAsDeploymentIssues()) {
               payload.issueKeys = deploymentIssues
             }
 
@@ -82,14 +87,14 @@ class Deployment implements Serializable {
 
   private GoliveStatus goliveStatus() {
       try {
-        return new GoliveStatus(version: Version.from(golive.get("/plugin").version), cloud: isCloud)
+        return new GoliveStatus(version: Version.from(golive.get("/plugin").version), cloud: isCloud, parameters: parameters)
       } catch (Throwable e){
-        return new GoliveStatus(version: null, cloud: isCloud)
+        return new GoliveStatus(version: null, cloud: isCloud, parameters: parameters)
       }
     }
 
     private def renderDescription(String[] issueKeys, String buildNumber, GoliveStatus goliveStatus) {
-        if(goliveStatus.supportsDeploymentIssues()) {
+        if(goliveStatus.mustAddIssuesAsDeploymentIssues()) {
           return """✅ Job #${buildNumber}"""
         }
 
