@@ -43,7 +43,10 @@ class Parameters implements Serializable {
             forceGoliveServer:        params.forceGoliveServer        ?: params.config?.forceGoliveServer        ?: script.env.APW_FORCE_GOLIVE_SERVER         ?: false,
 
             buildFailOnError:  buildFailOnError,
-            httpRequestOptions: params.httpRequestOptions ?: params.config?.httpRequestOptions
+            httpRequestOptions: params.httpRequestOptions ?: params.config?.httpRequestOptions,
+
+            // testing purpose only
+            goliveCloudUrl:           params.goliveCloudUrl           ?: params.config?.goliveCloudUrl           ?: script.env.APW_GOLIVE_CLOUD_URL            ?: 'https://golive.apwide.net/api'
         ]
 
         this.params = params
@@ -51,7 +54,7 @@ class Parameters implements Serializable {
 
     @NonCPS
     String getGoliveBaseUrl() {
-        isCloud() ? 'https://golive.apwide.net/api' :  "${config.jiraBaseUrl}/rest/apwide/tem/1.1"
+        isCloud() ? config.goliveCloudUrl :  "${config.jiraBaseUrl}/rest/apwide/tem/1.1"
     }
 
     @NonCPS
