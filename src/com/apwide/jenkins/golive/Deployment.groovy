@@ -5,6 +5,7 @@ import com.apwide.jenkins.jira.Issue
 import com.apwide.jenkins.util.Parameters
 import com.apwide.jenkins.util.RestClient
 import com.apwide.jenkins.util.ScriptWrapper
+import com.apwide.jenkins.util.Version
 import com.apwide.jenkins.util.auth.GoliveAuthenticator
 
 import static com.apwide.jenkins.util.Utilities.urlEncode
@@ -50,12 +51,11 @@ class Deployment implements Serializable {
         }
     }
 
-    private boolean isGolive9_1_orHigher(){
+    private Version goliveVersion(){
         try {
-            String goliveVersion = golive.get("/plugin").version
-            return !goliveVersion.startsWith("6") && !goliveVersion.startsWith("7") && !goliveVersion.startsWith("8") && !goliveVersion.startsWith("9.0")
+            return Version.from(golive.get("/plugin").version)
         } catch (Throwable e){
-            return false
+            return null
         }
     }
 
@@ -63,7 +63,7 @@ class Deployment implements Serializable {
         def issueKeyExtractor = new ChangeLogIssueKeyExtractor()
         def issueKeys = issueKeyExtractor.extractIssueKeys(script)
         def text = """✅ Job #${buildNumber}"""
-        def supportsUnlimitedDescription = isCloud || isGolive9_1_orHigher()
+        def supportsUnlimitedDescription = isCloud || goliveVersion()?.isEqualOrHigherThan("9.1.0")
         issueKeys.each {it ->
             if (supportsUnlimitedDescription) {
                 String issueInfo = issue.getIssueInfo(it)
