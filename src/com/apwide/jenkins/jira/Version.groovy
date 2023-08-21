@@ -15,22 +15,18 @@ class Version implements Serializable {
     }
 
     def create(Map version) {
-        jira.post('', version)
+        return jira.post('', version)
     }
 
     def get(String id) {
-        jira.get("/${urlEncode(id)}")
+        return jira.get("/${urlEncode(id)}")
     }
 
     def update(String id, Map version) {
-        jira.put("/${urlEncode(id)}", version)
+        return jira.put("/${urlEncode(id)}", version)
     }
 
     def delete(String id) {
-        jira.delete("/${urlEncode(id)}")
-    }
-
-    def release(String id) {
-        throw new UnsupportedOperationException('not yet implemented')
+        return jira.delete("/${urlEncode(id)}")
     }
 }

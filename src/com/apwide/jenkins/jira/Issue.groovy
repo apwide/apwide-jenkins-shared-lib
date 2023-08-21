@@ -30,18 +30,22 @@ class Issue implements Serializable {
         jira.get("/${urlEncode(issueIdOrKey)}?${queryParams}")
     }
 
-    String issueUrl(String issueKey){
+    def update(issueIdOrKey, Map body) {
+        return jira.put("/${urlEncode(issueIdOrKey)}", body)
+    }
+
+    String issueUrl(String issueKey) {
         return "${jiraUrl}/browse/${urlEncode(issueKey)}"
     }
 
-    String getIssueInfo(issueIdOrKey){
+    String getIssueInfo(issueIdOrKey) {
         try {
             def issueResource = this.get(issueIdOrKey, "fields=summary,comment,status,issuetype")
             String issueKey = issueResource.key
             def issueSummary = issueResource.fields.summary
             return """<a href="${issueUrl(urlEncode(issueKey))}" target="_blank">${issueKey}</a> ${issueSummary}"""
         }
-        catch (Throwable e){
+        catch (Throwable e) {
             script.debug "Error getting issue with id=${issueIdOrKey} : ${e}"
             script.debug("Exception: ${e}")
             script.debug("Message: ${e.getMessage()}")
@@ -49,5 +53,17 @@ class Issue implements Serializable {
             return null
         }
 
+    }
+
+    def addFixVersion(issueIdOrKey, String fixVersion) {
+        return update(issueIdOrKey, [
+                "update": [
+                        "fixVersions": [
+                                [
+                                        "add": ["name": fixVersion]
+                                ]
+                        ]
+                ]
+        ])
     }
 }
