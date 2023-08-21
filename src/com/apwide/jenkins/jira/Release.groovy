@@ -3,6 +3,7 @@ package com.apwide.jenkins.jira
 import com.apwide.jenkins.issue.ChangeLogIssueKeyExtractor
 import com.apwide.jenkins.util.*
 import com.apwide.jenkins.util.auth.JiraAuthenticator
+import net.sf.json.JSONArray
 
 class Release implements Serializable {
     private final ScriptWrapper script
@@ -33,7 +34,7 @@ class Release implements Serializable {
               issueKeys=${computedIssueKeys}
             """.stripIndent())
 
-            def projectVersions = project.versions(projectIdOrKey) as Object[]
+            def projectVersions = ((JSONArray) project.versions(projectIdOrKey)).toArray()
             def targetVersion
             def existingVersion = projectVersions.find({ it -> versionName.equalsIgnoreCase(it.name) })
             if (existingVersion) {
