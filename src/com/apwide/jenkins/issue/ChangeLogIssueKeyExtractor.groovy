@@ -22,9 +22,10 @@ class ChangeLogIssueKeyExtractor implements IssueKeyExtractor {
         script.debug("ChangeLogSet: ${changeSets}")
 
         def previousBuild = script.getPreviousBuild()
+        def previousBuildResult = previousBuild?.getResult()
         script.debug("Previous build: ${previousBuild}")
-        script.debug("Previous build result: ${previousBuild.getResult()}")
-        while (Objects.nonNull(previousBuild) && Objects.nonNull(previousBuild.getChangeSets()) && !isBuildSuccessful(previousBuild)) {
+        script.debug("Previous build result: ${previousBuildResult}")
+        while (Objects.nonNull(previousBuild?.getChangeSets()) && !isBuildSuccessful(previousBuildResult)) {
             changeSets.addAll((Set)previousBuild.getChangeSets())
             script.debug("Previous build change sets added: ${previousBuild.getChangeSets()}")
             previousBuild = previousBuild.getPreviousBuild()
@@ -59,7 +60,7 @@ class ChangeLogIssueKeyExtractor implements IssueKeyExtractor {
         return stringIssueKeys
     }
 
-    private boolean isBuildSuccessful(final build) {
-        return Result.SUCCESS.toString() == build.getResult().toString()
+    private boolean isBuildSuccessful(final buildResult) {
+        return Result.SUCCESS.toString() == buildResult.toString()
     }
 }
