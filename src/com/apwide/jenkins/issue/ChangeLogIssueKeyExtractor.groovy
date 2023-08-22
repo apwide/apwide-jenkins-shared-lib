@@ -23,8 +23,8 @@ class ChangeLogIssueKeyExtractor implements IssueKeyExtractor {
 
         def previousBuild = script.getPreviousBuild()
         script.debug("Previous build: ${previousBuild}")
-        script.debug("Previous build result: ${previousBuild.getResult()}")
-        while (Objects.nonNull(previousBuild) && Objects.nonNull(previousBuild.getChangeSets()) && !isBuildSuccessful(previousBuild)) {
+        script.debug("Previous build result: ${previousBuild?.getResult()}")
+        while (Objects.nonNull(previousBuild) && Objects.nonNull(previousBuild?.getChangeSets()) && !isBuildSuccessful(previousBuild)) {
             changeSets.addAll((Set)previousBuild.getChangeSets())
             script.debug("Previous build change sets added: ${previousBuild.getChangeSets()}")
             previousBuild = previousBuild.getPreviousBuild()
