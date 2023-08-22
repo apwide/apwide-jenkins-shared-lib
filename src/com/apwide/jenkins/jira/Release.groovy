@@ -22,16 +22,18 @@ class Release implements Serializable {
         this.parameters = parameters
     }
 
-    def sendReleaseInfo(versionName, versionDescription, projectIdOrKey, startDate = new Date(), Collection<String> issueKeys, released = false, releaseDate) {
+    def sendReleaseInfo(versionName, versionDescription, projectIdOrKey, startDate, Collection<String> issueKeys, released = false, releaseDate) {
         script.debug("apwSendReleaseInfo to Jira...")
         try {
             def computedIssueKeys = issueKeys ?: new ChangeLogIssueKeyExtractor().extractIssueKeys(script) as String[]
-            def computedDescription = versionDescription ?: renderDescription(issueKeys)
             script.debug("""
               versionName=${versionName},
-              versionDescription=${computedDescription},
-              projectIdOrKey=${projectIdOrKey}
-              issueKeys=${computedIssueKeys}
+              versionDescription=${versionDescription},
+              projectIdOrKey=${projectIdOrKey},
+              startDate=${startDate},
+              issueKeys=${computedIssueKeys},
+              released=${released},
+              releaseDate=${releaseDate}
             """.stripIndent())
 
             def projectVersions = ((JSONArray) project.versions(projectIdOrKey)).toArray()
@@ -42,22 +44,30 @@ class Release implements Serializable {
             } else {
                 def project = project.get(projectIdOrKey)
                 targetVersion = version.create([
-                        name: versionName,
-                        projectId  : project.id
+                        name       : versionName,
+                        description: versionDescription ?: 'Created by Apwide Golive Jenkins shared lib',
+                        projectId  : project.id,
+                        startDate  : startDate ?: new Date()
                 ])
             }
 
-            def payload = [
-                    description: computedDescription,
-                    startDate  : startDate,
-                    released   : released
-            ]
+            def payload = []
+            if (released) {
+                payload.released = released
+            }
+            if (versionDescription) {
+                payload.description = versionDescription
+            }
             if (releaseDate || released) {
                 payload.releaseDate = releaseDate ?: new Date()
             }
+            if (startDate) {
+                payload.startDate = startDate
+            }
 
-            targetVersion = version.update(targetVersion.id, payload)
-
+            if (!payload.isEmpty()) {
+                targetVersion = version.update(targetVersion.id, payload)
+            }
             for (String issueKey : computedIssueKeys) {
                 try {
                     issue.addFixVersion(issueKey, targetVersion.name)
@@ -70,19 +80,13 @@ class Release implements Serializable {
             return targetVersion
 
 
-        } catch (Throwable e) {
+        }
+
+        catch (Throwable e) {
             script.debug("Unexpected error in apwSendReleaseInfo to Jira: ${e}")
             script.debug("Error message: ${e.getMessage()}")
             throw e
         }
-    }
-
-    private def renderDescription(Collection<String> issueKeys) {
-        def text = """✅ Release Notes"""
-        issueKeys.each { it ->
-            text += ("\n ${it}")
-        }
-        return text
     }
 
 }
