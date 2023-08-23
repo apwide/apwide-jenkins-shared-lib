@@ -2,6 +2,7 @@ package com.apwide.jenkins.golive
 
 import com.apwide.jenkins.issue.ChangeLogIssueKeyExtractor
 import com.apwide.jenkins.jira.Issue
+import com.apwide.jenkins.jira.Issues
 import com.apwide.jenkins.util.GoliveStatus
 import com.apwide.jenkins.util.Parameters
 import com.apwide.jenkins.util.RestClient
@@ -15,6 +16,7 @@ class Deployment implements Serializable {
     private final ScriptWrapper script
     private final RestClient golive
     private final Issue issue
+    private final Issues issues
     private final Parameters parameters
     private final boolean isCloud
     private final boolean forceDeployIssueInDescription
@@ -23,6 +25,7 @@ class Deployment implements Serializable {
         this.script = script
         this.golive = new RestClient(script, parameters.getConfig(), new GoliveAuthenticator(script, parameters), parameters.getGoliveBaseUrl())
         this.issue = new Issue(script, parameters)
+        this.issues = new Issues(script, parameters)
         this.isCloud = parameters.isCloud()
         this.parameters = parameters
         this.forceDeployIssueInDescription = parameters.forceDeployIssuesInDescription()
@@ -38,13 +41,13 @@ class Deployment implements Serializable {
         ])
     }
 
-    def sendDeploymentInfo(environmentId, applicationName, categoryName, deployedVersion, buildNumber, description, attributes) {
+    def sendDeploymentInfo(environmentId, applicationName, categoryName, deployedVersion, buildNumber, description, attributes, deployedIssuesJql) {
         script.debug("apwSendDeploymentInfo to Golive...")
         try{
             def goliveStatus = goliveStatus()
-            def deploymentIssues = new ChangeLogIssueKeyExtractor().extractIssueKeys(script) as String[]
             def computedBuildNumber = "${buildNumber ?: script.getBuildNumber()}"
-            def computedDescription = description ?: renderDescription(deploymentIssues, computedBuildNumber, goliveStatus)
+            def changeLogsIssueKeys = new ChangeLogIssueKeyExtractor().extractIssueKeys(script) as String[]
+            def computedDescription = description ?: renderDescription(changeLogsIssueKeys, computedBuildNumber, goliveStatus)
             script.debug("""
               environmentId=${environmentId},
               applicationName=${applicationName},
@@ -52,8 +55,8 @@ class Deployment implements Serializable {
               deployedVersion=${deployedVersion},
               buildNumber=${computedBuildNumber},
               description=${computedDescription},
-              attributes=${attributes}
-              issues=${deploymentIssues}
+              attributes=${attributes},
+              deployedIssuesJql=${deployedIssuesJql}
             """.stripIndent())
 
             def payload = [
@@ -62,12 +65,30 @@ class Deployment implements Serializable {
                 description: computedDescription,
                 attributes : attributes
             ]
+            def issueKeys = []
+            if (deployedIssuesJql){
+                try {
+                    def foundIssueKeys = issues.issueKeys(deployedIssuesJql)
+                    script.debug("Found issue keys: ${foundIssueKeys} (jql: ${deployedIssuesJql})")
+                    issueKeys.addAll(foundIssueKeys)
+                }
+                catch (Throwable e){
+                    script.debug("Error searching for issueKeys using this jql: ${deployedIssuesJql} (${e}: ${e.message})")
+                }
+            }
 
             if (goliveStatus.mustAddIssuesAsDeploymentIssues()) {
-              payload.issueKeys = deploymentIssues
+                script.debug("changeLogsIssueKeys=${changeLogsIssueKeys}")
+                issueKeys.addAll(changeLogsIssueKeys)
+            }
+
+            if (!issueKeys.isEmpty()){
+                script.debug("issueKeys=${issueKeys}")
+                payload.issueKeys = issueKeys
             }
 
             def environmentIdentification = toEnvironmentIdentification(environmentId, applicationName, categoryName)
+            script.debug("payload: ${payload}")
 
             return golive.put("/deployment?${environmentIdentification}", payload)
         } catch (Throwable e){

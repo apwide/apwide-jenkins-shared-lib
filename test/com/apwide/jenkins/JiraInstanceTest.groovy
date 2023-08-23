@@ -16,13 +16,13 @@ import com.apwide.jenkins.util.ScriptWrapper
 import spock.lang.Specification
 
 import java.text.SimpleDateFormat
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 class JiraInstanceTest extends Specification {
 
     String pattern = "yyyy-MM-dd";
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+    def environmentId = 56;
 
     private final jiraConfig = [
             jiraBaseUrl      : 'http://localhost:2990/jira',
@@ -202,7 +202,9 @@ class JiraInstanceTest extends Specification {
         def env = environment.create(
                 'eCommerce',
                 'Dev2',
-                'Default EnvironmentPermission Scheme')
+                'Default EnvironmentPermission Scheme',
+                [name: "NewEnv ${System.currentTimeMillis()}"]
+        )
 
         then:
         env != null
@@ -224,13 +226,12 @@ class JiraInstanceTest extends Specification {
         def deployment = new Deployment(script, new Parameters(script, jiraConfig))
         def versionName = "V 23.23.23"
         def buildNumber = 299
-        def environmentId = 16
         def description = """✅ Job #308
 <a href="https://apwide.atlassian.net/browse/TEM-2507" target="_blank">TEM-2507</a> Slack notifications fail when tags contains href + title is in the payload (PROD)
 """
 
         when:
-        def deploymentResult = deployment.sendDeploymentInfo(environmentId + "", null, null, versionName, buildNumber, description, null)
+        def deploymentResult = deployment.sendDeploymentInfo(environmentId + "", null, null, versionName, buildNumber, description, null, null)
 
         then:
         deploymentResult != null
@@ -263,13 +264,14 @@ class JiraInstanceTest extends Specification {
         issue.get("ECP-98").toString().contains(versionName)
     }
 
-    def "send release info (existing version)"() {
+    def "send release & deployment info"() {
         given:
         def issue = new Issue(script, new Parameters(script, jiraConfig))
         def version = new Version(script, new Parameters(script, jiraConfig))
         def project = new Project(script, new Parameters(script, jiraConfig))
         def release = new Release(script, new Parameters(script, jiraConfig))
-        def versionName = "Existing Version ${new Date().getTime()}"
+        def deployment = new Deployment(script, new Parameters(script, jiraConfig))
+        def versionName = "ECOM ${new Date().getTime()}"
         def projectIdOrKey = "ECP"
         def targetProject = project.get(projectIdOrKey)
 
@@ -284,8 +286,18 @@ class JiraInstanceTest extends Specification {
         def released = true
         when:
         def updatedRelease = release.sendReleaseInfo(versionName, versionDescription, projectIdOrKey, startDate, issueKeys, released, null)
+        def deploymentResult = deployment.sendDeploymentInfo(
+                environmentId + "",
+                null,
+                null,
+                versionName,
+                System.currentTimeMillis(),
+                "Should get issues of the release",
+                null, "fixVersion='${versionName}' and statusCategory = Done"
+        )
 
         then:
+
         existingRelease.name == versionName
         existingRelease.description == null
         existingRelease.startDate == null
@@ -300,6 +312,12 @@ class JiraInstanceTest extends Specification {
         updatedRelease.releaseDate != null
         issue.get("ECP-1").toString().contains(versionName)
         issue.get("ECP-98").toString().contains(versionName)
+
+        deploymentResult != null
+        deploymentResult.environmentId == environmentId
+        deploymentResult.versionName == versionName
+        deploymentResult.description == "Should get issues of the release"
+        deploymentResult.issueKeys.containsAll("ECP-1", "ECP-98")
     }
 
 }

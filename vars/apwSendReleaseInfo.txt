@@ -13,7 +13,7 @@
 <p>Usage example step that could by used in a release job:</p>
 <pre>
 <code>
- apwSendReleaseInfo versionName:'ECOM-1.2.45', released: true
+ apwSendReleaseInfo projectIdOrKey: 'ECP', versionName:'ECOM-1.2.45', released: true
 </code>
 </pre>
 <br/>

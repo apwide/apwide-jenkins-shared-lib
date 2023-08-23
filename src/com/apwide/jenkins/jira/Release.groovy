@@ -22,7 +22,7 @@ class Release implements Serializable {
         this.parameters = parameters
     }
 
-    def sendReleaseInfo(versionName, versionDescription, projectIdOrKey, startDate, Collection<String> issueKeys, released = false, releaseDate) {
+    def sendReleaseInfo(versionName, versionDescription, projectIdOrKey, startDate, Collection<String> issueKeys, released, releaseDate) {
         script.debug("apwSendReleaseInfo to Jira...")
         try {
             def computedIssueKeys = issueKeys ?: new ChangeLogIssueKeyExtractor().extractIssueKeys(script) as String[]
@@ -36,7 +36,7 @@ class Release implements Serializable {
               releaseDate=${releaseDate}
             """.stripIndent())
 
-            def projectVersions = ((JSONArray) project.versions(projectIdOrKey)).toArray()
+            def projectVersions = project.versions(projectIdOrKey)
             def targetVersion
             def existingVersion = projectVersions.find({ it -> versionName.equalsIgnoreCase(it.name) })
             if (existingVersion) {
@@ -51,7 +51,7 @@ class Release implements Serializable {
                 ])
             }
 
-            def payload = []
+            def payload = [:]
             if (released) {
                 payload.released = released
             }
