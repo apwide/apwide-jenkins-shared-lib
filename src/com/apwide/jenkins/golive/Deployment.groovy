@@ -31,19 +31,44 @@ class Deployment implements Serializable {
         this.forceDeployIssueInDescription = parameters.forceDeployIssuesInDescription()
     }
 
-    def setDeployedVersion(environmentId, applicationName, categoryName, deployedVersion, buildNumber, description, attributes) {
+    def setDeployedVersion(environmentId, applicationName, categoryName, deployedVersion, buildNumber, description, attributes, deployedIssuesJql) {
+        script.debug("""
+              environmentId=${environmentId},
+              applicationName=${applicationName},
+              categoryName=${categoryName},
+              deployedVersion=${deployedVersion},
+              buildNumber=${buildNumber},
+              description=${description},
+              attributes=${attributes},
+              deployedIssuesJql=${deployedIssuesJql}
+            """.stripIndent())
         def environmentIdentification = toEnvironmentIdentification(environmentId, applicationName, categoryName)
-        golive.put("/deployment?${environmentIdentification}", [
+
+        def payload = [
                 versionName: deployedVersion,
                 buildNumber: buildNumber,
                 description: description,
                 attributes : attributes
-        ])
+        ]
+        if (deployedIssuesJql) {
+            try {
+                def issueKeys = issues.issueKeys(deployedIssuesJql)
+                script.debug("Found issue keys: ${issueKeys} (jql: ${deployedIssuesJql})")
+                if (!issueKeys.isEmpty()) {
+                    payload.issueKeys = issueKeys
+                }
+            }
+            catch (Throwable e) {
+                script.debug("Error searching for issueKeys using this jql: ${deployedIssuesJql} (${e}: ${e.message})")
+            }
+        }
+
+        return golive.put("/deployment?${environmentIdentification}", payload)
     }
 
     def sendDeploymentInfo(environmentId, applicationName, categoryName, deployedVersion, buildNumber, description, attributes, deployedIssuesJql) {
         script.debug("apwSendDeploymentInfo to Golive...")
-        try{
+        try {
             def goliveStatus = goliveStatus()
             def computedBuildNumber = "${buildNumber ?: script.getBuildNumber()}"
             def changeLogsIssueKeys = new ChangeLogIssueKeyExtractor().extractIssueKeys(script) as String[]
@@ -60,19 +85,19 @@ class Deployment implements Serializable {
             """.stripIndent())
 
             def payload = [
-                versionName: deployedVersion,
-                buildNumber: computedBuildNumber,
-                description: computedDescription,
-                attributes : attributes
+                    versionName: deployedVersion,
+                    buildNumber: computedBuildNumber,
+                    description: computedDescription,
+                    attributes : attributes
             ]
             def issueKeys = []
-            if (deployedIssuesJql){
+            if (deployedIssuesJql) {
                 try {
                     def foundIssueKeys = issues.issueKeys(deployedIssuesJql)
                     script.debug("Found issue keys: ${foundIssueKeys} (jql: ${deployedIssuesJql})")
                     issueKeys.addAll(foundIssueKeys)
                 }
-                catch (Throwable e){
+                catch (Throwable e) {
                     script.debug("Error searching for issueKeys using this jql: ${deployedIssuesJql} (${e}: ${e.message})")
                 }
             }
@@ -82,7 +107,7 @@ class Deployment implements Serializable {
                 issueKeys.addAll(changeLogsIssueKeys)
             }
 
-            if (!issueKeys.isEmpty()){
+            if (!issueKeys.isEmpty()) {
                 script.debug("issueKeys=${issueKeys}")
                 payload.issueKeys = issueKeys
             }
@@ -91,44 +116,44 @@ class Deployment implements Serializable {
             script.debug("payload: ${payload}")
 
             return golive.put("/deployment?${environmentIdentification}", payload)
-        } catch (Throwable e){
+        } catch (Throwable e) {
             script.debug("Unexpected error in apwSendDeploymentInfo to Golive: ${e}")
             script.debug("Error message: ${e.getMessage()}")
             throw e
         }
     }
 
-  private static String toEnvironmentIdentification(environmentId, applicationName, categoryName) {
-    return [
-        environmentId ? "environmentId=$environmentId" : "",
-        applicationName ? "application=${urlEncode(applicationName)}" : "",
-        categoryName ? "category=${urlEncode(categoryName)}" : ""
-    ].join("&")
-  }
+    private static String toEnvironmentIdentification(environmentId, applicationName, categoryName) {
+        return [
+                environmentId ? "environmentId=$environmentId" : "",
+                applicationName ? "application=${urlEncode(applicationName)}" : "",
+                categoryName ? "category=${urlEncode(categoryName)}" : ""
+        ].join("&")
+    }
 
-  private GoliveStatus goliveStatus() {
-      try {
-        return new GoliveStatus(version: Version.from(golive.get("/plugin").version), cloud: isCloud, parameters: parameters)
-      } catch (Throwable e){
-        return new GoliveStatus(version: null, cloud: isCloud, parameters: parameters)
-      }
+    private GoliveStatus goliveStatus() {
+        try {
+            return new GoliveStatus(version: Version.from(golive.get("/plugin").version), cloud: isCloud, parameters: parameters)
+        } catch (Throwable e) {
+            return new GoliveStatus(version: null, cloud: isCloud, parameters: parameters)
+        }
     }
 
     private def renderDescription(String[] issueKeys, String buildNumber, GoliveStatus goliveStatus) {
-        if(goliveStatus.mustAddIssuesAsDeploymentIssues()) {
-          return """✅ Job #${buildNumber}"""
+        if (goliveStatus.mustAddIssuesAsDeploymentIssues()) {
+            return """✅ Job #${buildNumber}"""
         }
 
         def text = """✅ Job #${buildNumber}"""
-        issueKeys.each {it ->
+        issueKeys.each { it ->
             if (goliveStatus.supportsUnlimitedDescription()) {
                 String issueInfo = issue.getIssueInfo(it)
                 text += ("\n ${issueInfo != null ? issueInfo : it}")
-            }else{
+            } else {
                 text += ("\n ${it}")
             }
         }
-        if (!goliveStatus.supportsUnlimitedDescription() && text.size() >= 255){
+        if (!goliveStatus.supportsUnlimitedDescription() && text.size() >= 255) {
             text = text.substring(0, 252) + '...'
         }
         return text

@@ -320,4 +320,30 @@ class JiraInstanceTest extends Specification {
         deploymentResult.issueKeys.containsAll("ECP-1", "ECP-98")
     }
 
+    def "send deployed version"() {
+        given:
+        def deployment = new Deployment(script, new Parameters(script, jiraConfig))
+        def versionName = "ECOM ${new Date().getTime()}"
+
+        when:
+        // create the version
+        def deploymentResult = deployment.setDeployedVersion(
+                environmentId + "",
+                null,
+                null,
+                versionName,
+                System.currentTimeMillis(),
+                "Should get issues of the release",
+                null,
+                "key in (ECP-1,ECP-98)"
+        )
+
+        then:
+        deploymentResult != null
+        deploymentResult.environmentId == environmentId
+        deploymentResult.versionName == versionName
+        deploymentResult.description == "Should get issues of the release"
+        deploymentResult.issueKeys.containsAll("ECP-1", "ECP-98")
+    }
+
 }
