@@ -3,7 +3,6 @@ package com.apwide.jenkins.jira
 import com.apwide.jenkins.issue.ChangeLogIssueKeyExtractor
 import com.apwide.jenkins.util.*
 import com.apwide.jenkins.util.auth.JiraAuthenticator
-import net.sf.json.JSONArray
 
 class Release implements Serializable {
     private final ScriptWrapper script
