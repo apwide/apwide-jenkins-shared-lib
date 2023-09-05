@@ -1,0 +1,50 @@
+@Library('apwide-jenkins-shared-lib') _
+
+pipeline {
+    agent any
+    environment {
+//        APW_JIRA_BASE_URL = 'http://mycompany.com/jira' // these variables can be defined at different level: jenkins global properties, pipeline level, stage level
+//        APW_JIRA_CREDENTIALS_ID = 'jira-credentials'
+        VERSION_NAME = "2.1.5.0"
+
+        DEV_ENV_ID = 6
+
+    }
+    parameters {
+        choice(name: 'PROMOTE_TO_ENV', choices: ['Dev', 'Demo'], description: 'Should the output be promoted to an environment ?')
+    }
+    stages {
+        stage('Build & Test') { //
+            steps {
+                script {
+                    sh 'sleep 2s' // here is just an example of build stage, build you can define your here, or choose to put on another pipeline
+                }
+            }
+        }
+        stage('Release version') {
+            when {
+                equals expected: 'true', actual: params.RELEASE
+            }
+            steps {
+                sh "sleep 5s" // replace this step with your own release procedure
+
+                apwSendReleaseInfo projectIdOrKey: 'ECP', versionName: VERSION_NAME, released: true
+                // this will create/update the Jira version 2.1.5.0 of Jira project ECP and mark it as released
+                // N.B. This also automatically assign the list of Jira tickets found in commit history (since the last successful build) to the Jira Version
+            }
+        }
+        stage('Deploy on Dev') {
+            when {
+                equals expected: 'Dev', actual: params.PROMOTE_TO_ENV
+            }
+            steps {
+                sh "sleep 5s" // replace this step with your own deployment procedure
+
+                apwSendDeploymentInfo environmentId: env.DEV_ENV_ID, version: env.VERSION_NAME, deployedIssuesJql: "fixVersion='${env.VERSION_NAME}' and statusCategory = Done"
+                // this pushes the deployment information to Golive
+                // Jira tickets returned by the jql will be added to the deployment
+                // N.B. This also automatically adds the list of Jira tickets found in commit history (since the last successful build) to the deployment
+            }
+        }
+    }
+}

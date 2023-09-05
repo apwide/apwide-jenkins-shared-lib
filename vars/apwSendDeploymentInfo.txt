@@ -8,24 +8,26 @@
     <dt>buildNumber</dt><dd>Build number. (if null, the jenkins build number will be used)</dd>
     <dt>description</dt><dd>Free text description of the deployment (let it null to use the auto generated description based on last commits)</dd>
     <dt>attributes</dt><dd>Deployment attributes map. (attribute key must exist in Golive)</dd>
+    <dt>deployedIssuesJql</dt><dd>JQL that returns the list of Jira tickets that are deployed.
+    <b/>Ex: "fixVersion='ECOM 1.2.3' and statusCategory = Done" will add all 'done' tickets fixed in Jira Version 'ECOM 1.2.3'  </dd>
 </dl>
 <br/>
 <p>Usage example with unique environment id (Golive v9.+):</p>
 <pre>
 <code>
- apwSendDeploymentInfo environmentId:'123', version:'0.0.1-SNAPSHOT', buildNumber:'123244', attributes: [
+ apwSendDeploymentInfo environmentId:'123', version:'ECOM 1.2.45', buildNumber:'123244', attributes: [
         'initiator': 'Marvin',
         'trigger': 'Commit'
-    ]
+    ], deployedIssuesJql: "fixVersion='ECOM 1.2.45' and statusCategory = Done"
 </code>
 </pre>
 <br/>
 <p>Usage example with application / category (before Golive v9.x):</p>
 <pre>
 <code>
- apwSendDeploymentInfo application:'eCommerce', category:'Dev', version:'0.0.1-SNAPSHOT', buildNumber:'123244', attributes: [
+ apwSendDeploymentInfo application:'eCommerce', category:'Dev', version:'ECOM 1.2.45', buildNumber:'123244', attributes: [
         'initiator': 'Marvin',
         'trigger': 'Commit'
-    ]
+    ], deployedIssuesJql: "fixVersion='ECOM 1.2.45' and statusCategory = Done"
 </code>
 </pre>

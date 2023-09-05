@@ -1,0 +1,19 @@
+<p>Send release information to Jira and add issues referenced in change logs to current release.</p>
+<p></p>
+<dl>
+    <dt>versionName</dt><dd>(Mandatory) Name of the Jira version to create or update</dd>
+    <dt>projectIdOrKey</dt><dd>(Mandatory) Id or key of the Jira Project of the Jira version</dd>
+    <dt>versionDescription</dt><dd>Description of the Jira version</dd>
+    <dt>startDate</dt><dd>Start date of the Jira version (format: YYYY-MM-dd). It will be set with current date if this parameter is not provided.</dd>
+    <dt>released</dt><dd>Set the Jira version to "released"? (false by default)</dd>
+    <dt>releaseDate</dt><dd>Release / End date of the Jira version (format: YYYY-MM-dd). Null by default</dd>
+    <dt>issueKeys</dt><dd>List of issueKeys to add to the release (Ex: [ECOM-3435,ECOM-6656]). Default value: the issueKeys found in changelogs since last successful release job.</dd>
+</dl>
+<br/>
+<p>Usage example step that could by used in a release job:</p>
+<pre>
+<code>
+ apwSendReleaseInfo projectIdOrKey: 'ECP', versionName:'ECOM-1.2.45', released: true
+</code>
+</pre>
+<br/>

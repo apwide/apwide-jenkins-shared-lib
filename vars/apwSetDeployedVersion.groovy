@@ -13,7 +13,8 @@ def call(Map config = null) {
                 parameters.params.version,
                 parameters.params.buildNumber,
                 parameters.params.description,
-                parameters.params.attributes
+                parameters.params.attributes,
+                parameters.params.deployedIssuesJql
         )
     }
 }

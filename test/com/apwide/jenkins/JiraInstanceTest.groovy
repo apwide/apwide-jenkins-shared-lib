@@ -6,6 +6,7 @@ import com.apwide.jenkins.golive.Environments
 import com.apwide.jenkins.golive.Golive
 import com.apwide.jenkins.jira.Issue
 import com.apwide.jenkins.jira.Project
+import com.apwide.jenkins.jira.Release
 import com.apwide.jenkins.jira.Version
 import com.apwide.jenkins.util.MockHttpRequestPlugin
 import com.apwide.jenkins.util.MockPipelineScript
@@ -14,14 +15,21 @@ import com.apwide.jenkins.util.Parameters
 import com.apwide.jenkins.util.ScriptWrapper
 import spock.lang.Specification
 
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+
 class JiraInstanceTest extends Specification {
 
+    String pattern = "yyyy-MM-dd";
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+    def environmentId = 56;
+
     private final jiraConfig = [
-            jiraBaseUrl: 'http://localhost:2990/jira',
+            jiraBaseUrl      : 'http://localhost:2990/jira',
             jiraCredentialsId: 'localhost-jira-admin'
     ]
     private final env = [
-            JIRA_BASE_URL: 'http://localhost:2990/jira',
+            JIRA_BASE_URL      : 'http://localhost:2990/jira',
             JIRA_CREDENTIALS_ID: 'localhost-jira-admin'
     ]
     private final jenkinsScript = new MockPipelineScript(new MockHttpRequestPlugin(), new MockReadJsonPlugin())
@@ -57,7 +65,7 @@ class JiraInstanceTest extends Specification {
         def golive = new Environments(script, new Parameters(script, jiraConfig))
 
         when:
-        def environments = golive.findAll application:'eCommerce'
+        def environments = golive.findAll application: 'eCommerce'
 
         then:
         environments != null
@@ -70,9 +78,9 @@ class JiraInstanceTest extends Specification {
 
         when:
         def result = environments.search([
-                applicationName:'eCommerce',
-                statusName:['Up', 'Down'],
-                '# servers':'1'
+                applicationName: 'eCommerce',
+                statusName     : ['Up', 'Down'],
+                '# servers'    : '1'
         ])
 
         then:
@@ -86,9 +94,9 @@ class JiraInstanceTest extends Specification {
 
         when:
         environments.withEnvironments([
-                applicationName:'eCommerce',
-                statusName:['Up', 'Down'],
-                '# servers':'4'
+                applicationName: 'eCommerce',
+                statusName     : ['Up', 'Down'],
+                '# servers'    : '4'
         ]) { environment -> script.echo environment.url }
 
         then:
@@ -165,7 +173,7 @@ class JiraInstanceTest extends Specification {
         ]
 
         when:
-        Map mergedConfig = (jiraConfig?: []) << (params?: [])
+        Map mergedConfig = (jiraConfig ?: []) << (params ?: [])
         Parameters parameters = new Parameters([env: env], mergedConfig)
 
         then:
@@ -194,7 +202,9 @@ class JiraInstanceTest extends Specification {
         def env = environment.create(
                 'eCommerce',
                 'Dev2',
-                'Default EnvironmentPermission Scheme')
+                'Default EnvironmentPermission Scheme',
+                [name: "NewEnv ${System.currentTimeMillis()}"]
+        )
 
         then:
         env != null
@@ -216,19 +226,124 @@ class JiraInstanceTest extends Specification {
         def deployment = new Deployment(script, new Parameters(script, jiraConfig))
         def versionName = "V 23.23.23"
         def buildNumber = 299
-        def environmentId = 16
-        def description ="""✅ Job #308
+        def description = """✅ Job #308
 <a href="https://apwide.atlassian.net/browse/TEM-2507" target="_blank">TEM-2507</a> Slack notifications fail when tags contains href + title is in the payload (PROD)
 """
 
         when:
-        def deploymentResult = deployment.sendDeploymentInfo(environmentId+"",null, null, versionName, buildNumber, description, null)
+        def deploymentResult = deployment.sendDeploymentInfo(environmentId + "", null, null, versionName, buildNumber, description, null, null)
 
         then:
         deploymentResult != null
         deploymentResult.environmentId == environmentId
         deploymentResult.versionName == versionName
         deploymentResult.description == description
+    }
+
+    def "send release info (new version)"() {
+        given:
+        def issue = new Issue(script, new Parameters(script, jiraConfig))
+        def release = new Release(script, new Parameters(script, jiraConfig))
+        def versionName = "Pipeline Version ${new Date().getTime()}"
+        def versionDescription = "lkjsdafl klkjasd lfkj asdlfkj"
+        def projectIdOrKey = "ECP"
+        def issueKeys = ["ECP-1", "BADKEY-9999", "ECP-98"]
+        def startDate = LocalDateTime.of(2023, 4, 20, 23, 59).toDate()
+        def released = true
+        when:
+        def updatedRelease = release.sendReleaseInfo(versionName, versionDescription, projectIdOrKey, startDate, issueKeys, released, null)
+
+        then:
+        updatedRelease instanceof Map
+        updatedRelease.name == versionName
+        updatedRelease.description == versionDescription
+        updatedRelease.startDate == simpleDateFormat.format(startDate)
+        updatedRelease.released == true
+        updatedRelease.releaseDate != null
+        issue.get("ECP-1").toString().contains(versionName)
+        issue.get("ECP-98").toString().contains(versionName)
+    }
+
+    def "send release & deployment info"() {
+        given:
+        def issue = new Issue(script, new Parameters(script, jiraConfig))
+        def version = new Version(script, new Parameters(script, jiraConfig))
+        def project = new Project(script, new Parameters(script, jiraConfig))
+        def release = new Release(script, new Parameters(script, jiraConfig))
+        def deployment = new Deployment(script, new Parameters(script, jiraConfig))
+        def versionName = "ECOM ${new Date().getTime()}"
+        def projectIdOrKey = "ECP"
+        def targetProject = project.get(projectIdOrKey)
+
+        // create the version
+        def existingRelease = version.create(["name": versionName, "projectId": targetProject.id])
+
+
+        def versionDescription = "lkjsdafl klkjasd lfkj asdlfkj"
+
+        def issueKeys = ["ECP-1", "BADKEY-9999", "ECP-98"]
+        def startDate = LocalDateTime.of(2023, 4, 20, 23, 59).toDate()
+        def released = true
+        when:
+        def updatedRelease = release.sendReleaseInfo(versionName, versionDescription, projectIdOrKey, startDate, issueKeys, released, null)
+        def deploymentResult = deployment.sendDeploymentInfo(
+                environmentId + "",
+                null,
+                null,
+                versionName,
+                System.currentTimeMillis(),
+                "Should get issues of the release",
+                null, "fixVersion='${versionName}' and statusCategory = Done"
+        )
+
+        then:
+
+        existingRelease.name == versionName
+        existingRelease.description == null
+        existingRelease.startDate == null
+        existingRelease.released == false
+        existingRelease.releaseDate == null
+        existingRelease.id == updatedRelease.id
+        updatedRelease instanceof Map
+        updatedRelease.name == versionName
+        updatedRelease.description == versionDescription
+        updatedRelease.startDate == simpleDateFormat.format(startDate)
+        updatedRelease.released == true
+        updatedRelease.releaseDate != null
+        issue.get("ECP-1").toString().contains(versionName)
+        issue.get("ECP-98").toString().contains(versionName)
+
+        deploymentResult != null
+        deploymentResult.environmentId == environmentId
+        deploymentResult.versionName == versionName
+        deploymentResult.description == "Should get issues of the release"
+        deploymentResult.issueKeys.containsAll("ECP-1", "ECP-98")
+    }
+
+    def "send deployed version"() {
+        given:
+        def deployment = new Deployment(script, new Parameters(script, jiraConfig))
+        def versionName = "ECOM ${new Date().getTime()}"
+
+        when:
+        // create the version
+        def deploymentResult = deployment.setDeployedVersion(
+                environmentId + "",
+                null,
+                null,
+                versionName,
+                System.currentTimeMillis(),
+                "Should get issues of the release",
+                null,
+                "key in (ECP-1,ECP-98)"
+        )
+
+        then:
+        deploymentResult != null
+        deploymentResult.environmentId == environmentId
+        deploymentResult.versionName == versionName
+        deploymentResult.description == "Should get issues of the release"
+        deploymentResult.issueKeys.containsAll("ECP-1", "ECP-98")
     }
 
 }

@@ -226,7 +226,8 @@ This documentation will be visible from the pipeline editor only **after [having
 ### Jira Project
 * [apwJiraGetProject](/vars/apwJiraGetProject.txt)
 
-### Jira Version
+### Manage Jira Versions & Releases
+* [apwSendReleaseInfo](/vars/apwSendReleaseInfo.txt)
 * [apwJiraGetProjectVersions](/vars/apwJiraGetProjectVersions.txt)
 * [apwJiraCreateVersion](/vars/apwJiraCreateVersion.txt)
 * [apwJiraUpdateVersion](/vars/apwJiraUpdateVersion.txt)
