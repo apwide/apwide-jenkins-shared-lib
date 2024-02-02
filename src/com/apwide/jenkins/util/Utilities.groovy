@@ -18,6 +18,10 @@ class Utilities {
                 isMethodAvailable(script, 'Pipeline Utility Steps', buildFailOnError) { script.readJSON() }
     }
 
+    static Map removeUndefined(Map params) {
+      return params.findAll { it.value != null }
+    }
+
     static private boolean isMethodAvailable(ScriptWrapper script, pluginName, jiraBuildFailOnError, Closure method) {
         try {
             method()

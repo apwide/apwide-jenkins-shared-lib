@@ -1,0 +1,61 @@
+<p>Send environment information to Jira and add issues referenced in change logs to current deployment.</p>
+<p></p>
+<dl>
+    <dt>targetEnvironmentName</dt><dd>Name of the environment in Apwide Golive</dd>
+    <dt>targetEnvironmentId</dt><dd>Id of the environment in Apwide Golive</dd>
+    <dt>targetEnvironmentAutoCreate</dt><dd>Create the target environment with provided information if it does not exist yet in Apwide Golive</dd>
+    <dt>targetApplicationName</dt><dd>Environment Application name. (if null, read from env.APW_APPLICATION)</dd>
+    <dt>targetApplicationId</dt><dd>Environment Application id.</dd>
+    <dt>targetApplicationAutoCreate</dt><dd>Create the target application with provided name if it does not exist yet in Apwide Golive.<bt>N.B. User associated to your connection must have permission to manage applications in order to automatically create new applications.</dd>
+    <dt>targetCategoryName</dt><dd>Environment Category name. (if null, read from env.APW_CATEGORY)</dd>
+    <dt>targetCategoryId</dt><dd>Environment Category id.</dd>
+    <dt>targetCategoryAutoCreate</dt><dd>Create the target category with provided name if it does not exist yet in Apwide Golive.<br>N.B. User associated to your connection must have permission to manage categories in order to automatically create new categories.</dd>
+    <dt>environmentUrl</dt><dd>Update the url of the environment</dd>
+    <dt>environmentAttributes</dt><dd>Environment attribute values in key-value Map format.</dd>
+    <dt>statusName</dt><dd>Type the name of the new status of the environment</dd>
+    <dt>statusId</dt><dd>Id of the new status of the environment</dd>
+    <dt>deploymentVersionName</dt><dd>Deployed version name</dd>
+    <dt>deploymentAttributes</dt><dd>Deployment attribute values in key-value Map format.</dd>
+    <dt>deploymentBuildNumber</dt><dd>Build number of the deployed version.</dd>
+    <dt>deploymentDescription</dt><dd>Description of the deployment (markdown is supported).</dd>
+    <dt>deploymentDeployedDate</dt><dd>Date in ISO-8601 format. Ex: 2023-09-24T12:00:00Z</dd>
+    <dt>deploymentIssueKeys</dt><dd>Comma separated list of Jira issue keys that are deployed. Ex: ECOM-3412,ECOM-6783,PAY-98</dd>
+    <dt>deploymentIssuesFromJql</dt><dd>Set the JQL query used to retrieve and add Jira tickets to the current deployment. <br>Ex: project = ECP AND type in (Story, Bug) AND resolution in (Fixed).<br>More about JQL <a target="_blank" href="https://www.atlassian.com/software/jira/guides/jql">here</a></dd>
+    <dt>deploymentAddDoneIssuesOfJiraVersion</dt><dd>Add all "Done" issues fixed in the deployed Jira version to the current deployment</dd>
+    <dt>deploymentSendJiraNotification</dt><dd>Trigger the standard Jira notification when updating the "Fix versions" of the deployed issues.</dd>
+    <dt>deploymentNoFixVersionUpdate</dt><dd>Do not add the deployed Jira version to "Fix versions" of the deployed Jira issues.</dd>
+</dl>
+<br/>
+<p>Usage example step that could by used in a release job:</p>
+<pre>
+<code>
+ apwSendEnvironmentInfo([
+    targetEnvironmentName: 'eCommerce Staging',
+    targetEnvironmentAutoCreate: true,
+    targetApplication: 'eCommerce',
+    targetApplicationAutoCreate: true,
+    targetCategory: 'Staging',
+    targetCategoryAutoCreate: true,
+    environmentUrl: 'https://ecommerce.staging.apwide.com/',
+    environmentAttributes: [
+        Contact: "jenkins@apwide.com",
+        Location: "Europe"
+    ],
+    statusName: "Up",
+    deploymentVersionName: "ECOM-2.3",
+    deploymentAttributes: [
+        Branch: "master",
+        Database: "postgres"
+    ],
+    deploymentBuildNumber: "123",
+    deploymentDescription: "Deployed from Jenkins",
+    deploymentDeployedDate: "2024-02-05T06:00:00Z",
+    deploymentIssueKeys: ["ECOM-1", "ECOM-2"],
+    deploymentIssuesFromJql: "",
+    deploymentAddDoneIssuesOfJiraVersion: false,
+    deploymentSendJiraNotification: false,
+    deploymentNoFixVersionUpdate: false
+ ])
+</code>
+</pre>
+<br/>

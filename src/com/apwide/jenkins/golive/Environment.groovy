@@ -1,5 +1,6 @@
 package com.apwide.jenkins.golive
 
+import com.apwide.jenkins.issue.ChangeLogIssueKeyExtractor
 import com.apwide.jenkins.jira.Issue
 import com.apwide.jenkins.util.Parameters
 import com.apwide.jenkins.util.RestClient
@@ -7,6 +8,7 @@ import com.apwide.jenkins.util.ScriptWrapper
 import com.apwide.jenkins.util.auth.GoliveAuthenticator
 
 import static com.apwide.jenkins.util.RestClient.checkUrl
+import static com.apwide.jenkins.util.Utilities.removeUndefined
 import static com.apwide.jenkins.util.Utilities.urlEncode
 
 class Environment implements Serializable {
@@ -119,4 +121,85 @@ class Environment implements Serializable {
         }
         return status
     }
+
+  def sendInfo(Parameters params) {
+    golive.post("/environment/information", removeUndefined([
+        environmentSelector: [
+            environment: [
+                id: params.params.targetEnvironmentId ?: params.getEnvironmentId() as Integer,
+                name: params.params.targetEnvironmentName ?: params.params.environmentName as String,
+                autoCreate: params.params.targetEnvironmentAutoCreate as Boolean,
+            ],
+            application: [
+                id: params.params.targetApplicationId as Integer,
+                name: params.params.targetApplicationName ?: params.getApplication(),
+                autoCreate: params.params.targetApplicationAutoCreate as Boolean,
+            ],
+            category: [
+                id: params.params.targetCategoryId as Integer,
+                name: params.params.targetCategoryName ?: params.getCategory(),
+                autoCreate: params.params.targetCategoryAutoCreate as Boolean,
+            ]
+        ],
+        environment: toEnvironment(params.params),
+        status: toStatus(params.params),
+        deployment: toDeployment(params.params)
+    ]))
+  }
+
+  def toStatus(Map params = [:]) {
+    def id = params.statusId as Integer
+    def name = params.statusName as String
+    if (id != null || !name?.isEmpty()) {
+      return [id: id, name: name]
+    }
+  }
+
+  def toEnvironment(Map params = [:]) {
+    def url = params.environmentUrl as String
+    def attributes = params.environmentAttributes as Map<String, String>
+    if (!url?.isEmpty() || attributes?.size() > 0) {
+      return [url: url, attributes: attributes]
+    }
+    // with() not working, try to access Environment class property with environmentUrl field name
+//    return params.with {
+//      def url = environmentUrl as String
+//      def attributes = environmentAttributes as Map<String, String>
+//      if (!url?.isEmpty() || attributes?.size() > 0) {
+//        return [url: url, attributes: attributes]
+//      }
+//    }
+  }
+
+  def toDeployment(Map params = [:]) {
+    def directIssueKeys = params.deploymentIssueKeys ?: []
+    def commitIssueKeys = new ChangeLogIssueKeyExtractor().extractIssueKeys(this.script)
+    def issueKeys = (directIssueKeys + commitIssueKeys) as Set<String>
+    def versionName = params.deploymentVersionName as String
+    def attributes = params.deploymentAttributes
+    def buildNumber = params.deploymentBuildNumber as String
+    def description = params.deploymentDescription as String
+    if (versionName?.isEmpty()
+        && attributes == null
+        && buildNumber?.isEmpty()
+        && description?.isEmpty()
+        && issueKeys.isEmpty()) {
+      return null
+    }
+    return [
+        versionName: versionName,
+        description: description,
+        buildNumber: buildNumber,
+        deployedDate: params.deploymentDeployedDate,
+        attributes: attributes,
+        issues: [
+            issueKeys: issueKeys,
+            jql: params.deploymentIssuesFromJql,
+            noFixVersionUpdate: params.deploymentNoFixVersionUpdate,
+            addDoneIssuesFixedInVersion: params.deploymentAddDoneIssuesOfJiraVersion,
+            sendJiraNotification: params.deploymentSendJiraNotification
+        ]
+    ]
+  }
 }
+
