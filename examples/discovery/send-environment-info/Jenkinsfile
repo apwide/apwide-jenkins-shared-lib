@@ -50,9 +50,6 @@ pipeline {
                   deploymentDescription: "Deplyoed from Jenkins",
                   deploymentIssueKeys: ["ECOM-20200", "ECOM-20201"]
               ])
-
-                // this pushes the deployment information (deployed version + buildNumber) to Golive
-                // N.B. This also automatically add the list of Jira tickets found in commit history (since the last successful build) to the deployment description
             }
         }
     }
