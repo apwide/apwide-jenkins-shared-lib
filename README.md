@@ -150,6 +150,9 @@ Browse our "examples" folder to get inspired and to reuse portion of scripts to 
 ### Self-Service Environments
 * [Environment self-service](./examples/self-service/): users can trigger the creation of new environments and deployments from Jira
 
+### Environment Discovery
+* [Send Environment Info](./examples/discovery/send-environment-info): discover and push environments, applications and/or categories from your pipelines.
+
 ## Predefined Global Variables
 To avoid duplication in your pipelines, Jenkins global variables can be set and overriden at different levels.
 
