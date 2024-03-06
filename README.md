@@ -108,7 +108,7 @@ steps {
 For this we've just:
 * On Golive, [generated a new API token](https://www.apwide.com/golive/cloud/environments/help/how-to-use-api-tokens) from the integrations page
 * Stored this token as a simple [secret text](https://www.jenkins.io/doc/book/using/using-credentials/#types-of-credentials) in our jenkins credentials store
-* Filled the environment variable *APW_JIRA_CLOUD_CREDENTIALS_ID* with the credentials id used to store the token.
+* Filled the environment variable *APW_GOLIVE_CLOUD_CREDENTIALS_ID* with the credentials id used to store the token.
 
 Note: if a Golive cloud credentials id is found by a pipeline, the steps will try to execute REST API calls on Golive cloud.
 
