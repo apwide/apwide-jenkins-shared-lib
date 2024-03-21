@@ -13,12 +13,41 @@ import com.apwide.jenkins.util.ScriptWrapper
  */
 class ChangeLogIssueKeyExtractor implements IssueKeyExtractor {
 
+    Collection<String> extractIssueKeysFrom(final ScriptWrapper script, List<ChangeLogSet<? extends ChangeLogSet.Entry>> changeSets = new ArrayList<>()) {
+      script.debug("ChangeLogSet: ${changeSets}")
+      final Collection<IssueKey> allIssueKeys = new ArrayList<IssueKey>()
+
+      for (ChangeLogSet<? extends ChangeLogSet.Entry> changeSet : changeSets) {
+        final Object[] changeSetEntries = changeSet.getItems()
+        script.debug("changeSetEntries: ${changeSetEntries}")
+
+        for (Object item : changeSetEntries) {
+          final ChangeLogSet.Entry changeSetEntry = (ChangeLogSet.Entry) item
+          script.debug("changeSetEntry: ${changeSetEntry}")
+
+          if (changeSetEntry instanceof GitChangeSet) {
+            def comment = ((GitChangeSet) changeSetEntry).getComment()
+            script.debug("Comment: ${comment}")
+            def issueKeys = new IssueKeyStringExtractor().extractIssueKeys(comment)
+            script.debug("IssueKeys in comment: ${issueKeys}")
+            allIssueKeys.addAll(issueKeys)
+          }
+          def issueKeys = new IssueKeyStringExtractor().extractIssueKeys(changeSetEntry.getMsg())
+          script.debug("IssueKeys in msg: ${issueKeys}")
+          allIssueKeys.addAll(issueKeys)
+
+          if (allIssueKeys.size() >= ISSUE_KEY_MAX_LIMIT) {
+            break
+          }
+        }
+      }
+      def stringIssueKeys = allIssueKeys.collect({it.getValue()}).unique(false)
+      script.debug("String issue Keys: ${stringIssueKeys}")
+      return stringIssueKeys
+    }
+
     Collection<String> extractIssueKeys(final ScriptWrapper script) {
-
-        final Collection<IssueKey> allIssueKeys = new ArrayList<IssueKey>()
-        final List<ChangeLogSet<? extends ChangeLogSet.Entry>> changeSets =
-                script.getChangeSets()? new ArrayList<>(script.getChangeSets()) : new ArrayList<>()
-
+        final List<ChangeLogSet<? extends ChangeLogSet.Entry>> changeSets = script.getChangeSets() ? new ArrayList<>(script.getChangeSets()) : new ArrayList<>()
         script.debug("ChangeLogSet: ${changeSets}")
 
         def previousBuild = script.getPreviousBuild()
@@ -29,34 +58,7 @@ class ChangeLogIssueKeyExtractor implements IssueKeyExtractor {
             script.debug("Previous build change sets added: ${previousBuild.getChangeSets()}")
             previousBuild = previousBuild.getPreviousBuild()
         }
-
-        for (ChangeLogSet<? extends ChangeLogSet.Entry> changeSet : changeSets) {
-            final Object[] changeSetEntries = changeSet.getItems()
-            script.debug("changeSetEntries: ${changeSetEntries}")
-
-            for (Object item : changeSetEntries) {
-                final ChangeLogSet.Entry changeSetEntry = (ChangeLogSet.Entry) item
-                script.debug("changeSetEntry: ${changeSetEntry}")
-
-                if (changeSetEntry instanceof GitChangeSet) {
-                    def comment = ((GitChangeSet) changeSetEntry).getComment()
-                    script.debug("Comment: ${comment}")
-                    def issueKeys = new IssueKeyStringExtractor().extractIssueKeys(comment)
-                    script.debug("IssueKeys in comment: ${issueKeys}")
-                    allIssueKeys.addAll(issueKeys)
-                }
-                def issueKeys = new IssueKeyStringExtractor().extractIssueKeys(changeSetEntry.getMsg())
-                script.debug("IssueKeys in msg: ${issueKeys}")
-                allIssueKeys.addAll(issueKeys)
-
-                if (allIssueKeys.size() >= ISSUE_KEY_MAX_LIMIT) {
-                    break
-                }
-            }
-        }
-        def stringIssueKeys = allIssueKeys.collect({it.getValue()}).unique(false)
-        script.debug("String issue Keys: ${stringIssueKeys}")
-        return stringIssueKeys
+        return extractIssueKeysFrom(script, changeSets)
     }
 
     private boolean isBuildSuccessful(final build) {
