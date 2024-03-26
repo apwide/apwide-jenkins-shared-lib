@@ -20,6 +20,7 @@ class Deployment implements Serializable {
     private final Parameters parameters
     private final boolean isCloud
     private final boolean forceDeployIssueInDescription
+    private final GoliveInfo info
 
     Deployment(ScriptWrapper script, Parameters parameters) {
         this.script = script
@@ -29,6 +30,7 @@ class Deployment implements Serializable {
         this.isCloud = parameters.isCloud()
         this.parameters = parameters
         this.forceDeployIssueInDescription = parameters.forceDeployIssuesInDescription()
+        this.info = new GoliveInfo(script, parameters)
     }
 
     def setDeployedVersion(environmentId, applicationName, categoryName, deployedVersion, buildNumber, description, attributes, deployedIssuesJql) {
@@ -69,7 +71,7 @@ class Deployment implements Serializable {
     def sendDeploymentInfo(environmentId, applicationName, categoryName, deployedVersion, buildNumber, description, attributes, deployedIssuesJql) {
         script.debug("apwSendDeploymentInfo to Golive...")
         try {
-            def goliveStatus = goliveStatus()
+            def goliveStatus = info.status()
             def computedBuildNumber = "${buildNumber ?: script.getBuildNumber()}"
             def changeLogsIssueKeys = new ChangeLogIssueKeyExtractor().extractIssueKeys(script) as String[]
             def computedDescription = description ?: renderDescription(changeLogsIssueKeys, computedBuildNumber, goliveStatus)
@@ -129,14 +131,6 @@ class Deployment implements Serializable {
                 applicationName ? "application=${urlEncode(applicationName)}" : "",
                 categoryName ? "category=${urlEncode(categoryName)}" : ""
         ].join("&")
-    }
-
-    private GoliveStatus goliveStatus() {
-        try {
-            return new GoliveStatus(version: Version.from(golive.get("/plugin").version), cloud: isCloud, parameters: parameters)
-        } catch (Throwable e) {
-            return new GoliveStatus(version: null, cloud: isCloud, parameters: parameters)
-        }
     }
 
     private def renderDescription(String[] issueKeys, String buildNumber, GoliveStatus goliveStatus) {

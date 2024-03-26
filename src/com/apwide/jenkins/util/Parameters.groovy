@@ -24,6 +24,9 @@ class Parameters implements Serializable {
             this.buildFailOnError = script.env.APW_BUILD_FAIL_ON_ERROR == null || script.env.APW_BUILD_FAIL_ON_ERROR.toBoolean()
         }
 
+        def goliveCloudUrl = params.goliveCloudUrl           ?: params.config?.goliveCloudUrl           ?: script.env.APW_GOLIVE_CLOUD_URL            ?: 'https://golive.apwide.net/api'
+        def golivePrivateCloudUrl = goliveCloudUrl.toString().replaceFirst(/api$/, "private")
+
         this.config = [
             jiraBaseUrl:               params.jiraBaseUrl               ?: params.config?.jiraBaseUrl               ?: script.env.APW_JIRA_BASE_URL                ?: 'http://localhost:2990/jira',
             jiraCredentialsId:         params.jiraCredentialsId         ?: params.config?.jiraCredentialsId         ?: script.env.APW_JIRA_CREDENTIALS_ID          ?: 'jira-credentials',
@@ -47,7 +50,8 @@ class Parameters implements Serializable {
             httpRequestOptions: params.httpRequestOptions ?: params.config?.httpRequestOptions,
 
             // testing purpose only
-            goliveCloudUrl:           params.goliveCloudUrl           ?: params.config?.goliveCloudUrl           ?: script.env.APW_GOLIVE_CLOUD_URL            ?: 'https://golive.apwide.net/api'
+            goliveCloudUrl: goliveCloudUrl,
+            golivePrivateCloudUrl: golivePrivateCloudUrl
         ]
 
         this.params = params
@@ -56,6 +60,11 @@ class Parameters implements Serializable {
     @NonCPS
     String getGoliveBaseUrl() {
         isCloud() ? config.goliveCloudUrl :  "${config.jiraBaseUrl}/rest/apwide/tem/1.1"
+    }
+
+    @NonCPS
+    String getGolivePrivateBaseUrl() {
+        isCloud() ? config.golivePrivateCloudUrl : "${config.jiraBaseUrl}/rest/apwide/golive/1"
     }
 
     @NonCPS
