@@ -147,6 +147,32 @@ class Environment implements Serializable {
     ]))
   }
 
+  def sendReleaseInfo(Parameters params) {
+    golive.post("/version", removeUndefined([
+        application: [
+            id: params.params.targetApplicationId as Integer,
+            name: params.params.targetApplicationName as String,
+            autoCreate: params.params.targetAutoCreate as Boolean,
+        ],
+        versionName: params.params.versionName as String,
+        versionDescription: params.params.versionDescription as String,
+        startDate: params.params.versionStartDate as String,
+        releaseDate: params.params.versionReleaseDate as String,
+        released: params.params.versionReleased as Boolean,
+        issues: [
+          issueKeys: toIssueKeys(params),
+          jql: params.params.issuesFromJql as String,
+          sendJiraNotification: params.params.sendJiraNotification as Boolean,
+        ]
+    ]))
+  }
+
+  private Set<String> toIssueKeys(Parameters params) {
+    String[] manualIssueKeys = params.params.issueKeys as String[] ?: []
+    String[] computedIssueKeys = params.params.issueKeysFromCommitHistory ? new ChangeLogIssueKeyExtractor().extractIssueKeys(script) as String[] : []
+    return (manualIssueKeys + computedIssueKeys) as Set<String>
+  }
+
   def toStatus(Map params = [:]) {
     def id = params.statusId as Integer
     def name = params.statusName as String

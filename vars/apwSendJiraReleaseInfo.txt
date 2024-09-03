@@ -1,0 +1,33 @@
+<p>Send release information to Jira and add fix version to issues referenced in change logs.</p>
+<p></p>
+<dl>
+    <dt>targetApplicationName</dt><dd>Name of the application linked to project where version must be created. (if null, read from env.APW_APPLICATION)</dd>
+    <dt>targetApplicationId</dt><dd>Id of the application linked to project where version must be created.</dd>
+    <dt>versionName</dt><dd>(Mandatory) Name of the Jira version to create or update</dd>
+    <dt>versionDescription</dt><dd>Description of the Jira version</dd>
+    <dt>versionStartDate</dt><dd>Start date of the Jira version. Date in ISO-8601 format. Ex: 2023-10-24T12:00:00Z or 2023-10-24.</dd>
+    <dt>versionReleased</dt><dd>Set the Jira version to "released"? (false by default)</dd>
+    <dt>versionReleaseDate</dt><dd>Release / End date of the Jira version. Date in ISO-8601 format. Ex: 2023-10-24T12:00:00Z or 2023-10-24</dd>
+    <dt>issueKeysFromCommitHistory</dt><dd>Parse and retrieve the Jira issue keys found in commit history and add issues to the current Jira version/release.</dd>
+    <dt>issueKeys</dt><dd>List of issueKeys to add to the release (Ex: [ECOM-3435,ECOM-6656])</dd>
+    <dt>issuesFromJql</dt><dd>Set the JQL query used to retrieve and add Jira tickets to the current deployment. <br>Ex: project = ECP AND type in (Story, Bug) AND resolution in (Fixed).<br>More about JQL <a target="_blank" href="https://www.atlassian.com/software/jira/guides/jql">here</a></dd>
+    <dt>sendJiraNotification</dt><dd>Trigger the standard Jira notification when issues are added to the current Jira version/release.</dd>
+</dl>
+<br/>
+<p>Usage example step that could by used in a release job:</p>
+<pre>
+<code>
+ apwSendJiraReleaseInfo([
+    targetApplication: 'eCommerce',
+    versionName: "ECOM-2.3",
+    versionDescription: "Build with Jenkins",
+    versionReleasedDate: "2024-02-05T06:00:00Z",
+    versionReleased: true,
+    issueKeys: ["ECOM-1", "ECOM-2"],
+    issueKeysFromCommitHistory: true,
+    issuesFromJql: "project = 'eCommerce' AND status = 'Done'",
+    sendJiraNotification: false
+ ])
+</code>
+</pre>
+<br/>
