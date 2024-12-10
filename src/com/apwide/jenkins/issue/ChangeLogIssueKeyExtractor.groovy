@@ -1,5 +1,6 @@
 package com.apwide.jenkins.issue
 
+import com.cloudbees.groovy.cps.NonCPS
 import hudson.model.Result
 import hudson.plugins.git.GitChangeSet
 import hudson.scm.ChangeLogSet
@@ -13,6 +14,7 @@ import com.apwide.jenkins.util.ScriptWrapper
  */
 class ChangeLogIssueKeyExtractor implements IssueKeyExtractor {
 
+    @NonCPS
     Collection<String> extractIssueKeys(final ScriptWrapper script) {
 
         final Collection<IssueKey> allIssueKeys = new ArrayList<IssueKey>()
