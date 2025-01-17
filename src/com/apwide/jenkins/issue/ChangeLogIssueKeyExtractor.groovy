@@ -1,12 +1,9 @@
 package com.apwide.jenkins.issue
 
-import com.cloudbees.groovy.cps.NonCPS
+import com.apwide.jenkins.util.ScriptWrapper
 import hudson.model.Result
 import hudson.plugins.git.GitChangeSet
 import hudson.scm.ChangeLogSet
-
-
-import com.apwide.jenkins.util.ScriptWrapper
 
 /**
  * Parses the change log from the current build and extracts the issue keys from the commit
@@ -14,7 +11,6 @@ import com.apwide.jenkins.util.ScriptWrapper
  */
 class ChangeLogIssueKeyExtractor implements IssueKeyExtractor {
 
-    @NonCPS
     Collection<String> extractIssueKeys(final ScriptWrapper script) {
 
         final Collection<IssueKey> allIssueKeys = new ArrayList<IssueKey>()
