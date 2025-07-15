@@ -346,4 +346,41 @@ class JiraInstanceTest extends Specification {
         deploymentResult.issueKeys.containsAll("ECP-1", "ECP-98")
     }
 
+    def "send environment info"() {
+        given:
+        def options = [
+                targetEnvironmentName: "eCommerce Test",
+                environmentUrl: "https://test.ecom.apwide.com",
+                environmentAttributes: [
+                        "Admin Console": "http://console.test.apwide.net/2"
+                ]
+        ] + jiraConfig
+        def parameters = new Parameters(script, options)
+        def environment = new Environment(script, parameters)
+        def issue = new Issue(script, parameters)
+        def release = new Release(script, parameters)
+//        def versionName = "Pipeline Version ${new Date().getTime()}"
+//        def environmentName = "eCommerce Test"
+//        def url = "https://test.ecommerce.net"
+//        def versionDescription = "lkjsdafl klkjasd lfkj asdlfkj"
+//        def projectIdOrKey = "ECP"
+//        def issueKeys = ["ECP-1", "BADKEY-9999", "ECP-98"]
+//        def startDate = LocalDateTime.of(2023, 4, 20, 23, 59).toDate()
+//        def released = true
+        when:
+        environment.sendInfo(parameters)
+        def env = environment.get(240)
+
+        then:
+        env.id == 240
+//        updatedRelease instanceof Map
+//        updatedRelease.name == versionName
+//        updatedRelease.description == versionDescription
+//        updatedRelease.startDate == simpleDateFormat.format(startDate)
+//        updatedRelease.released == true
+//        updatedRelease.releaseDate != null
+//        issue.get("ECP-1").toString().contains(versionName)
+//        issue.get("ECP-98").toString().contains(versionName)
+    }
+
 }

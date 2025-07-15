@@ -19,7 +19,23 @@ class Utilities {
     }
 
     static Map removeUndefined(Map params) {
-      return params.findAll { it.value != null }
+      def updated = [:]
+      params.forEach { key, value ->
+          if (value instanceof Map) {
+              def children = removeUndefined(value as Map)
+              if (!children.isEmpty()) {
+                  updated.put(key, children)
+              }
+          } else if (value instanceof Collection) {
+              def children = value as Collection
+              if (!children.isEmpty()) {
+                  updated.put(key, children)
+              }
+          } else if (value != null) {
+              updated.put(key, value)
+          }
+      }
+      return updated
     }
 
     static private boolean isMethodAvailable(ScriptWrapper script, pluginName, jiraBuildFailOnError, Closure method) {

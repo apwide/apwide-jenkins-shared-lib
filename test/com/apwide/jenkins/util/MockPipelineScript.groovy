@@ -8,9 +8,15 @@ class MockPipelineScript {
         def changeSets
         def result
         Build previousBuild
+        def fullDisplayName
 
-        Build(Build previousBuild){
+        Build(Build previousBuild, String fullDisplayName = "na"){
             this.previousBuild = previousBuild
+            this.fullDisplayName = fullDisplayName
+        }
+
+        public getFullDisplayName() {
+            return fullDisplayName
         }
     }
 

@@ -19,7 +19,7 @@ class HttpClient {
         def contentType = contentType(params)
 
         def method = Method.valueOf(httpMode)
-        def credentials = 'admin:admin'.bytes.encodeBase64().toString()
+        def credentials = 'admin:BCN2017'.bytes.encodeBase64().toString()
 
         def response = http.request(url, method, contentType) { request ->
             headers.Authorization = "Basic ${credentials}"
