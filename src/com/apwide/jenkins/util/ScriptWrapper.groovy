@@ -72,6 +72,10 @@ class ScriptWrapper {
         return script.currentBuild?.changeSets
     }
 
+    String getCurrentBuildFullDisplayName() {
+        return script.currentBuild?.getFullDisplayName()
+    }
+
     def getPreviousBuild(){
         return script.currentBuild?.getPreviousBuild()
     }

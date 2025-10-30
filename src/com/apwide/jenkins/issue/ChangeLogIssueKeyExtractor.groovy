@@ -1,6 +1,7 @@
 package com.apwide.jenkins.issue
 
 import com.apwide.jenkins.util.ScriptWrapper
+import com.cloudbees.groovy.cps.NonCPS
 import hudson.model.Result
 import hudson.plugins.git.GitChangeSet
 import hudson.scm.ChangeLogSet
@@ -21,47 +22,45 @@ class ChangeLogIssueKeyExtractor {
   }
 
   Collection<String> extract() {
+    final Map<String, Collection<String>> issueKeysByBuild = extractChanges();
+    def issueKeys = issueKeysByBuild.values().flatten().<String>toSet()
+    script.debug("List of Previous Build(s) parsed: ${issueKeysByBuild.keySet()}")
+    script.debug("List of Issue Key(s) found:: ${issueKeys}")
+    return issueKeys
+  }
 
-    final Collection<String> issueKeys = new LinkedHashSet<>()
-    issueKeys.addAll(extractFromChangeSets(script.getChangeSets()))
+  @NonCPS
+  private Map<String, Collection<String>> extractChanges() {
+    final Map<String, Collection<String>> issueKeysByBuild = new LinkedHashMap<>();
+    issueKeysByBuild.put(script.getCurrentBuildFullDisplayName(), extractFromChangeSets(script.getChangeSets()))
 
     // https://javadoc.jenkins.io/plugin/workflow-support/org/jenkinsci/plugins/workflow/support/steps/build/RunWrapper.html
     def previousBuild = script.getPreviousBuild()
-    while (Objects.nonNull(previousBuild) && !isBuildSuccessful(previousBuild) && issueKeys.size() < ISSUE_KEY_MAX_LIMIT) {
-      script.debug("Look for ChangeSet in previous unsuccessful build ${previousBuild.getFullDisplayName()}")
-      issueKeys.addAll(extractFromChangeSets(previousBuild.getChangeSets()))
+    while (Objects.nonNull(previousBuild) && !isBuildSuccessful(previousBuild) && issueKeysByBuild.values().flatten().size() < ISSUE_KEY_MAX_LIMIT) {
+      issueKeysByBuild.put(previousBuild.getFullDisplayName(), extractFromChangeSets(previousBuild.getChangeSets()))
       previousBuild = previousBuild.getPreviousBuild()
     }
 
-    script.debug("String issue Keys: ${issueKeys}")
-    return issueKeys
+    return issueKeysByBuild
   }
 
+  @NonCPS
   private Collection<String> extractFromChangeSets(List<ChangeLogSet<? extends ChangeLogSet.Entry>> changeSets = new ArrayList<>()) {
     Collection<String> issueKeys = new ArrayList<>()
     for (def changeSet : changeSets) {
-      issueKeys.addAll(extractFromChangeSet(changeSet))
+      def iterator = changeSet.iterator()
+      while (iterator.hasNext() && issueKeys.size() < ISSUE_KEY_MAX_LIMIT) {
+        def entry = iterator.next()
+
+        String changeContent = "Message: " + entry.getMsg() + "\n"
+        if (entry instanceof GitChangeSet) {
+          changeContent += "Comment: " + ((GitChangeSet) entry).getComment()
+        }
+        def contentIssueKeys = extractIssueKeys(changeContent)
+        issueKeys.addAll(contentIssueKeys)
+      }
     }
     return issueKeys
-  }
-
-  private Collection<String> extractFromChangeSet(ChangeLogSet<? extends ChangeLogSet.Entry> changeSet) {
-    final Collection<String> issueKeys = new LinkedHashSet<>()
-    def iterator = changeSet.iterator()
-    while (iterator.hasNext() && issueKeys.size() < ISSUE_KEY_MAX_LIMIT) {
-      def entry = iterator.next()
-
-      String changeContent = "Message: " + entry.getMsg() + "\n"
-      if (entry instanceof GitChangeSet) {
-        changeContent += "Comment: " + ((GitChangeSet) entry).getComment()
-      }
-      def contentIssueKeys = extractIssueKeys(changeContent)
-      script.debug("Change item content:\n${changeContent}")
-      script.debug("IssueKeys in content: ${contentIssueKeys}")
-
-      issueKeys.addAll(contentIssueKeys)
-    }
-    return issueKeys;
   }
 
   private boolean isBuildSuccessful(final build) {
