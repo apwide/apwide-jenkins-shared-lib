@@ -1,9 +1,9 @@
 package com.apwide.jenkins.issue
 
 import com.apwide.jenkins.util.ScriptWrapper
+import com.cloudbees.groovy.cps.NonCPS
 import hudson.model.Result
 import hudson.plugins.git.GitChangeSet
-import hudson.scm.ChangeLogSet
 
 import static com.apwide.jenkins.issue.IssueKeyStringExtractor.extractIssueKeys
 
@@ -21,50 +21,47 @@ class ChangeLogIssueKeyExtractor {
   }
 
   Collection<String> extract() {
+    // Resolve the RunWrapper in CPS; everything below runs in one NonCPS call (no CPS method may be called from there)
+    final Map<String, Collection<String>> issueKeysByBuild = extractChanges(script.getCurrentBuild())
+    def issueKeys = issueKeysByBuild.values().flatten().<String>toSet()
+    script.debug("List of Previous Build(s) parsed: ${issueKeysByBuild.keySet()}")
+    script.debug("List of Issue Key(s) found:: ${issueKeys}")
+    return issueKeys
+  }
 
-    final Collection<String> issueKeys = new LinkedHashSet<>()
-    issueKeys.addAll(extractFromChangeSets(script.getChangeSets()))
-
+  @NonCPS
+  private static Map<String, Collection<String>> extractChanges(currentBuild) {
+    final Map<String, Collection<String>> issueKeysByBuild = new LinkedHashMap<>()
+    int count = 0
     // https://javadoc.jenkins.io/plugin/workflow-support/org/jenkinsci/plugins/workflow/support/steps/build/RunWrapper.html
-    def previousBuild = script.getPreviousBuild()
-    while (Objects.nonNull(previousBuild) && !isBuildSuccessful(previousBuild) && issueKeys.size() < ISSUE_KEY_MAX_LIMIT) {
-      script.debug("Look for ChangeSet in previous unsuccessful build ${previousBuild.getFullDisplayName()}")
-      issueKeys.addAll(extractFromChangeSets(previousBuild.getChangeSets()))
-      previousBuild = previousBuild.getPreviousBuild()
-    }
-
-    script.debug("String issue Keys: ${issueKeys}")
-    return issueKeys
-  }
-
-  private Collection<String> extractFromChangeSets(List<ChangeLogSet<? extends ChangeLogSet.Entry>> changeSets = new ArrayList<>()) {
-    Collection<String> issueKeys = new ArrayList<>()
-    for (def changeSet : changeSets) {
-      issueKeys.addAll(extractFromChangeSet(changeSet))
-    }
-    return issueKeys
-  }
-
-  private Collection<String> extractFromChangeSet(ChangeLogSet<? extends ChangeLogSet.Entry> changeSet) {
-    final Collection<String> issueKeys = new LinkedHashSet<>()
-    def iterator = changeSet.iterator()
-    while (iterator.hasNext() && issueKeys.size() < ISSUE_KEY_MAX_LIMIT) {
-      def entry = iterator.next()
-
-      String changeContent = "Message: " + entry.getMsg() + "\n"
-      if (entry instanceof GitChangeSet) {
-        changeContent += "Comment: " + ((GitChangeSet) entry).getComment()
+    def build = currentBuild
+    while (build != null && count < ISSUE_KEY_MAX_LIMIT) {
+      if (!build.is(currentBuild) && build.getResult() == Result.SUCCESS.toString()) {
+        break
       }
-      def contentIssueKeys = extractIssueKeys(changeContent)
-      script.debug("Change item content:\n${changeContent}")
-      script.debug("IssueKeys in content: ${contentIssueKeys}")
-
-      issueKeys.addAll(contentIssueKeys)
+      Collection<String> keys = extractFromChangeSets(build.getChangeSets())
+      issueKeysByBuild.put(build.getFullDisplayName(), keys)
+      count += keys.size()
+      build = build.getPreviousBuild()
     }
-    return issueKeys;
+    return issueKeysByBuild
   }
 
-  private boolean isBuildSuccessful(final build) {
-    return Result.SUCCESS.toString() == build.getResult().toString()
+  @NonCPS
+  private static Collection<String> extractFromChangeSets(changeSets) {
+    Collection<String> issueKeys = new LinkedHashSet<>()
+    for (def changeSet : (changeSets ?: [])) {
+      for (def entry : changeSet.getItems()) {
+        if (issueKeys.size() >= ISSUE_KEY_MAX_LIMIT) {
+          return issueKeys
+        }
+        String changeContent = "Message: " + entry.getMsg() + "\n"
+        if (entry instanceof GitChangeSet) {
+          changeContent += "Comment: " + ((GitChangeSet) entry).getComment()
+        }
+        issueKeys.addAll(extractIssueKeys(changeContent))
+      }
+    }
+    return issueKeys
   }
 }

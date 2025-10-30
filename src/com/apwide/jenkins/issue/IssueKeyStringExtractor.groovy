@@ -1,6 +1,7 @@
 package com.apwide.jenkins.issue
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import com.cloudbees.groovy.cps.NonCPS
 import org.apache.commons.lang.StringUtils
 
 import static java.util.Collections.emptyList
@@ -24,6 +25,7 @@ class IssueKeyStringExtractor {
     private static final String ISSUE_KEY_REGEX = KEY_PREFIX_REGEX + KEY_BODY_REGEX + KEY_POSTFIX_REGEX
     private static final Pattern PROJECT_KEY_PATTERN = Pattern.compile(ISSUE_KEY_REGEX)
 
+    @NonCPS
     static Collection<String> extractIssueKeys(String text = "") {
         final Set<String> matches = new LinkedHashSet<>()
         final Matcher match = PROJECT_KEY_PATTERN.matcher(text)
