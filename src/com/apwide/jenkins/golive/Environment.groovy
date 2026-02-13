@@ -199,7 +199,7 @@ class Environment implements Serializable {
 
   def toDeployment(Map params = [:]) {
     def directIssueKeys = params.deploymentIssueKeys ?: []
-    def commitIssueKeys = new ChangeLogIssueKeyExtractor(script).extract()
+    def commitIssueKeys = new ChangeLogIssueKeyExtractor(script).extract() as String[]
     def issueKeys = (directIssueKeys + commitIssueKeys) as Set<String>
     def versionName = params.deploymentVersionName as String
     def attributes = params.deploymentAttributes
