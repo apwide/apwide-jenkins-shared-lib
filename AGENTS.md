@@ -246,6 +246,66 @@ Each `vars/*.groovy` has a matching `vars/*.txt` file containing help documentat
 4. Include example in `examples/`
 5. Write Spock tests in `test/`
 
+### Jenkins Pipeline CPS (Continuation Passing Style) Rules
+
+**Critical Rule**: You **CANNOT** call CPS-transformed methods from within `@NonCPS` methods.
+
+#### What are CPS-transformed methods?
+- Jenkins Pipeline steps (e.g., `echo`, `sh`, `readFile`)
+- Jenkins API calls on build objects (e.g., `build.getPreviousBuild()`, `build.getResult()`)
+- Methods from `ScriptWrapper` that delegate to Jenkins (e.g., `script.getCurrentBuildFullDisplayName()`)
+
+#### The "Collect in CPS, Process in @NonCPS" Pattern
+
+**✅ CORRECT Pattern:**
+```groovy
+// Regular method (CPS context) - can call Jenkins API
+Collection<String> extract() {
+    // Collect all data from Jenkins API first
+    def buildDataList = []
+    def previousBuild = script.getPreviousBuild()
+    
+    while (previousBuild != null) {
+        buildDataList << [
+            displayName: previousBuild.getFullDisplayName(),  // ✅ OK here
+            changeSets: previousBuild.getChangeSets()
+        ]
+        previousBuild = previousBuild.getPreviousBuild()  // ✅ OK here
+    }
+    
+    // Pass plain data to @NonCPS method
+    return processBuilds(buildDataList)
+}
+
+@NonCPS
+private Collection<String> processBuilds(List<Map> buildDataList) {
+    // Only work with plain Java objects (Map, List, String)
+    buildDataList.each { buildData ->
+        process(buildData.displayName, buildData.changeSets)  // ✅ OK - plain objects
+    }
+}
+```
+
+**❌ WRONG Pattern:**
+```groovy
+@NonCPS
+private Collection<String> processBuilds(def previousBuild) {
+    while (previousBuild != null) {
+        previousBuild.getPreviousBuild()  // ❌ FAILS - CPS call in @NonCPS
+    }
+}
+```
+
+#### When to Use @NonCPS
+- **Performance**: Complex loops/iterations over plain data structures
+- **Serialization**: When you need non-serializable objects (temporary use only)
+- **Standard Java APIs**: Working with collections, strings, regex, etc.
+
+#### When NOT to Use @NonCPS
+- When you need to call ANY Jenkins API
+- When you need to call pipeline steps
+- When you need to access Jenkins build objects directly
+
 ### Authentication Flow
 1. Parameters object determines cloud vs server
 2. Appropriate Authenticator is selected
