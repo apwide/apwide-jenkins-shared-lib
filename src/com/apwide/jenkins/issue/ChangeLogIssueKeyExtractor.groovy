@@ -22,7 +22,34 @@ class ChangeLogIssueKeyExtractor {
   }
 
   Collection<String> extract() {
-    final Map<String, Collection<String>> issueKeysByBuild = extractChanges();
+    // Collect all build data in CPS context (cannot call Jenkins methods inside @NonCPS)
+    def buildDataList = []
+    
+    // Add current build
+    def currentBuildDisplayName = script.getCurrentBuildFullDisplayName()
+    def currentChangeSets = script.getChangeSets()
+    buildDataList << [displayName: currentBuildDisplayName, changeSets: currentChangeSets]
+    
+    // Traverse previous builds and collect their data
+    def previousBuild = script.getPreviousBuild()
+    int totalIssueCount = 0
+    while (Objects.nonNull(previousBuild) && totalIssueCount < ISSUE_KEY_MAX_LIMIT) {
+      def buildResult = previousBuild.getResult()
+      if (buildResult != null && Result.SUCCESS.toString() == buildResult.toString()) {
+        break // Stop at first successful build
+      }
+      
+      buildDataList << [
+        displayName: previousBuild.getFullDisplayName(),
+        changeSets: previousBuild.getChangeSets()
+      ]
+      
+      previousBuild = previousBuild.getPreviousBuild()
+      totalIssueCount = buildDataList.size() * 10 // Rough estimate to avoid infinite loops
+    }
+    
+    // Now process all the collected data in @NonCPS method
+    final Map<String, Collection<String>> issueKeysByBuild = extractChanges(buildDataList);
     def issueKeys = issueKeysByBuild.values().flatten().<String>toSet()
     script.debug("List of Previous Build(s) parsed: ${issueKeysByBuild.keySet()}")
     script.debug("List of Issue Key(s) found:: ${issueKeys}")
@@ -30,15 +57,17 @@ class ChangeLogIssueKeyExtractor {
   }
 
   @NonCPS
-  private Map<String, Collection<String>> extractChanges() {
+  private Map<String, Collection<String>> extractChanges(List<Map> buildDataList) {
     final Map<String, Collection<String>> issueKeysByBuild = new LinkedHashMap<>();
-    issueKeysByBuild.put(script.getCurrentBuildFullDisplayName(), extractFromChangeSets(script.getChangeSets()))
-
-    // https://javadoc.jenkins.io/plugin/workflow-support/org/jenkinsci/plugins/workflow/support/steps/build/RunWrapper.html
-    def previousBuild = script.getPreviousBuild()
-    while (Objects.nonNull(previousBuild) && !isBuildSuccessful(previousBuild) && issueKeysByBuild.values().flatten().size() < ISSUE_KEY_MAX_LIMIT) {
-      issueKeysByBuild.put(previousBuild.getFullDisplayName(), extractFromChangeSets(previousBuild.getChangeSets()))
-      previousBuild = previousBuild.getPreviousBuild()
+    
+    int totalIssues = 0
+    for (Map buildData : buildDataList) {
+      if (totalIssues >= ISSUE_KEY_MAX_LIMIT) {
+        break
+      }
+      Collection<String> issues = extractFromChangeSets(buildData.changeSets)
+      issueKeysByBuild.put(buildData.displayName, issues)
+      totalIssues += issues.size()
     }
 
     return issueKeysByBuild
