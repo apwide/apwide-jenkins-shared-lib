@@ -1,5 +1,6 @@
 package com.apwide.jenkins.util
 
+import com.cloudbees.groovy.cps.NonCPS
 import hudson.model.Result
 
 import static groovy.lang.Closure.DELEGATE_FIRST
@@ -18,6 +19,7 @@ class Utilities {
                 isMethodAvailable(script, 'Pipeline Utility Steps', buildFailOnError) { script.readJSON() }
     }
 
+    @NonCPS
     static Map removeUndefined(Map params) {
       def updated = [:]
       params.forEach { key, value ->
